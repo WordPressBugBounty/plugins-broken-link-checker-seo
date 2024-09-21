@@ -1,0 +1,1 @@
+import{_ as n,aB as s}from"./index.9_UWDUyH.js";const t="aioseo-broken-link-checker",c=()=>{const e={skipThisStep:n("Skip this Step",t),goBackStep:n("Go Back",t),saveAndContinue:n("Save and Continue",t)};return{nextScreen:o=>{const r=s();o.$router.push(r.getNextLink)},strings:e}};export{c as u};

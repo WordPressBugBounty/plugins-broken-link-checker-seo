@@ -1,10 +1,10 @@
 === Broken Link Checker by AIOSEO – Easily Fix/Monitor Internal and External links ===
 Contributors: aioseo, smub, benjaminprojas
 Tags: broken links, internal link, external link, check links, seo
-Tested up to: 6.5.3
+Tested up to: 6.6.2
 Requires at least: 5.3
 Requires PHP: 5.6
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -86,6 +86,12 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Changelog ==
 
+**New in Version 1.2.2**
+
+* New: Added support for indexing and checking media URLs.
+* Updated: Improved link removal process to increase rate of success.
+* Fixed: Link Status row now closes after performing a table action to ensure no data leaks through to the next row.
+
 **New in Version 1.2.1**
 
 * New: Added a "Not Checked Yet" filter for new, unchecked links to the links table.
@@ -132,6 +138,6 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Upgrade Notice ==
 
-= 1.2.1 =
+= 1.2.2 =
 
 This update adds major improvements and bug fixes.

@@ -213,8 +213,8 @@ abstract class CommonTableActions {
 		}
 
 		// First, remove the link in the phrase.
-		$anchor        = $link->anchor;
-		$newPhraseHtml = preg_replace( "/<a.*?>([\s\w]*?{$anchor}[\s\w]*?)<\/a>/is", '$1', $link->phrase_html );
+		$escapedAnchor = aioseoBrokenLinkChecker()->helpers->escapeRegex( $link->anchor );
+		$newPhraseHtml = preg_replace( "/<a.*?>([\s\w<>]*?{$escapedAnchor}[\s\w<>\/]*?)<\/a>/is", '$1', aioseoBrokenLinkChecker()->helpers->escapeRegexReplacement( $link->phrase_html ) );
 
 		// Then, replace the phrase in the post content.
 		$postContent   = str_replace( '&nbsp;', ' ', $post->post_content );
@@ -225,7 +225,22 @@ abstract class CommonTableActions {
 
 		// Confirm that the old phrase is no longer there.
 		if ( preg_match( $pattern, $postContent ) ) {
-			return false;
+
+			// Check if the post has just one occurence of this link.
+			$escapedUrl = aioseoBrokenLinkChecker()->helpers->escapeRegex( $link->url );
+			$pattern2   = "/<a.*?href=\"{$escapedUrl}\".*?>[\s\w<>]*?{$escapedAnchor}[\s\w<>\/]*?<\/a>/is";
+			preg_match_all( $pattern2, $postContent, $matches );
+
+			// If there's just one match, remove it without the phrase.
+			if ( isset( $matches[0] ) && 1 === count( $matches[0] ) ) {
+				$escapedAnchorReplacement = aioseoBrokenLinkChecker()->helpers->escapeRegexReplacement( $link->anchor );
+				$postContent              = preg_replace( $pattern2, $escapedAnchorReplacement, $postContent );
+			}
+
+			// Check again. If it's still there, bail.
+			if ( preg_match( $pattern, $postContent ) ) {
+				return false;
+			}
 		}
 
 		aioseoBrokenLinkChecker()->main->links->postsToRescan[] = $link->post_id;

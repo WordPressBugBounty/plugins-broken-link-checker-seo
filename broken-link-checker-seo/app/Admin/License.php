@@ -192,7 +192,9 @@ class License {
 		}
 
 		// Cancel all Link Status scans. The next request will fire off a new one.
-		as_unschedule_all_actions( 'aioseo_blc_link_status_scan' );
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( aioseoBrokenLinkChecker()->main->linkStatus->actionName );
+		}
 
 		return true;
 	}

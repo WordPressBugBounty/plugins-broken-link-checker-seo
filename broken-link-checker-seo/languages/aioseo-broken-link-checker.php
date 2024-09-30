@@ -2,13 +2,13 @@
 // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 /* THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY. */
 $generated_i18n_strings = [
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:79
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:84
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:89
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:94
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:107
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:112
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:117
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:122
 	__( '(re)check', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:216
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:251
 	__( '(Re)check', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:108
@@ -47,7 +47,7 @@ $generated_i18n_strings = [
 	// Translators: 1 - A plugin name (e.g. "MonsterInsights", "Broken Link Checker", etc.).
 	__( '%1$s is the perfect WordPress SEO plugin for YOU. Here’s why over 3,000,000+ smart business owners, marketers, and web developers love %2$s plugin for WordPress, and you will too!', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:25
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:16
 	__( '404 Monitoring', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:375
@@ -70,7 +70,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/Settings.vue:60
 	__( 'Add any domains you want to exclude from being checked, one per line. Do not include the scheme or "www" part of the domain (e.g. enter "aioseo.com" instead of "https://aioseo.com" or "www.aioseo.com").', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:70
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:98
 	__( 'Add Redirect', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/seo-settings/views/SeoSettings.vue:77
@@ -79,28 +79,28 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/Settings.vue:42
 	__( 'Advanced Settings', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:115
-	// Reference: /src/vue/components/license/Index.vue:130
 	// Reference: /src/vue/components/license/Index.vue:140
+	// Reference: /src/vue/components/license/Index.vue:155
+	// Reference: /src/vue/components/license/Index.vue:165
 	__( 'An unknown error occurred, please try again later.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:34
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:33
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:46
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/PostsColumn.vue:69
 	__( 'Anchor', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/seo-settings/views/SeoSettings.vue:79
 	__( 'And More...', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:43
+	// Reference: /src/vue/components/common/notifications/Review2.vue:45
 	// Translators: 1 - The plugin short name ("AIOSEO").
 	__( 'Are you enjoying %1$s?', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:107
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:131
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:155
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:83
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:56
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:111
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:135
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:159
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:183
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:69
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Are you sure you want to %1$s these URLs?', 'aioseo-broken-link-checker' ),
 
@@ -108,15 +108,15 @@ $generated_i18n_strings = [
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Are you sure you want to %1$s this post?', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:102
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:126
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:150
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:78
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:51
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:106
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:130
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:154
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:178
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:64
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Are you sure you want to %1$s this URL?', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:23
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:14
 	__( 'Automatic Redirects', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/LinkStatusDetail.vue:31
@@ -140,7 +140,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:33
 	__( 'Cancel', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:66
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:94
 	__( 'Check', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/Settings.vue:79
@@ -168,10 +168,10 @@ $generated_i18n_strings = [
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Connect Your Site with %1$s', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:79
+	// Reference: /src/vue/components/license/Index.vue:104
 	__( 'Connect Your Site with Broken Link Checker', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:92
+	// Reference: /src/vue/components/license/Index.vue:117
 	__( 'Could not connect site to Broken Link Checker. Please try again later.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/components/license/Index.vue:49
@@ -199,15 +199,15 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/components/license/Index.vue:57
 	__( 'Disconnect', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:103
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:108
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:113
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:118
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:131
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:136
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:141
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:146
 	__( 'dismiss', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:29
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:219
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:68
+	// Reference: /src/vue/components/common/notifications/Review2.vue:31
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:254
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:96
 	__( 'Dismiss', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/Settings.vue:54
@@ -229,13 +229,13 @@ $generated_i18n_strings = [
 	// Translators: 1 - The singular label for a post type (e.g 'Post', 'Page', 'Product', etc.).
 	__( 'Edit %1$s', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:45
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:58
 	__( 'Edit Anchor', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/PostsColumn.vue:94
 	__( 'Edit Post', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:64
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:92
 	__( 'Edit URL', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/plugins/constants.js:12
@@ -250,7 +250,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/Settings.vue:58
 	__( 'Exclude Posts', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:22
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:13
 	__( 'Fast Server Redirects', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:36
@@ -262,7 +262,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/standalone/setup-wizard/views/Success.vue:49
 	__( 'Follow on YouTube', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:26
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:17
 	__( 'Full Site Redirects', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:184
@@ -271,7 +271,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/Settings.vue:41
 	__( 'General Settings', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:34
+	// Reference: /src/vue/components/common/notifications/Review2.vue:36
 	__( 'Give feedback', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/composables/SetupWizard.js:7
@@ -288,7 +288,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/standalone/setup-wizard/views/Success.vue:45
 	__( 'Here\'s what to do next:', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:50
+	// Reference: /src/vue/components/common/notifications/Review2.vue:52
 	// Translators: 1 - The plugin name ("All in One SEO").
 	__( 'Hey, we noticed you have been using %1$s for some time - that’s awesome! Could you please do us a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation?', 'aioseo-broken-link-checker' ),
 
@@ -377,27 +377,27 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:4
 	__( 'No', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:44
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:57
 	__( 'No results found.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:35
+	// Reference: /src/vue/components/common/notifications/Review2.vue:37
 	__( 'No thanks', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:121
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:145
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:169
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:97
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:70
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:125
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:149
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:173
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:197
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:83
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/PostsColumn.vue:82
 	__( 'No, I changed my mind', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:33
+	// Reference: /src/vue/components/common/notifications/Review2.vue:35
 	__( 'Nope, maybe later', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:83
 	__( 'Not Installed', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:31
+	// Reference: /src/vue/components/common/notifications/Review2.vue:33
 	__( 'Not Really...', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/Settings.vue:44
@@ -406,7 +406,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:6
 	__( 'Off', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:32
+	// Reference: /src/vue/components/common/notifications/Review2.vue:34
 	__( 'Ok, you deserve it', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/plugins/constants.js:7
@@ -427,32 +427,32 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/Settings.vue:56
 	__( 'Post Statuses', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:28
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:41
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:32
 	__( 'Post Title', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/Settings.vue:55
 	__( 'Post Types', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:194
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:229
 	__( 'Posts', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/components/core/Header.vue:55
 	__( 'Posts are being scanned for links', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:67
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:95
 	__( 'Recheck', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:38
 	__( 'Redirect Count', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:24
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:15
 	__( 'Redirect Monitoring', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/seo-settings/views/SeoSettings.vue:76
 	__( 'Redirection Manager', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:28
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:19
 	__( 'Redirection Manager by AIOSEO is a premium addon that lets you easily create redirects for broken links to avoid confusing search engines & users and prevent losing backlinks.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/plugins/constants.js:14
@@ -470,11 +470,11 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/composables/SetupWizard.js:8
 	__( 'Save and Continue', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/core/main/Index.vue:58
-	// Reference: /src/vue/components/core/main/Tabs.vue:47
+	// Reference: /src/vue/components/core/main/Index.vue:57
+	// Reference: /src/vue/components/core/main/Tabs.vue:48
 	__( 'Save Changes', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:72
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:100
 	__( 'Scanning for links...', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:43
@@ -504,13 +504,13 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:8
 	__( 'Show', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:27
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:18
 	__( 'Site Aliases', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/composables/SetupWizard.js:6
 	__( 'Skip this Step', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:199
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:234
 	__( 'Status', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:31
@@ -546,25 +546,25 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:133
 	__( 'The leading WordPress analytics plugin that shows you how people find and use your website, so you can make data driven decisions to grow your business. Properly set up Google Analytics without writing code.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:122
+	// Reference: /src/vue/components/license/Index.vue:147
 	__( 'The license key provided is disabled. Please use a different key.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:124
+	// Reference: /src/vue/components/license/Index.vue:149
 	__( 'The license key provided is expired. Please renew your license or use a different key.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:120
+	// Reference: /src/vue/components/license/Index.vue:145
 	__( 'The license key provided is invalid. Please use a different key.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:332
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:202
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:376
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:219
 	// Translators: 1 - Opening HTML link tag, 2 - Closing HTML link tag.
 	__( 'The link could not be removed successfully. Please try again or remove the link by %1$sediting the post%2$s manually.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:438
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:247
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:482
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:264
 	__( 'The link could not be updated successfully. Please try again or update the link by %1$sediting the post%2$s manually.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:328
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:372
 	__( 'The links could not be removed successfully. Please try again or remove the links by editing the posts manually.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:321
@@ -573,21 +573,21 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:90
 	__( 'The original WordPress SEO plugin. Improve your WordPress SEO rankings and traffic with our comprehensive SEO tools and smart SEO optimizations!', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:128
+	// Reference: /src/vue/components/license/Index.vue:153
 	__( 'There was an error connecting to the licensing API. Please try again later.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:120
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:144
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:168
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:96
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:69
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:124
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:148
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:172
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:196
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:82
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/PostsColumn.vue:81
 	__( 'This action cannot be undone.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:71
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:99
 	__( 'This is your remaining quota, which is reset every month.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:126
+	// Reference: /src/vue/components/license/Index.vue:151
 	__( 'This license has reached the maximum number of activations. Please deactivate it from another site or purchase a new license.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:126
@@ -623,8 +623,8 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/composables/LicenseUpgrade.js:16
 	__( 'To unlock a higher quota, consider', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:157
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:178
+	// Reference: /src/vue/components/license/Index.vue:76
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:213
 	// Translators: 1 - "upgrading to Pro".
 	__( 'To unlock a higher quota, consider %1$s.', 'aioseo-broken-link-checker' ),
 
@@ -637,40 +637,40 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:227
 	__( 'Turn your website visitors into brand ambassadors! Easily grow your email list, website traffic, and social media followers with the most powerful giveaways & contests plugin for WordPress.', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:127
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:132
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:137
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:142
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:155
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:160
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:165
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:170
 	__( 'undismiss', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:221
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:69
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:256
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:97
 	__( 'Undismiss', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/Settings.vue:74
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Uninstall %1$s', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:151
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:156
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:161
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:166
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:52
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:57
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:62
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:67
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:179
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:184
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:189
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:194
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:65
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:70
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:75
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:80
 	__( 'unlink', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:215
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:65
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:39
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:46
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:250
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:93
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:52
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:59
 	__( 'Unlink', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:21
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:12
 	__( 'Unlock AIOSEO Redirects on Your Site', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:29
+	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:20
 	__( 'Unlock Redirects', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:32
@@ -689,7 +689,7 @@ $generated_i18n_strings = [
 	__( 'upgrading to Pro', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:35
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:186
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:221
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:33
 	__( 'URL', 'aioseo-broken-link-checker' ),
 
@@ -701,7 +701,7 @@ $generated_i18n_strings = [
 	// Translators: 1 - A number of posts.
 	__( 'View %d Posts', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:88
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:101
 	// Translators: 1 - Total number of posts.
 	__( 'View All %1$s Posts', 'aioseo-broken-link-checker' ),
 
@@ -722,14 +722,14 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:5
 	__( 'Yes', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/common/notifications/Review2.vue:30
+	// Reference: /src/vue/components/common/notifications/Review2.vue:32
 	__( 'Yes, I love it!', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:117
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:141
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:165
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:93
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:66
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:121
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:145
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:169
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:193
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:79
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Yes, I want to %1$s these URLs', 'aioseo-broken-link-checker' ),
 
@@ -737,15 +737,15 @@ $generated_i18n_strings = [
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Yes, I want to %1$s this post', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:112
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:136
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:160
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:88
-	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:61
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:116
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:140
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:164
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:188
+	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:74
 	// Translators: 1 -An action verb ("delete", "dismiss", "recheck", etc.).
 	__( 'Yes, I want to %1$s this URL', 'aioseo-broken-link-checker' ),
 
-	// Reference: /src/vue/components/license/Index.vue:165
+	// Reference: /src/vue/components/license/Index.vue:84
 	// Translators: 1 - The number of links, 2 - The expiration date.
 	__( 'You have a total quota of %1$s links, which renews on %2$s.', 'aioseo-broken-link-checker' ),
 

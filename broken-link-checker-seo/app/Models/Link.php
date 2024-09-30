@@ -30,7 +30,7 @@ class Link extends Model {
 	 *
 	 * @var array
 	 */
-	protected $numericFields = [ 'id', 'post_id', 'blc_link_status_id' ];
+	protected $integerFields = [ 'id', 'post_id', 'blc_link_status_id' ];
 
 	/**
 	 * Fields that are nullable.

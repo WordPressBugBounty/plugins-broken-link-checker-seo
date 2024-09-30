@@ -74,7 +74,7 @@ class Admin {
 		add_action( 'admin_menu', [ $this, 'hideScheduledActionsMenu' ], 999 );
 		add_filter( 'language_attributes', [ $this, 'addDirAttribute' ], 3000 );
 
-		// add_filter( 'plugin_row_meta', [ $this, 'registerRowMeta' ], 10, 2 );
+		add_filter( 'plugin_row_meta', [ $this, 'registerRowMeta' ], 10, 2 );
 		add_filter( 'plugin_action_links_' . AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_BASENAME, [ $this, 'registerActionLinks' ], 10, 2 );
 
 		add_action( 'admin_footer', [ $this, 'addAioseoModalPortal' ] );
@@ -294,11 +294,22 @@ class Admin {
 	 * @return array              List of action links.
 	 */
 	public function registerRowMeta( $actions, $pluginFile ) {
+		$reviewLabel = str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 18px; width:16px; height: 16px; color: #ffb900;"></span>', 5 );
+
 		$actionLinks = [
-			'settings' => [
+			'suggest-feature' => [
 				// Translators: This is an action link users can click to open a feature request.
 				'label' => __( 'Suggest a Feature', 'aioseo-broken-link-checker' ),
-				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'blc-suggest-a-feature/', 'plugin-row-meta', 'Feature' ),
+				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'blc-feature-suggestion/', 'plugin-row-meta', 'feature' ),
+			],
+			'review'          => [
+				'label' => $reviewLabel,
+				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'review-blc', 'plugin-row-meta', 'review' ),
+				'title' => sprintf(
+					// Translators: 1 - The plugin name ("Broken Link Checker").
+					__( 'Rate %1$s', 'aioseo-broken-link-checker' ),
+					'Broken Link Checker'
+				)
 			]
 		];
 
@@ -353,8 +364,14 @@ class Admin {
 
 		if ( $this->plugin === $pluginFile && ! empty( $actionLinks ) ) {
 			foreach ( $actionLinks as $key => $value ) {
+
 				$link = [
-					$key => '<a href="' . $value['url'] . '" target="_blank">' . $value['label'] . '</a>'
+					$key => sprintf(
+						'<a href="%1$s" %2$s target="_blank">%3$s</a>',
+						esc_url( $value['url'] ),
+						isset( $value['title'] ) ? 'title="' . esc_attr( $value['title'] ) . '"' : '',
+						$value['label']
+					)
 				];
 
 				$actions = 'after' === $position ? array_merge( $actions, $link ) : array_merge( $link, $actions );

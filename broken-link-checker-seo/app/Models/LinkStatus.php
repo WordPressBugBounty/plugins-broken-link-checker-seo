@@ -30,7 +30,7 @@ class LinkStatus extends Model {
 	 *
 	 * @var array
 	 */
-	protected $numericFields = [ 'id', 'broken', 'dismissed', 'scan_count', 'redirect_count', 'http_status_code' ];
+	protected $integerFields = [ 'id', 'broken', 'dismissed', 'scan_count', 'redirect_count', 'http_status_code' ];
 
 	/**
 	 * Fields that are nullable.

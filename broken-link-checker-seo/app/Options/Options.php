@@ -130,7 +130,7 @@ class Options {
 		);
 
 		if ( isset( $newOptions['advanced']['excludeDomains'] ) ) {
-			$dbOptions['advanced']['excludeDomains'] = preg_replace( '/\h/', "\n", $newOptions['advanced']['excludeDomains'] );
+			$dbOptions['advanced']['excludeDomains'] = preg_replace( '/\h/', "\n", (string) $newOptions['advanced']['excludeDomains'] );
 		}
 
 		// Update the cache state.

@@ -26,7 +26,7 @@ trait Strings {
 		if ( isset( $escapeRegex[ $string ] ) ) {
 			return $escapeRegex[ $string ];
 		}
-		$escapeRegex[ $string ] = preg_quote( $string, $delimiter );
+		$escapeRegex[ $string ] = preg_quote( (string) $string, $delimiter );
 
 		return $escapeRegex[ $string ];
 	}
@@ -73,7 +73,7 @@ trait Strings {
 		// The caveat is that we'd need to first trim off slash delimiters and add them back later - otherwise they'd be escaped as well.
 
 		$replacement         = $this->escapeRegexReplacement( $replacement );
-		$pregReplace[ $key ] = preg_replace( $pattern, $replacement, $subject );
+		$pregReplace[ $key ] = preg_replace( $pattern, $replacement, (string) $subject );
 
 		return $pregReplace[ $key ];
 	}
@@ -214,8 +214,8 @@ trait Strings {
 	 * @return string         The modified string.
 	 */
 	public function trimParagraphTags( $string ) {
-		$string = preg_replace( '/^<p[^>]*>/', '', $string );
-		$string = preg_replace( '/<\/p>/', '', $string );
+		$string = preg_replace( '/^<p[^>]*>/', '', (string) $string );
+		$string = preg_replace( '/<\/p>/', '', (string) $string );
 
 		return trim( $string );
 	}

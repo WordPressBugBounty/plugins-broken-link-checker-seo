@@ -35,9 +35,8 @@ function as_enqueue_async_action( $hook, $args = array(), $group = '', $unique =
 	 * @param array    $args       Action arguments.
 	 * @param string   $group      Action group.
 	 * @param int      $priority   Action priority.
-	 * @param bool     $unique     Unique action.
 	 */
-	$pre = apply_filters( 'pre_as_enqueue_async_action', null, $hook, $args, $group, $priority, $unique );
+	$pre = apply_filters( 'pre_as_enqueue_async_action', null, $hook, $args, $group, $priority );
 	if ( null !== $pre ) {
 		return is_int( $pre ) ? $pre : 0;
 	}

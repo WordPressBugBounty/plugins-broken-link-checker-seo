@@ -1,15 +1,15 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Main;
 
-use AIOSEO\BrokenLinkChecker\Highlighter;
-use AIOSEO\BrokenLinkChecker\Links;
-use AIOSEO\BrokenLinkChecker\LinkStatus;
-use AIOSEO\BrokenLinkChecker\Models;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\BrokenLinkChecker\Highlighter;
+use AIOSEO\BrokenLinkChecker\Links;
+use AIOSEO\BrokenLinkChecker\LinkStatus;
+use AIOSEO\BrokenLinkChecker\Models;
 
 /**
  * Main class where core features are handled/registered.
@@ -95,14 +95,14 @@ class Main {
 	 */
 	private function nofollowBrokenLinks( $postContent ) {
 		// First, capture all link tags.
-		preg_match_all( '/<a.*href="(.*?").*>(.*?)<\/a>/i', $postContent, $linkTags );
+		preg_match_all( '/<a.*href="(.*?").*>(.*?)<\/a>/i', (string) $postContent, $linkTags );
 
 		if ( empty( $linkTags[0] ) ) {
 			return $postContent;
 		}
 
 		foreach ( $linkTags[0] as $linkTag ) {
-			preg_match( '/href="(.*?)"/i', $linkTag, $url );
+			preg_match( '/href="(.*?)"/i', (string) $linkTag, $url );
 			if ( empty( $url[1] ) ) {
 				continue;
 			}
@@ -113,7 +113,7 @@ class Main {
 				continue;
 			}
 
-			preg_match( '/rel="(.*?)"/i', $linkTag, $relAttributes );
+			preg_match( '/rel="(.*?)"/i', (string) $linkTag, $relAttributes );
 			if ( ! empty( $relAttributes[0] ) ) {
 				$relAttributes = explode( ' ', $relAttributes[1] );
 				if ( ! in_array( 'nofollow', $relAttributes, true ) ) {
@@ -129,7 +129,7 @@ class Main {
 			$oldLinkTag = aioseoBrokenLinkChecker()->helpers->escapeRegex( $linkTag );
 			$newLinkTag = aioseoBrokenLinkChecker()->helpers->escapeRegexReplacement( $newLinkTag );
 
-			$postContent = preg_replace( "/{$oldLinkTag}/i", $newLinkTag, $postContent );
+			$postContent = preg_replace( "/{$oldLinkTag}/i", $newLinkTag, (string) $postContent );
 		}
 
 		return $postContent;
@@ -151,11 +151,11 @@ class Main {
 		}
 
 		$value   = esc_attr( $value );
-		$linkTag = preg_replace( $this->attributeRegex( $attributeName, true ), '${1}' . $value . '${2}', $linkTag, 1, $count );
+		$linkTag = preg_replace( $this->attributeRegex( $attributeName, true ), '${1}' . $value . '${2}', (string) $linkTag, 1, $count );
 
 		// Attribute does not exist. Let's append it at the beginning of the tag.
 		if ( ! $count ) {
-			$linkTag = preg_replace( '/<a /', '<a ' . $this->attributeToHtml( $attributeName, $value ) . ' ', $linkTag );
+			$linkTag = preg_replace( '/<a /', '<a ' . $this->attributeToHtml( $attributeName, $value ) . ' ', (string) $linkTag );
 		}
 
 		return $linkTag;

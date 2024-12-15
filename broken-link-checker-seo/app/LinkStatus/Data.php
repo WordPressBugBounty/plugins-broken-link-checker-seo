@@ -1,12 +1,12 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\LinkStatus;
 
-use AIOSEO\BrokenLinkChecker\Models;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\BrokenLinkChecker\Models;
 
 /**
  * Handles fetching of data required for Link Status scan requests.
@@ -24,8 +24,10 @@ class Data {
 	public function getBaseData() {
 		return [
 			'domain'          => aioseoBrokenLinkChecker()->helpers->getSiteDomain(),
-			'options'         => aioseoBrokenLinkChecker()->options->all(),
 			'internalOptions' => aioseoBrokenLinkChecker()->internalOptions->all(),
+			'indexedLinks'    => aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status' )->count(),
+			'isSsl'           => is_ssl(),
+			'options'         => aioseoBrokenLinkChecker()->options->all(),
 			'version'         => AIOSEO_BROKEN_LINK_CHECKER_VERSION
 		];
 	}

@@ -1,6 +1,7 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Standalone;
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

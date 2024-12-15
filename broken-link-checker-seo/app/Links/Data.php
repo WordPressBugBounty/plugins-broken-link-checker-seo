@@ -1,12 +1,12 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Links;
 
-use AIOSEO\BrokenLinkChecker\Models;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\BrokenLinkChecker\Models;
 
 /**
  * Handles the extraction, parsing and storage of links for the links scan.
@@ -149,7 +149,7 @@ class Data {
 		$postContent = aioseoBrokenLinkChecker()->helpers->decodeHtmlEntities( $postContent );
 
 		// Strip data URIs to prevent catastrophic backtracking.
-		$postContent = preg_replace( '/data:[^;]+;base64,[^"]+/', '', $postContent );
+		$postContent = preg_replace( '/data:[^;]+;base64,[^"]+/', '', (string) $postContent );
 
 		/**
 		 * Regex pattern divided into groups:
@@ -162,7 +162,7 @@ class Data {
 		 */
 		preg_match_all(
 			'/(([^\r\n.?!]*)<t?a[^>]*?href=(\"|\')(?!tel:|mailto:)([^\"\']*?)(\"|\')[^>]*?>([\s\w\W]*?)<\/t?a>|<!-- wp:core-embed\/wordpress {"url":"([^"]*?)"[^}]*?"} -->|(?:>|&nbsp;|\s)((?:(?:http|ftp|https)\:\/\/)(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]))(?:<|&nbsp;|\s))([^<>.?!\r\n]*)([.?!]?)/i', // phpcs:disable Generic.Files.LineLength.MaxExceeded
-			$postContent,
+			(string) $postContent,
 			$matches
 		);
 
@@ -198,7 +198,7 @@ class Data {
 			$anchor   = wp_strip_all_tags( $matches[6][ $k ] );
 			// Remove trailing URL tags. The regex isn't sufficient for this.
 			$phrase = wp_strip_all_tags( $matches[0][ $k ] );
-			$phrase = trim( preg_replace( '/(.*)(<t?a[^<>].*$)/', '', $phrase ) );
+			$phrase = trim( preg_replace( '/(.*)(<t?a[^<>].*$)/', '', (string) $phrase ) );
 
 			// Don't continue if the anchor or phrase are empty, e.g. blank link tag.
 			if ( ! $anchor || ! $phrase ) {

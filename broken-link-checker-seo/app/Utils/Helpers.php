@@ -320,7 +320,7 @@ class Helpers {
 
 		$pattern = '/([\.?!][\r\n\s]+|\r|\n|\s{2,})/u';
 
-		return array_map( 'trim', preg_split( $pattern, $excludedDomains, -1, PREG_SPLIT_NO_EMPTY ) );
+		return array_map( 'trim', preg_split( $pattern, (string) $excludedDomains, -1, PREG_SPLIT_NO_EMPTY ) );
 	}
 
 	/**

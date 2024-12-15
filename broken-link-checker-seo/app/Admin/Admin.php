@@ -100,7 +100,7 @@ class Admin {
 	 * @return string         The modified HTML language attribute.
 	 */
 	public function addDirAttribute( $output ) {
-		if ( is_rtl() || preg_match( '/dir=[\'"](ltr|rtl|auto)[\'"]/i', $output ) ) {
+		if ( is_rtl() || preg_match( '/dir=[\'"](ltr|rtl|auto)[\'"]/i', (string) $output ) ) {
 			return $output;
 		}
 
@@ -183,10 +183,10 @@ class Admin {
 	 * @return void
 	 */
 	public function checkCurrentPage() {
-		global $admin_page_hooks;
+		global $admin_page_hooks; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 		$currentScreen = function_exists( 'get_current_screen' ) ? get_current_screen() : false;
 
-		if ( empty( $currentScreen->id ) || empty( $admin_page_hooks ) ) {
+		if ( empty( $currentScreen->id ) || empty( $admin_page_hooks ) ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 			return;
 		}
 
@@ -451,13 +451,13 @@ class Admin {
 		);
 
 		// Stop WP Core from outputting its version number and instead add both theirs & ours.
-		global $wp_version;
+		global $wp_version; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 		printf(
 			wp_kses_post( '<p class="alignright">%1$s</p>' ),
 			sprintf(
 				// Translators: 1 - WP Core version number, 2 - BLC version number.
 				esc_html__( 'WordPress %1$s | BLC %2$s', 'aioseo-broken-link-checker' ),
-				esc_html( $wp_version ),
+				esc_html( $wp_version ), // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 				esc_html( AIOSEO_BROKEN_LINK_CHECKER_VERSION )
 			)
 		);

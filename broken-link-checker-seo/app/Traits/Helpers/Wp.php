@@ -1,12 +1,12 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Traits\Helpers;
 
-use AIOSEO\BrokenLinkChecker\Utils;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\BrokenLinkChecker\Utils;
 
 /**
  * Contains all WP related helper methods.
@@ -228,9 +228,9 @@ trait Wp {
 			return true;
 		}
 
-		global $wp_rewrite;
+		global $wp_rewrite; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 
-		if ( empty( $wp_rewrite ) ) {
+		if ( empty( $wp_rewrite ) ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 			return false;
 		}
 

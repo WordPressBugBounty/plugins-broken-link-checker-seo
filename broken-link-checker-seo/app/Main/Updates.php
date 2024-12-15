@@ -1,12 +1,12 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Main;
 
-use AIOSEO\BrokenLinkChecker\Models;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\BrokenLinkChecker\Models;
 
 /**
  * Handles update migrations.

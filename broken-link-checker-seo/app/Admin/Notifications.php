@@ -287,8 +287,8 @@ class Notifications {
 	 */
 	private function versionMatch( $currentVersion, $compareVersion ) {
 		if ( is_array( $compareVersion ) ) {
-			foreach ( $compareVersion as $compare_single ) {
-				$recursiveResult = $this->versionMatch( $currentVersion, $compare_single );
+			foreach ( $compareVersion as $compare_single ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+				$recursiveResult = $this->versionMatch( $currentVersion, $compare_single ); // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 				if ( $recursiveResult ) {
 					return true;
 				}

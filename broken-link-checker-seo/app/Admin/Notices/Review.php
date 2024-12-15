@@ -1,6 +1,7 @@
 <?php
 namespace AIOSEO\BrokenLinkChecker\Admin\Notices;
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

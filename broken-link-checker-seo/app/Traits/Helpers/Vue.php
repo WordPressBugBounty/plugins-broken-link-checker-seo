@@ -32,7 +32,7 @@ trait Vue {
 	 * @return array               The data.
 	 */
 	public function getVueData( $currentPage = null ) {
-		global $wp_version;
+		global $wp_version; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 
 		static $showNotificationsDrawer = null;
 		if ( null === $showNotificationsDrawer ) {
@@ -46,7 +46,7 @@ trait Vue {
 
 		$this->vueData = [
 			// The following data is needed on all screens.
-			'wpVersion'           => $wp_version,
+			'wpVersion'           => $wp_version, // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 			'page'                => $currentPage,
 			'screen'              => aioseoBrokenLinkChecker()->helpers->getCurrentScreen(),
 			'internalOptions'     => aioseoBrokenLinkChecker()->internalOptions->all(),

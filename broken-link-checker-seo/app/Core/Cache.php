@@ -54,7 +54,7 @@ class Cache {
 		}
 
 		// Check if we're supposed to do a LIKE get.
-		$isLikeGet = preg_match( '/%/', $key );
+		$isLikeGet = preg_match( '/%/', (string) $key );
 
 		$result = aioseoBrokenLinkChecker()->core->db
 			->start( $this->table )

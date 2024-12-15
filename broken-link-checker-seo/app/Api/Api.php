@@ -168,7 +168,7 @@ class Api {
 				// Users with any Broken Link Checker permission can access the route.
 				$user = wp_get_current_user();
 				foreach ( $user->get_role_caps() as $capability => $enabled ) {
-					if ( $enabled && preg_match( '/^aioseo_blc_/', $capability ) ) {
+					if ( $enabled && preg_match( '/^aioseo_blc_/', (string) $capability ) ) {
 						return true;
 					}
 				}
@@ -210,7 +210,7 @@ class Api {
 		if ( empty( $routeData ) ) {
 			foreach ( $this->routes[ $request->get_method() ] as $routeRegex => $routeInfo ) {
 				$routeRegex = str_replace( '@', '\@', $routeRegex );
-				if ( preg_match( "@{$routeRegex}@", $route ) ) {
+				if ( preg_match( "@{$routeRegex}@", (string) $route ) ) {
 					$routeData = $routeInfo;
 					break;
 				}

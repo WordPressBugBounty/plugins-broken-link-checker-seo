@@ -26,7 +26,7 @@ class Paragraph {
 		static $cachedPhrases = [];
 		if ( ! isset( $cachedPhrases[ $postId ] ) ) {
 			$postContent              = wp_strip_all_tags( $postContent );
-			$cachedPhrases[ $postId ] = array_values( preg_split( '#([\.?!][\r\n\s]+|\r|\n|\s{2,})#u', $postContent, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ) );
+			$cachedPhrases[ $postId ] = array_values( preg_split( '#([\.?!][\r\n\s]+|\r|\n|\s{2,})#u', (string) $postContent, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ) );
 		}
 		$phrases = $cachedPhrases[ $postId ];
 
@@ -135,7 +135,7 @@ class Paragraph {
 	 * @return string               The paragraph with its inner HTML contents.
 	 */
 	public function getHtml( $anchor, $paragraph, $postContent, $isSuggestion = false ) {
-		$words = preg_split( '/\s|\p{P}/', $paragraph, -1, PREG_SPLIT_NO_EMPTY );
+		$words = preg_split( '/\s|\p{P}/', (string) $paragraph, -1, PREG_SPLIT_NO_EMPTY );
 		if ( ! isset( $words[0] ) ) {
 			return $paragraph;
 		}
@@ -144,14 +144,14 @@ class Paragraph {
 		$lastWord  = aioseoBrokenLinkChecker()->helpers->escapeRegex( $words[ count( $words ) - 1 ] );
 
 		// We must check if the first/last word isn't part of the anchor. Otherwise we'll mess up the pattern below by including the word twice.
-		$firstWord = ! preg_match( "/^{$firstWord}/i", $anchor ) ? $firstWord : '';
-		$lastWord  = ! preg_match( "/{$lastWord}$/i", $anchor ) ? $lastWord : '';
+		$firstWord = ! preg_match( "/^{$firstWord}/i", (string) $anchor ) ? $firstWord : '';
+		$lastWord  = ! preg_match( "/{$lastWord}$/i", (string) $anchor ) ? $lastWord : '';
 		$anchor    = aioseoBrokenLinkChecker()->helpers->escapeRegex( $anchor );
 		$pattern   = $isSuggestion
 			? "/{$firstWord}.*{$anchor}.*{$lastWord}/i"
 			: "/{$firstWord}.*<a[^<>]*>.*{$anchor}.*<\/a>.*{$lastWord}/i";
 
-		preg_match( $pattern, $postContent, $match );
+		preg_match( $pattern, (string) $postContent, $match );
 		if ( ! isset( $match[0] ) ) {
 			return $paragraph;
 		}
@@ -160,7 +160,7 @@ class Paragraph {
 		$escapedParagraphWithInnerHtml = aioseoBrokenLinkChecker()->helpers->escapeRegex( $paragraphWithInnerHtml );
 
 		$precedingTags = '';
-		preg_match( "/(<[a-z]* .*>|<[a-z]*>)+$escapedParagraphWithInnerHtml/i", $postContent, $match );
+		preg_match( "/(<[a-z]* .*>|<[a-z]*>)+$escapedParagraphWithInnerHtml/i", (string) $postContent, $match );
 		if ( ! empty( $match[0] ) ) {
 			$precedingTags = preg_replace( "/$escapedParagraphWithInnerHtml/", '', $match[0] );
 		}

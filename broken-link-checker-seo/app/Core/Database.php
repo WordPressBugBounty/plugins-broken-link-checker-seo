@@ -442,12 +442,13 @@ class Database {
 				if ( count( $this->join ) > 0 ) {
 					foreach ( (array) $this->join as $join ) {
 						if ( is_array( $join[1] ) ) {
-							$join_on = [];
+							$join_on = []; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 							foreach ( (array) $join[1] as $left => $right ) {
-								$join_on[] = "$this->table.`$left` = `{$join[0]}`.`$right`";
+								$join_on[] = "$this->table.`$left` = `{$join[0]}`.`$right`"; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 							}
-
+							// phpcs:disable Squiz.NamingConventions.ValidVariableName
 							$clauses[] = "\t" . ( ( 'LEFT' === $join[2] || 'RIGHT' === $join[2] ) ? $join[2] . ' JOIN ' : 'JOIN ' ) . $join[0] . ' ON ' . implode( ' AND ', $join_on );
+							// phpcs:enable Squiz.NamingConventions.ValidVariableName
 						} else {
 							$clauses[] = "\t" . ( ( 'LEFT' === $join[2] || 'RIGHT' === $join[2] ) ? $join[2] . ' JOIN ' : 'JOIN ' ) . "{$join[0]} ON {$join[1]}";
 						}
@@ -508,12 +509,13 @@ class Database {
 				if ( ! empty( $this->join ) && count( $this->join ) > 0 ) {
 					foreach ( (array) $this->join as $join ) {
 						if ( is_array( $join[1] ) ) {
-							$join_on = [];
+							$join_on = []; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 							foreach ( (array) $join[1] as $left => $right ) {
-								$join_on[] = "$this->table.`$left` = `{$join[0]}`.`$right`";
+								$join_on[] = "$this->table.`$left` = `{$join[0]}`.`$right`"; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 							}
-
+							// phpcs:disable Squiz.NamingConventions.ValidVariableName
 							$clauses[] = "\t" . ( ( 'LEFT' === $join[2] || 'RIGHT' === $join[2] ) ? $join[2] . ' JOIN ' : 'JOIN ' ) . $join[0] . ' ON ' . implode( ' AND ', $join_on );
+							// phpcs:enable Squiz.NamingConventions.ValidVariableName
 						} else {
 							$clauses[] = "\t" . ( ( 'LEFT' === $join[2] || 'RIGHT' === $join[2] ) ? $join[2] . ' JOIN ' : 'JOIN ' ) . "{$join[0]} ON {$join[1]}";
 						}

@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\BrokenLinkChecker\Utils;
+
 /**
  * Handles plugin deinstallation.
  *
@@ -44,6 +46,9 @@ class Uninstall {
 		// Delete all entries from the action scheduler table.
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}actionscheduler_actions WHERE hook LIKE 'aioseo\_blc\_%'" );
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}actionscheduler_groups WHERE slug = 'aioseo\_blc'" );
+
+		// Delete all our custom capabilities.
+		$this->uninstallCapabilities();
 	}
 
 	/**
@@ -62,5 +67,29 @@ class Uninstall {
 		}
 
 		return $tables;
+	}
+
+	/**
+	 * Removes all our custom capabilities.
+	 *
+	 * @since {next}
+	 *
+	 * @return void
+	 */
+	private function uninstallCapabilities() {
+		$access             = new Utils\Access();
+		$customCapabilities = $access->getCapabilityList() ?? [];
+		$roles              = aioseoBrokenLinkChecker()->helpers->getUserRoles();
+
+		// Loop through roles and remove custom capabilities.
+		foreach ( $roles as $roleName => $roleInfo ) {
+			$role = get_role( $roleName );
+
+			if ( $role ) {
+				foreach ( $customCapabilities as $capability ) {
+					$role->remove_cap( $capability );
+				}
+			}
+		}
 	}
 }

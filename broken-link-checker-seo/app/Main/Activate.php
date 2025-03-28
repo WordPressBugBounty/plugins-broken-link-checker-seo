@@ -41,6 +41,8 @@ class Activate {
 
 			aioseoBrokenLinkChecker()->internalOptions->internal->firstActivated = $time;
 		}
+
+		aioseoBrokenLinkChecker()->core->cache->clear();
 	}
 
 	/**

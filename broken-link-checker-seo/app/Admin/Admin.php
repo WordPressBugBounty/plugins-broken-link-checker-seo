@@ -32,7 +32,7 @@ class Admin {
 	private $currentPage = '';
 
 	/**
-	 * An list of asset slugs to use.
+	 * A list of asset slugs to use.
 	 *
 	 * @since 1.0.0
 	 *

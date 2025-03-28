@@ -195,7 +195,7 @@ abstract class CommonTableActions {
 	 * @return bool                    Whether the link was updated/deleted.
 	 */
 	private static function updateLinkInContent( $post, $link, $newPhraseHtml, $isDeletion = false ) {
-		$postContent   = str_replace( '&nbsp;', ' ', $post->post_content );
+		$postContent   = str_replace( '&nbsp;', ' ', (string) $post->post_content );
 		$oldPhraseHtml = aioseoBrokenLinkChecker()->helpers->escapeRegex( $link->phrase_html );
 		$pattern       = "/$oldPhraseHtml/i";
 
@@ -212,7 +212,7 @@ abstract class CommonTableActions {
 			// If there's just one match, remove it without the phrase.
 			if ( isset( $matches[0] ) && 1 === count( $matches[0] ) ) {
 				$escapedAnchorReplacement = aioseoBrokenLinkChecker()->helpers->escapeRegexReplacement( $link->anchor );
-				$postContent              = preg_replace( $pattern2, $escapedAnchorReplacement, (string) $postContent );
+				$postContent              = preg_replace( $pattern2, $escapedAnchorReplacement, $postContent );
 			}
 		}
 

@@ -928,7 +928,8 @@ class Database {
 	/**
 	 * Adds a ORDER BY clause.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.2.4 Hardened against SQL injection.
 	 *
 	 * @return Database Returns the Database class which can be method chained for more query building.
 	 */
@@ -939,13 +940,56 @@ class Database {
 			$args = $args[0];
 		}
 
-		if ( ! empty( $args[0] ) && true !== $args[0] ) {
-			$this->order = array_merge( $this->order, $args );
-		} else {
-			// This allows for overwriting a preexisting order-by setting.
-			array_shift( $args );
-			$this->order = $args;
+		$orderBy = [];
+		// Separate commas to account for multiple orders.
+		foreach ( $args as $argComma ) {
+			$orderBy = array_map( 'trim', array_merge( $orderBy, explode( ',', $argComma ) ) );
 		}
+
+		// Validate and sanitize column names and sort directions.]
+		$sanitizedOrderBy = [];
+		foreach ( $orderBy as $ordBy ) {
+			$parts     = explode( ' ', $ordBy );
+			$column    = str_replace( '`', '', $parts[0] ); // Strip existing ticks first.
+			$column    = preg_replace( '/[^a-zA-Z0-9_.]/', '', $column ); // Strip invalid characters from the column name.
+			$column    = $this->escapeColNames( $column )[0];
+			$direction = isset( $parts[1] ) ? strtoupper( $parts[1] ) : 'ASC';
+
+			// Validate the order direction.
+			if ( ! in_array( $direction, [ 'ASC', 'DESC' ], true ) ) {
+				$direction = 'ASC';
+			}
+
+			$sanitizedOrderBy[] = "$column $direction";
+		}
+
+		if ( ! empty( $sanitizedOrderBy ) ) {
+			if ( ! empty( $args[0] ) && true !== $args[0] ) {
+				$this->order = array_merge( $this->order, $sanitizedOrderBy );
+			} else {
+				// This allows for overwriting a preexisting order-by setting.
+				array_shift( $sanitizedOrderBy );
+				$this->order = $sanitizedOrderBy;
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Adds a raw ORDER BY clause.
+	 *
+	 * @since 1.2.4
+	 *
+	 * @return Database Returns the Database class which can be method chained for more query building.
+	 */
+	public function orderByRaw() {
+		$args = (array) func_get_args();
+		if ( count( $args ) === 1 && is_array( $args[0] ) ) {
+			$args = $args[0];
+		}
+
+		$this->order = array_merge( $this->order, $args );
 
 		return $this;
 	}
@@ -969,15 +1013,22 @@ class Database {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed     $limit A string or array that sets the limit clause.
-	 * @return Database        Returns the Database class which can be method chained for more query building.
+	 * @param  int      $limit  The limit for the limit clause.
+	 * @param  int      $offset The offset for the limit clause.
+	 * @return Database         Returns the Database class which can be method chained for more query building.
 	 */
-	public function limit( $limit, $offset = null ) {
-		if ( ! $limit ) {
+	public function limit( $limit, $offset = -1 ) {
+		if ( ! is_numeric( $limit ) || $limit <= 0 ) {
 			return $this;
 		}
 
-		$this->limit = ( null === $offset ) ? $limit : "$offset, $limit";
+		if ( ! is_numeric( $offset ) ) {
+			$offset = -1;
+		}
+
+		$this->limit = ( -1 === $offset )
+			? intval( $limit )
+			: intval( $offset ) . ', ' . intval( $limit );
 
 		return $this;
 	}
@@ -1364,9 +1415,10 @@ class Database {
 				if ( stripos( $col, '.' ) ) {
 					list( $table, $c ) = explode( '.', $col );
 					$col = "`$table`.`$c`";
-				} else {
-					$col = "`$col`";
+					continue;
 				}
+
+				$col = "`$col`";
 			}
 		}
 

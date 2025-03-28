@@ -344,7 +344,7 @@ class Data {
 		$postsPerScan        = apply_filters( 'aioseo_blc_links_posts_per_scan', 50 );
 		$postTypes           = aioseoBrokenLinkChecker()->helpers->getScannablePostTypes();
 		$postStatuses        = aioseoBrokenLinkChecker()->helpers->getPublicPostStatuses( true );
-		$minimumLinkScanDate = aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate;
+		$minimumLinkScanDate = aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate ?: date( 'Y-m-d H:i:s' );
 
 		$query = aioseoBrokenLinkChecker()->core->db->start( 'posts as p' )
 			->leftJoin( 'aioseo_blc_posts as abp', 'p.ID = abp.post_id' )

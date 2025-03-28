@@ -182,7 +182,8 @@ class Notification extends Model {
 				->where( 'dismissed', 0 )
 				->whereRaw( "(start <= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR start IS NULL)" )
 				->whereRaw( "(end >= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR end IS NULL)" )
-				->orderBy( 'start DESC, created DESC' )
+				->orderBy( 'start DESC' )
+				->orderBy( 'created DESC' )
 				->run()
 				->models( 'AIOSEO\\BrokenLinkChecker\\Models\\Notification' )
 		);
@@ -206,7 +207,8 @@ class Notification extends Model {
 				->where( 'new', 1 )
 				->whereRaw( "(start <= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR start IS NULL)" )
 				->whereRaw( "(end >= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR end IS NULL)" )
-				->orderBy( 'start DESC, created DESC' )
+				->orderBy( 'start DESC' )
+				->orderBy( 'created DESC' )
 				->run()
 				->models( 'AIOSEO\\BrokenLinkChecker\\Models\\Notification' )
 		);

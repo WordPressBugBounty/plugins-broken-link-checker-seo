@@ -347,4 +347,47 @@ class Helpers {
 
 		return $string;
 	}
+
+	/**
+	 * Returns user roles in the current WP install.
+	 *
+	 * @since {next}
+	 *
+	 * @return array An array of user roles.
+	 */
+	public function getUserRoles() {
+		global $wp_roles; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+
+		$wpRoles = $wp_roles; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+		if ( ! is_object( $wpRoles ) ) {
+			// Don't assign this to the global because otherwise WordPress won't override it.
+			$wpRoles = new \WP_Roles();
+		}
+
+		$roleNames = $wpRoles->get_names();
+		asort( $roleNames );
+
+		return $roleNames;
+	}
+
+	/**
+	 * Check if the current request is uninstalling (deleting) Broken Link Checker.
+	 *
+	 * @since {Pnext}
+	 *
+	 * @return bool Whether Broken Link Checker is being uninstalled/deleted or not.
+	 */
+	public function isUninstalling() {
+		if (
+			defined( 'AIOSEO_BROKEN_LINK_CHECKER_FILE' ) &&
+			defined( 'WP_UNINSTALL_PLUGIN' )
+		) {
+			// Make sure `plugin_basename()` exists.
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+			return WP_UNINSTALL_PLUGIN === plugin_basename( AIOSEO_BROKEN_LINK_CHECKER_FILE );
+		}
+
+		return false;
+	}
 }

@@ -351,7 +351,7 @@ class Helpers {
 	/**
 	 * Returns user roles in the current WP install.
 	 *
-	 * @since {next}
+	 * @since 1.2.4
 	 *
 	 * @return array An array of user roles.
 	 */

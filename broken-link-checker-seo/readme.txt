@@ -1,10 +1,10 @@
 === Broken Link Checker by AIOSEO – Easily Fix/Monitor Internal and External links ===
 Contributors: aioseo, smub, benjaminprojas
 Tags: broken links, internal link, external link, check links, seo
-Tested up to: 6.7.2
+Tested up to: 6.8
 Requires at least: 5.3
 Requires PHP: 5.6
-Stable tag: 1.2.4
+Stable tag: 1.2.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -85,6 +85,11 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 
 == Changelog ==
+
+**New in Version 1.2.5**
+
+* Fixed: Link status scan sometimes getting stuck due to URL hash collisions.
+* Fixed: Free plan not indicating that external links are not supported.
 
 **New in Version 1.2.4**
 

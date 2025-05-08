@@ -72,7 +72,7 @@ class Uninstall {
 	/**
 	 * Removes all our custom capabilities.
 	 *
-	 * @since {next}
+	 * @since 1.2.4
 	 *
 	 * @return void
 	 */

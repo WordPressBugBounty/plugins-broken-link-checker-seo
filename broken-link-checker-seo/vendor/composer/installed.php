@@ -3,7 +3,7 @@
         'name' => 'awesomemotive/aioseo-broken-link-checker',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => 'be4bd904500eea84ca1d3a05abe8b30a59bb2d3e',
+        'reference' => 'ffa7236a53bfd306572fd00fcda88192824b22c9',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'awesomemotive/aioseo-broken-link-checker' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => 'be4bd904500eea84ca1d3a05abe8b30a59bb2d3e',
+            'reference' => 'ffa7236a53bfd306572fd00fcda88192824b22c9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

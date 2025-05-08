@@ -60,11 +60,11 @@ trait Wp {
 	 * @return array                    List of public post types.
 	 */
 	public function getPublicPostTypes( $namesOnly = false, $hasArchivesOnly = false, $rewriteType = false ) {
-		$postTypes   = [];
-		$postObjects = get_post_types( [ 'public' => true ], 'objects' );
-		$woocommerce = class_exists( 'woocommerce' );
-		foreach ( $postObjects as $postObject ) {
-			if ( empty( $postObject->label ) ) {
+		$postTypes       = [];
+		$postTypeObjects = get_post_types( [ 'public' => true ], 'objects' );
+		$woocommerce     = class_exists( 'woocommerce' );
+		foreach ( $postTypeObjects as $postTypeObject ) {
+			if ( empty( $postTypeObject->label ) ) {
 				continue;
 			}
 
@@ -72,41 +72,45 @@ trait Wp {
 			if (
 				$hasArchivesOnly &&
 				(
-					! $postObject->has_archive ||
-					( 'product' === $postObject->name && $woocommerce )
+					! $postTypeObject->has_archive ||
+					( 'product' === $postTypeObject->name && $woocommerce )
 				)
 			) {
 				continue;
 			}
 
 			if ( $namesOnly ) {
-				$postTypes[] = $postObject->name;
+				$postTypes[] = $postTypeObject->name;
 				continue;
 			}
 
-			if ( 'attachment' === $postObject->name ) {
-				$postObject->label = __( 'Attachments', 'aioseo-broken-link-checker' );
+			if ( 'attachment' === $postTypeObject->name ) {
+				// We have to check if the 'init' action has been fired to avoid a PHP notice
+				// in WP 6.7+ due to loading translations too early.
+				if ( did_action( 'init' ) ) {
+					$postTypeObject->label = __( 'Attachments', 'aioseo-broken-link-checker' );
+				}
 			}
 
-			if ( 'product' === $postObject->name && $woocommerce ) {
-				$postObject->menu_icon = 'dashicons-products';
+			if ( 'product' === $postTypeObject->name && $woocommerce ) {
+				$postTypeObject->menu_icon = 'dashicons-products';
 			}
 
-			$name = $postObject->name;
-			if ( 'type' === $postObject->name && $rewriteType ) {
+			$name = $postTypeObject->name;
+			if ( 'type' === $postTypeObject->name && $rewriteType ) {
 				$name = '_aioseo_type';
 			}
 
 			$postTypes[] = [
 				'name'         => $name,
-				'label'        => ucwords( $postObject->label ),
-				'singular'     => ucwords( $postObject->labels->singular_name ),
-				'icon'         => $postObject->menu_icon,
-				'hasExcerpt'   => post_type_supports( $postObject->name, 'excerpt' ),
-				'hasArchive'   => $postObject->has_archive,
-				'hierarchical' => $postObject->hierarchical,
+				'label'        => ucwords( $postTypeObject->label ),
+				'singular'     => ucwords( $postTypeObject->labels->singular_name ),
+				'icon'         => $postTypeObject->menu_icon,
+				'hasExcerpt'   => post_type_supports( $postTypeObject->name, 'excerpt' ),
+				'hasArchive'   => $postTypeObject->has_archive,
+				'hierarchical' => $postTypeObject->hierarchical,
 				'taxonomies'   => get_object_taxonomies( $name ),
-				'slug'         => isset( $postObject->rewrite['slug'] ) ? $postObject->rewrite['slug'] : $name
+				'slug'         => isset( $postTypeObject->rewrite['slug'] ) ? $postTypeObject->rewrite['slug'] : $name
 			];
 		}
 

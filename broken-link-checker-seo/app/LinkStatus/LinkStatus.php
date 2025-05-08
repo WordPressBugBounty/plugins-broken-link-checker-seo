@@ -49,10 +49,6 @@ class LinkStatus {
 	public function __construct() {
 		$this->data = new Data();
 
-		if ( ! aioseoBrokenLinkChecker()->license->isActive() ) {
-			return;
-		}
-
 		add_action( $this->actionName, [ $this, 'checkLinkStatuses' ], 11, 1 );
 		if ( ! is_admin() ) {
 			return;
@@ -69,6 +65,10 @@ class LinkStatus {
 	 * @return void
 	 */
 	public function scheduleScan() {
+		if ( ! aioseoBrokenLinkChecker()->license->isActive() ) {
+			return;
+		}
+
 		// If there is no action at all, schedule one.
 		if ( ! aioseoBrokenLinkChecker()->actionScheduler->isScheduled( $this->actionName ) ) {
 			aioseoBrokenLinkChecker()->actionScheduler->scheduleAsync( $this->actionName );
@@ -83,6 +83,10 @@ class LinkStatus {
 	 * @return void
 	 */
 	public function checkLinkStatuses() {
+		if ( ! aioseoBrokenLinkChecker()->license->isActive() ) {
+			return;
+		}
+
 		$scanId = aioseoBrokenLinkChecker()->internalOptions->internal->scanId;
 		if ( ! empty( $scanId ) ) {
 			// If we have a scan ID, check if the results are ready.

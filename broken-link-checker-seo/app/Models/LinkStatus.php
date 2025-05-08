@@ -108,6 +108,31 @@ class LinkStatus extends Model {
 			->run()
 			->model( 'AIOSEO\\BrokenLinkChecker\\Models\\LinkStatus' );
 
+		if ( ! $linkStatus->exists() ) {
+			// Updates to the plugin can cause hash mismatches. Let's do another attempt using the URL.
+			// We do a join to improve performance since the URL isn't indexed.
+			$hostname = wp_parse_url( $url, PHP_URL_HOST );
+			$result   = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status as abls' )
+				->select( 'abls.id' )
+				->join( 'aioseo_blc_links as abl', 'abls.id = abl.blc_link_status_id' )
+				->where( 'abl.hostname', $hostname )
+				->where( 'abls.url', $url )
+				->groupBy( 'abls.id' )
+				->limit( 1 )
+				->run()
+				->result();
+
+			if ( ! empty( $result[0]->id ) ) {
+				$linkStatus = self::getById( $result[0]->id );
+
+				if ( $linkStatus->exists() ) {
+					// Reset the URL hash to prevent future mismatches.
+					$linkStatus->url_hash = $hash;
+					$linkStatus->save();
+				}
+			}
+		}
+
 		return $linkStatus;
 	}
 
@@ -147,7 +172,7 @@ class LinkStatus extends Model {
 	 */
 	public static function rowQuery( $filter = 'all', $limit = 20, $offset = 0, $whereClause = '', $orderBy = '', $orderDir = 'DESC' ) {
 		$query = self::baseQuery( $filter, $whereClause )
-			->select( 'als.*' )
+			->select( 'als.*, al.external' )
 			->limit( $limit, $offset );
 
 		if ( $orderBy && $orderDir ) {

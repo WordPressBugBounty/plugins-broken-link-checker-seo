@@ -289,7 +289,7 @@ $generated_i18n_strings = [
 	__( 'Here\'s what to do next:', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/components/common/notifications/Review2.vue:52
-	// Translators: 1 - The plugin name ("All in One SEO").
+	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Hey, we noticed you have been using %1$s for some time - that’s awesome! Could you please do us a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation?', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/plugins/constants.js:9
@@ -585,7 +585,7 @@ $generated_i18n_strings = [
 	__( 'This action cannot be undone.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:99
-	__( 'This is your remaining quota, which is reset every month.', 'aioseo-broken-link-checker' ),
+	__( 'This is your links quota, which is reset every month. Every URL on your site that is actively monitored counts against your quota. In addition, when you forcefully recheck a URL, one point will be deducted from your quota.', 'aioseo-broken-link-checker' ),
 
 	// Reference: /src/vue/components/license/Index.vue:151
 	__( 'This license has reached the maximum number of activations. Please deactivate it from another site or purchase a new license.', 'aioseo-broken-link-checker' ),

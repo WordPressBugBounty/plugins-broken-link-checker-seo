@@ -32,6 +32,13 @@ class Post {
 			], 400 );
 		}
 
+		if ( ! current_user_can( 'delete_post', $postId ) ) {
+			return new \WP_REST_Response( [
+				'success' => false,
+				'message' => 'User does not have permission to delete this post.'
+			], 403 );
+		}
+
 		$success = wp_trash_post( $postId );
 		if ( ! $success ) {
 			return new \WP_REST_Response( [

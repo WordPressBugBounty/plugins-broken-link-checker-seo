@@ -36,6 +36,14 @@ abstract class CommonTableActions {
 		if ( ! empty( $linkStatusId ) ) {
 			$links = Models\Link::getByLinkStatusId( $linkStatusId );
 			foreach ( $links as $link ) {
+				// Confirm user has permission to edit the post.
+				if ( ! current_user_can( 'edit_post', $link->post_id ) ) {
+					return new \WP_REST_Response( [
+						'success' => false,
+						'message' => 'User does not have permission to edit this post.'
+					], 403 );
+				}
+
 				self::removeLink( $link->id );
 			}
 
@@ -122,6 +130,11 @@ abstract class CommonTableActions {
 			return false;
 		}
 
+		// Confirm user has permission to edit the post.
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return false;
+		}
+
 		if ( empty( $newAnchor ) && empty( $newUrl ) ) {
 			return false;
 		}
@@ -171,6 +184,11 @@ abstract class CommonTableActions {
 			return false;
 		}
 
+		// Confirm user has permission to edit the post.
+		if ( ! current_user_can( 'edit_post', $link->post_id ) ) {
+			return false;
+		}
+
 		// First, remove the link in the phrase.
 		$escapedAnchor = aioseoBrokenLinkChecker()->helpers->escapeRegex( $link->anchor );
 		$newPhraseHtml = preg_replace( "/<a.*?>([\s\w<>]*?{$escapedAnchor}[\s\w<>\/]*?)<\/a>/is", '$1', (string) aioseoBrokenLinkChecker()->helpers->escapeRegexReplacement( $link->phrase_html ) );
@@ -195,6 +213,11 @@ abstract class CommonTableActions {
 	 * @return bool                    Whether the link was updated/deleted.
 	 */
 	private static function updateLinkInContent( $post, $link, $newPhraseHtml, $isDeletion = false ) {
+		// Confirm user has permission to edit the post.
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return false;
+		}
+
 		$postContent   = str_replace( '&nbsp;', ' ', (string) $post->post_content );
 		$oldPhraseHtml = aioseoBrokenLinkChecker()->helpers->escapeRegex( $link->phrase_html );
 		$pattern       = "/$oldPhraseHtml/i";

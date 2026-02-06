@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use \AIOSEO\Plugin\Addon\Redirects\Utils as RedirectUtils;
+use \AIOSEO\Plugin\Pro\Redirects\Utils as RedirectUtils;
 
 /**
  * Handles all redirect related routes.
@@ -23,7 +23,7 @@ class Redirects {
 	 * @return \WP_REST_Response          The response.
 	 */
 	public static function getRedirectUrl( $request ) {
-		if ( ! function_exists( 'aioseoRedirects' ) ) {
+		if ( empty( aioseo()->redirects ) ) {
 			return new \WP_REST_Response( [
 				'success' => false
 			], 400 );
@@ -44,7 +44,7 @@ class Redirects {
 		];
 
 		$hash = md5( wp_json_encode( $urls ) );
-		aioseoRedirects()->cache->update( 'manual-urls-' . $hash, $urls, HOUR_IN_SECONDS );
+		aioseo()->redirects->cache->update( 'manual-urls-' . $hash, $urls, HOUR_IN_SECONDS );
 
 		$redirectUrl = add_query_arg( 'aioseo-manual-urls', $hash, admin_url( 'admin.php?page=aioseo-redirects' ) );
 

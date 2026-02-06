@@ -50,8 +50,9 @@ class Data {
 		$linksPerScan         = 200;
 		$includedPostTypes    = aioseoBrokenLinkChecker()->helpers->getIncludedPostTypes();
 		$includedPostStatuses = aioseoBrokenLinkChecker()->helpers->getIncludedPostStatuses();
+		$excludedDomains      = aioseoBrokenLinkChecker()->helpers->getExcludedDomains();
 		$excludedPostIds      = aioseoBrokenLinkChecker()->helpers->getExcludedPostIds();
-		$time                 = aioseoBrokenLinkChecker()->helpers->timeToMysql( strtotime( '-7 days' ) );
+		$time                 = esc_sql( aioseoBrokenLinkChecker()->helpers->timeToMysql( strtotime( '-7 days' ) ) );
 
 		$query = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status as als' )
 			->join( 'aioseo_blc_links al', 'al.blc_link_status_id = als.id' )
@@ -68,28 +69,20 @@ class Data {
 			)" );
 		}
 
-		$excludedDomains = aioseoBrokenLinkChecker()->helpers->getExcludedDomains();
+		if ( ! empty( $includedPostStatuses ) ) {
+			$query->whereIn( 'p.post_status', $includedPostStatuses );
+		}
+
+		if ( ! empty( $includedPostTypes ) ) {
+			$query->whereIn( 'p.post_type', $includedPostTypes );
+		}
+
 		if ( ! empty( $excludedDomains ) ) {
 			$query->whereNotIn( 'al.hostname', $excludedDomains );
 		}
 
-		if ( aioseoBrokenLinkChecker()->license->isFree() ) {
-			$query->where( 'al.external', 0 );
-		}
-
-		if ( ! empty( $includedPostStatuses ) ) {
-			$includedPostStatuses = aioseoBrokenLinkChecker()->helpers->implodeWhereIn( $includedPostStatuses, true );
-			$query->whereRaw( "p.post_status IN ( $includedPostStatuses )" );
-		}
-
-		if ( ! empty( $includedPostTypes ) ) {
-			$includedPostTypes = aioseoBrokenLinkChecker()->helpers->implodeWhereIn( $includedPostTypes, true );
-			$query->whereRaw( "p.post_type IN ( $includedPostTypes )" );
-		}
-
 		if ( ! empty( $excludedPostIds ) ) {
-			$excludedPostIds = aioseoBrokenLinkChecker()->helpers->implodeWhereIn( $excludedPostIds, true );
-			$query->whereRaw( "p.ID NOT IN ( $excludedPostIds )" );
+			$query->whereNotIn( 'p.ID', $excludedPostIds );
 		}
 
 		if ( $countOnly ) {
@@ -111,7 +104,7 @@ class Data {
 	 *
 	 * @return int The total number of indexed links.
 	 */
-	private function getTotalLinks() {
+	public function getTotalLinks() {
 		$query = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status as als' )
 			->select( 'als.id' )
 			->join( 'aioseo_blc_links al', 'al.blc_link_status_id = als.id' )
@@ -121,10 +114,6 @@ class Data {
 		$excludedDomains = aioseoBrokenLinkChecker()->helpers->getExcludedDomains();
 		if ( ! empty( $excludedDomains ) ) {
 			$query->whereNotIn( 'al.hostname', $excludedDomains );
-		}
-
-		if ( aioseoBrokenLinkChecker()->license->isFree() ) {
-			$query->where( 'al.external', 0 );
 		}
 
 		return $query->count();

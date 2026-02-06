@@ -37,15 +37,36 @@ class Updates {
 	 */
 	public function runUpdates() {
 		$lastActiveVersion = aioseoBrokenLinkChecker()->internalOptions->internal->lastActiveVersion;
+		// Don't run updates if the last active version is the same as the current version.
+		if ( aioseoBrokenLinkChecker()->version === $lastActiveVersion ) {
+			return;
+		}
+
+		// Try to acquire the lock.
+		if ( ! aioseoBrokenLinkChecker()->core->db->acquireLock( 'aioseo_blc_run_updates_lock', 0 ) ) {
+			// If we couldn't acquire the lock, exit early without doing anything.
+			// This means another process is already running updates.
+			return;
+		}
+
 		if ( version_compare( $lastActiveVersion, '1.0.0', '<' ) ) {
 			$this->addInitialTables();
 
+			// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date	
 			aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate = date( 'Y-m-d H:i:s', time() );
 		}
 
 		if ( version_compare( $lastActiveVersion, '1.2.0', '<' ) ) {
 			$this->dropInvalidMediaLinks();
 			$this->dropLinksWithInvalidHash();
+		}
+
+		if ( version_compare( $lastActiveVersion, '1.2.6', '<' ) ) {
+			aioseoBrokenLinkChecker()->access->addCapabilities();
+		}
+
+		if ( version_compare( $lastActiveVersion, '1.2.7', '<' ) ) {
+			$this->changeParagraphColumnType();
 		}
 	}
 
@@ -64,7 +85,7 @@ class Updates {
 		aioseoBrokenLinkChecker()->internalOptions->internal->lastActiveVersion = aioseoBrokenLinkChecker()->version;
 
 		aioseoBrokenLinkChecker()->core->db->bustCache();
-		aioseoBrokenLinkChecker()->internalOptions->database->installedTables = '';
+		aioseoBrokenLinkChecker()->core->cache->delete( 'db_schema' );
 	}
 
 	/**
@@ -127,8 +148,8 @@ class Updates {
 					`anchor` text NOT NULL,
 					`phrase` text NOT NULL,
 					`phrase_html` text NOT NULL,
-					`paragraph` text NOT NULL,
-					`paragraph_html` text NOT NULL,
+					`paragraph` mediumtext NOT NULL,
+					`paragraph_html` mediumtext NOT NULL,
 					`created` datetime NOT NULL,
 					`updated` datetime NOT NULL,
 					PRIMARY KEY (id),
@@ -231,5 +252,21 @@ class Updates {
 		aioseoBrokenLinkChecker()->core->db->execute(
 			"DELETE FROM {$blcLinkStatus} WHERE url LIKE '%\\%%'"
 		);
+	}
+
+	/**
+	 * Change the paragraph column type to mediumtext.
+	 *
+	 * @since 1.2.7
+	 *
+	 * @return void
+	 */
+	private function changeParagraphColumnType() {
+		if ( aioseoBrokenLinkChecker()->core->db->tableExists( 'aioseo_blc_links' ) ) {
+			$tableName = aioseoBrokenLinkChecker()->core->db->prefix . 'aioseo_blc_links';
+
+			aioseoBrokenLinkChecker()->core->db->execute( "ALTER TABLE $tableName CHANGE paragraph paragraph mediumtext NOT NULL" );
+			aioseoBrokenLinkChecker()->core->db->execute( "ALTER TABLE $tableName CHANGE paragraph_html paragraph_html mediumtext NOT NULL" );
+		}
 	}
 }

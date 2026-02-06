@@ -88,7 +88,7 @@ trait Wp {
 				// We have to check if the 'init' action has been fired to avoid a PHP notice
 				// in WP 6.7+ due to loading translations too early.
 				if ( did_action( 'init' ) ) {
-					$postTypeObject->label = __( 'Attachments', 'aioseo-broken-link-checker' );
+					$postTypeObject->label = __( 'Attachments', 'broken-link-checker-seo' );
 				}
 			}
 
@@ -245,7 +245,7 @@ trait Wp {
 		$restUrl = wp_parse_url( get_rest_url() );
 		$restUrl = $restUrl['path'] . ( ! empty( $restUrl['query'] ) ? '?' . $restUrl['query'] : '' );
 
-		$isRestApiRequest = ( 0 === strpos( $_SERVER['REQUEST_URI'], $restUrl ) );
+		$isRestApiRequest = ( 0 === strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $restUrl ) );
 
 		return apply_filters( 'aioseo_is_rest_api_request', $isRestApiRequest );
 	}

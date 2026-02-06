@@ -156,27 +156,23 @@ class Paragraph {
 			return $paragraph;
 		}
 
-		$paragraphWithInnerHtml        = $match[0];
-		$escapedParagraphWithInnerHtml = aioseoBrokenLinkChecker()->helpers->escapeRegex( $paragraphWithInnerHtml );
+		$paragraphWithInnerHtml = $match[0];
+		// Shorten the regex pattern to prevent the "regular expression is too large" warning.
+		$encParagraphWithInnerHtml = md5( $paragraphWithInnerHtml );
+		$encPostContent            = str_replace( $paragraphWithInnerHtml, $encParagraphWithInnerHtml, $postContent );
 
-		$precedingTags = '';
-		preg_match( "/(<[a-z]* .*>|<[a-z]*>)+$escapedParagraphWithInnerHtml/i", (string) $postContent, $match );
-		if ( ! empty( $match[0] ) ) {
-			$precedingTags = preg_replace( "/$escapedParagraphWithInnerHtml/", '', $match[0] );
-		}
+		preg_match( "/(<[a-z]* .*>|<[a-z]*>)+$encParagraphWithInnerHtml/i", (string) $encPostContent, $match );
+		$precedingTags = $match[1] ?? '';
 
-		$trailingTags = '';
-		preg_match( "/{$escapedParagraphWithInnerHtml}[.?!]?(<\/[a-z]*>)?/i", $postContent, $match );
-		if ( ! empty( $match[0] ) ) {
-			$trailingTags = preg_replace( "/$escapedParagraphWithInnerHtml/", '', $match[0] );
-		}
+		preg_match( "/{$encParagraphWithInnerHtml}[.?!]?(<\/[a-z]*>)?/i", (string) $encPostContent, $match );
+		$trailingTags = $match[1] ?? '';
 
 		$paragraphHtml = $precedingTags . $paragraphWithInnerHtml . $trailingTags;
 
 		$paragraphHtml = aioseoBrokenLinkChecker()->helpers->stripScriptTags( $paragraphHtml );
 		$paragraphHtml = aioseoBrokenLinkChecker()->helpers->trimParagraphTags( $paragraphHtml );
 
-		return $paragraphHtml;
+		return trim( $paragraphHtml );
 	}
 
 	/**

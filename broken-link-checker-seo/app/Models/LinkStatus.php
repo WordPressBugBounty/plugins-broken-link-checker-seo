@@ -156,6 +156,23 @@ class LinkStatus extends Model {
 	}
 
 	/**
+	 * Returns the count of broken links for a given post ID.
+	 *
+	 * @since 1.2.7
+	 *
+	 * @param int    $postId The post ID.
+	 * @return int           The count of broken links.
+	 */
+	public static function getBrokenCountByPostId( $postId ) {
+		return aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status as als' )
+			->join( 'aioseo_blc_links as al', 'als.id = al.blc_link_status_id' )
+			->where( 'al.post_id', $postId )
+			->where( 'als.broken', true )
+			->where( 'als.dismissed', false )
+			->count();
+	}
+
+	/**
 	 * Returns link status row results based on the given arguments.
 	 * This is basically a wrapper/query builder that we use to fetch all the data we need for the Broken Links Report.
 	 *
@@ -266,6 +283,12 @@ class LinkStatus extends Model {
 
 		if ( ! empty( $filter ) ) {
 			switch ( $filter ) {
+				case 'good':
+					$query->where( 'als.broken', false );
+					$query->where( 'als.redirect_count', 0 );
+					$query->where( 'als.dismissed', false );
+					$query->where( 'als.last_scan_date IS NOT', null );
+					break;
 				case 'broken':
 					$query->where( 'als.broken', true );
 					$query->where( 'als.dismissed', false );
@@ -288,5 +311,23 @@ class LinkStatus extends Model {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Apply filter before saving.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function save() {
+		$fields = $this->transform( $this->filter( (array) get_object_vars( $this ) ) );
+
+		$fields['url']      = apply_filters( 'aioseo_blc_link_url_before_save', $fields['url'] );
+		$fields['url_hash'] = sha1( $fields['url'] );
+
+		$this->applyKeys( $this->transform( $this->filter( $fields ) ) );
+
+		parent::save();
 	}
 }

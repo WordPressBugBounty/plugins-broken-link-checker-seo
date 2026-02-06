@@ -61,6 +61,24 @@ class Admin {
 	private $pages = [];
 
 	/**
+	 * Dashboard class instance.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @var Dashboard
+	 */
+	public $dashboard;
+
+	/**
+	 * Emails class instance.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @var Emails\Emails
+	 */
+	public $emails;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 1.0.0
@@ -70,7 +88,11 @@ class Admin {
 			return;
 		}
 
+		$this->emails    = new Emails\Emails();
+		$this->dashboard = new Dashboard();
+
 		add_action( 'admin_menu', [ $this, 'registerMenu' ] );
+		add_action( 'admin_menu', [ $this, 'addUpgradeMenuLink' ], 999 );
 		add_action( 'admin_menu', [ $this, 'hideScheduledActionsMenu' ], 999 );
 		add_filter( 'language_attributes', [ $this, 'addDirAttribute' ], 3000 );
 
@@ -116,8 +138,8 @@ class Admin {
 	 */
 	public function registerMenu() {
 		$hook = add_menu_page(
-			__( 'Broken Links', 'aioseo-broken-link-checker' ),
-			__( 'Broken Links', 'aioseo-broken-link-checker' ),
+			__( 'Broken Links', 'broken-link-checker-seo' ),
+			__( 'Broken Links', 'broken-link-checker-seo' ),
 			'aioseo_blc_broken_links_page',
 			$this->pageSlug,
 			[ $this, 'renderMenuPage' ],
@@ -141,6 +163,57 @@ class Admin {
 	}
 
 	/**
+	 * Renders the connect success page.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function renderConnectSuccessPage() {
+		?>
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="utf-8">
+			<title><?php esc_html_e( 'Connection Successful', 'broken-link-checker-seo' ); ?></title>
+		</head>
+		<body>
+			<div class="message">
+				<p>
+					<?php esc_html_e( 'You have successfully connected with Broken Link Checker!', 'broken-link-checker-seo' ); ?>
+				</p>
+				<p>
+					<?php
+					printf(
+						// Translators: 1 - Opening HTML link tag, 2 - Closing HTML link tag.
+						esc_html__(
+							'This page should automatically close in a few seconds. If your account is still not connected, please %1$scontact our support team%2$s.',
+							'broken-link-checker-seo'
+						),
+						'<a href="' . esc_url( 'https://aioseo.com/contact' ) . '" target="_blank">',
+						'</a>'
+					);
+					?>
+				</p>
+			</div>
+		</body>
+		</html>
+		<?php
+	}
+
+	/**
+	 * Hides admin notices on the connect success page.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function hideAdminNoticesOnConnectPage() {
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+	}
+
+	/**
 	 * Registers our menu pages.
 	 *
 	 * @since 1.0.0
@@ -148,23 +221,26 @@ class Admin {
 	 * @return void
 	 */
 	public function registerMenuPages() {
+		// Don't show SEO Settings if user cannot activate/install AIOSEO.
+		if ( current_user_can( 'install_plugins' ) ) {
+			$hook = add_submenu_page(
+				$this->pageSlug,
+				__( 'SEO Settings', 'broken-link-checker-seo' ),
+				__( 'SEO Settings', 'broken-link-checker-seo' ),
+				'aioseo_blc_about_us_page',
+				$this->pageSlug . '-seo-settings',
+				[ $this, 'renderMenuPage' ]
+			);
+
+			$this->pages[] = $this->pageSlug . '-seo-settings';
+
+			add_action( "load-{$hook}", [ $this, 'redirectSeoSettings' ] );
+		}
+
 		$hook = add_submenu_page(
 			$this->pageSlug,
-			__( 'SEO Settings', 'aioseo-broken-link-checker' ),
-			__( 'SEO Settings', 'aioseo-broken-link-checker' ),
-			'aioseo_blc_about_us_page',
-			$this->pageSlug . '-seo-settings',
-			[ $this, 'renderMenuPage' ]
-		);
-
-		$this->pages[] = $this->pageSlug . '-seo-settings';
-
-		add_action( "load-{$hook}", [ $this, 'redirectSeoSettings' ] );
-
-		$hook = add_submenu_page(
-			$this->pageSlug,
-			__( 'About Us', 'aioseo-broken-link-checker' ),
-			__( 'About Us', 'aioseo-broken-link-checker' ),
+			__( 'About Us', 'broken-link-checker-seo' ),
+			__( 'About Us', 'broken-link-checker-seo' ),
 			'aioseo_blc_about_us_page',
 			$this->pageSlug . '-about',
 			[ $this, 'renderMenuPage' ]
@@ -173,6 +249,77 @@ class Admin {
 		$this->pages[] = $this->pageSlug . '-about';
 
 		add_action( "load-{$hook}", [ $this, 'checkCurrentPage' ] );
+
+		// Hidden page for connect success (no menu item).
+		$hook = add_submenu_page(
+			'',
+			__( 'Connect Success', 'broken-link-checker-seo' ),
+			__( 'Connect Success', 'broken-link-checker-seo' ),
+			'aioseo_blc_broken_links_page',
+			$this->pageSlug . '-connect',
+			[ $this, 'renderConnectSuccessPage' ]
+		);
+
+		// Hide admin notices on the connect success page.
+		add_action( "load-{$hook}", [ $this, 'hideAdminNoticesOnConnectPage' ] );
+	}
+
+	/**
+	 * Adds a menu link for connecting or upgrading based on license status.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function addUpgradeMenuLink() {
+		// Don't show anything if user is on a paid plan (connected and not free).
+		if ( aioseoBrokenLinkChecker()->license->isActive() && ! aioseoBrokenLinkChecker()->license->isFree() ) {
+			return;
+		}
+
+		$capability = 'aioseo_blc_broken_links_page';
+		if ( ! current_user_can( $capability ) ) {
+			return;
+		}
+
+		global $submenu;
+
+		// If not connected, show "Connect Now" and link to settings page.
+		if ( ! aioseoBrokenLinkChecker()->license->isActive() ) {
+			$submenu[ $this->pageSlug ][] = [
+				'<span class="aioseo-blc-menu-highlight">' . esc_html__( 'Connect Now', 'broken-link-checker-seo' ) . '</span>',
+				$capability,
+				admin_url( 'admin.php?page=' . $this->pageSlug . '#/settings' )
+			];
+
+			return;
+		}
+
+		// If on free plan, show "Upgrade to Pro" and link to pricing page.
+		if ( aioseoBrokenLinkChecker()->license->isFree() ) {
+			$submenu[ $this->pageSlug ][] = [
+				'<span class="aioseo-blc-menu-highlight">' . esc_html__( 'Upgrade to Pro', 'broken-link-checker-seo' ) . '</span>',
+				$capability,
+				admin_url( 'admin.php?page=' . $this->pageSlug . '&aioseo-blc-redirect-upgrade=1' )
+			];
+		}
+	}
+
+	/**
+	 * Checks the query args to see if we need to redirect to an external URL.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	private function checkForRedirects() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, HM.Security.NonceVerification.Recommended
+		if ( isset( $_GET['aioseo-blc-redirect-upgrade'] ) ) {
+			$redirectUrl = aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'pricing-broken-link-checker/', 'admin-menu', 'upgrade' );
+			wp_redirect( $redirectUrl ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+			exit;
+		}
+		// phpcs:enable
 	}
 
 	/**
@@ -183,6 +330,9 @@ class Admin {
 	 * @return void
 	 */
 	public function checkCurrentPage() {
+		// Check if we need to redirect to the pricing page.
+		$this->checkForRedirects();
+
 		global $admin_page_hooks; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 		$currentScreen = function_exists( 'get_current_screen' ) ? get_current_screen() : false;
 
@@ -275,6 +425,17 @@ class Admin {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, HM.Security.NonceVerification.Recommended
+		// Don't hide it if we're on the Scheduled Actions menu page.
+		$page = isset( $_GET['page'] )
+			? sanitize_text_field( wp_unslash( $_GET['page'] ) )
+			: '';
+		// phpcs:enable
+
+		if ( 'action-scheduler' === $page || aioseoBrokenLinkChecker()->helpers->isDev() ) {
+			return;
+		}
+
 		foreach ( $submenu['tools.php'] as $index => $props ) {
 			if ( ! empty( $props[2] ) && 'action-scheduler' === $props[2] ) {
 				unset( $submenu['tools.php'][ $index ] );
@@ -299,7 +460,7 @@ class Admin {
 		$actionLinks = [
 			'suggest-feature' => [
 				// Translators: This is an action link users can click to open a feature request.
-				'label' => __( 'Suggest a Feature', 'aioseo-broken-link-checker' ),
+				'label' => __( 'Suggest a Feature', 'broken-link-checker-seo' ),
 				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'blc-feature-suggestion/', 'plugin-row-meta', 'feature' ),
 			],
 			'review'          => [
@@ -307,7 +468,7 @@ class Admin {
 				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'review-blc', 'plugin-row-meta', 'review' ),
 				'title' => sprintf(
 					// Translators: 1 - The plugin name ("Broken Link Checker").
-					__( 'Rate %1$s', 'aioseo-broken-link-checker' ),
+					__( 'Rate %1$s', 'broken-link-checker-seo' ),
 					'Broken Link Checker'
 				)
 			]
@@ -329,12 +490,12 @@ class Admin {
 		$actionLinks = [
 			'support' => [
 				// Translators: This is an action link users can click to open our support.
-				'label' => __( 'Support', 'aioseo-broken-link-checker' ),
+				'label' => __( 'Support', 'broken-link-checker-seo' ),
 				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'plugin/blc-support', 'plugin-action-links', 'Documentation' ),
 			],
 			'docs'    => [
 				// Translators: This is an action link users can click to open our documentation page.
-				'label' => __( 'Documentation', 'aioseo-broken-link-checker' ),
+				'label' => __( 'Documentation', 'broken-link-checker-seo' ),
 				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'doc-categories/broken-link-checker/', 'plugin-action-links', 'Documentation' ),
 			]
 		];
@@ -427,8 +588,8 @@ class Admin {
 	 * @return string The footer text.
 	 */
 	public function addFooterText() {
-		$linkText = esc_html__( 'Give us a 5-star rating!', 'aioseo-broken-link-checker' );
-		$href     = 'https://wordpress.org/support/plugin/broken-link-checker-seo/reviews/?filter=5#new-post';
+		$linkText = esc_html__( 'Give us a 5-star rating!', 'broken-link-checker-seo' );
+		$href     = 'https://aioseo.com/blc-wordpress-rating';
 
 		$link1 = sprintf(
 			'<a href="%1$s" target="_blank" title="%2$s">&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
@@ -444,7 +605,7 @@ class Admin {
 
 		printf(
 			// Translators: 1 - The plugin name ("Broken Link Checker"), - 2 - This placeholder will be replaced with star icons, - 3 - "WordPress.org" - 4 - The plugin name ("Broken Link Checker").
-			esc_html__( 'Please rate %1$s %2$s on %3$s to help us spread the word. Thank you!', 'aioseo-broken-link-checker' ),
+			esc_html__( 'Please rate %1$s %2$s on %3$s to help us spread the word. Thank you!', 'broken-link-checker-seo' ),
 			sprintf( '<strong>%1$s</strong>', esc_html( AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_NAME ) ),
 			wp_kses_post( $link1 ),
 			wp_kses_post( $link2 )
@@ -456,7 +617,7 @@ class Admin {
 			wp_kses_post( '<p class="alignright">%1$s</p>' ),
 			sprintf(
 				// Translators: 1 - WP Core version number, 2 - BLC version number.
-				esc_html__( 'WordPress %1$s | BLC %2$s', 'aioseo-broken-link-checker' ),
+				esc_html__( 'WordPress %1$s | BLC %2$s', 'broken-link-checker-seo' ),
 				esc_html( $wp_version ), // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 				esc_html( AIOSEO_BROKEN_LINK_CHECKER_VERSION )
 			)

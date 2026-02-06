@@ -31,10 +31,13 @@ class Uninstall {
 			return;
 		}
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery
 		// Delete all our custom tables.
 		global $wpdb;
 		foreach ( $this->getDbTables() as $tableName ) {
-			$wpdb->query( 'DROP TABLE IF EXISTS ' . $tableName ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$escapedTableName = esc_sql( $tableName );
+
+			$wpdb->query( 'DROP TABLE IF EXISTS ' . $escapedTableName ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
 		// Delete all the plugin settings.
@@ -46,6 +49,7 @@ class Uninstall {
 		// Delete all entries from the action scheduler table.
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}actionscheduler_actions WHERE hook LIKE 'aioseo\_blc\_%'" );
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}actionscheduler_groups WHERE slug = 'aioseo\_blc'" );
+		// phpcs:enable
 
 		// Delete all our custom capabilities.
 		$this->uninstallCapabilities();

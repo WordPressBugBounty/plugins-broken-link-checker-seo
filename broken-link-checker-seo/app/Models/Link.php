@@ -201,7 +201,7 @@ class Link extends Model {
 	 */
 	public static function rowQuery( $linkStatusId, $limit = 5, $offset = 0, $whereClause = '' ) {
 		$linkRows = self::baseQuery( $linkStatusId, $whereClause )
-			->select( 'al.id, al.post_id, p.post_type, al.external, al.anchor, al.phrase' )
+			->select( 'al.id, al.post_id, p.post_type, al.anchor, al.phrase' )
 			->limit( $limit, $offset )
 			->run()
 			->result();
@@ -212,15 +212,24 @@ class Link extends Model {
 
 		$rowsWithData = [];
 		foreach ( $linkRows as $linkRow ) {
+			$canEdit = current_user_can( 'edit_post', $linkRow->post_id );
+			if ( ! $canEdit ) {
+				continue;
+			}
+
 			$linkRow->context = [
-				'permalink' => get_permalink( $linkRow->post_id ),
 				'postTitle' => aioseoBrokenLinkChecker()->helpers->getPostTitle( $linkRow->post_id ),
+				'postType'  => $linkRow->post_type,
+				'permalink' => get_permalink( $linkRow->post_id ),
 				'editLink'  => get_edit_post_link( $linkRow->post_id, '' ),
-				'postType'  => $linkRow->post_type
+				'canEdit'   => $canEdit,
+				'canDelete' => current_user_can( 'delete_post', $linkRow->post_id )
 			];
 
 			$rowsWithData[] = $linkRow;
 		}
+
+		$rowsWithData = array_filter( $rowsWithData );
 
 		return $rowsWithData;
 	}
@@ -348,5 +357,23 @@ class Link extends Model {
 		} catch ( \Exception $e ) {
 			// Do nothing.
 		}
+	}
+
+	/**
+	 * Apply filter before saving.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function save() {
+		$fields = $this->transform( $this->filter( (array) get_object_vars( $this ) ) );
+
+		$fields['url']      = apply_filters( 'aioseo_blc_link_url_before_save', $fields['url'] );
+		$fields['url_hash'] = sha1( $fields['url'] );
+
+		$this->applyKeys( $this->transform( $this->filter( $fields ) ) );
+
+		parent::save();
 	}
 }

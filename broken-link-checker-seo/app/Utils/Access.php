@@ -14,7 +14,7 @@ class Access {
 	 *
 	 * @var array
 	 */
-	protected $capabilities = [
+	private $capabilities = [
 		'aioseo_blc_about_us_page',
 		'aioseo_blc_broken_links_page',
 		'aioseo_blc_setup_wizard_page'
@@ -27,12 +27,23 @@ class Access {
 	 *
 	 * @var array
 	 */
-	protected $roles = [
+	private $roles = [
 		'superadmin'    => 'superadmin',
 		'administrator' => 'administrator',
 		'editor'        => 'editor',
-		'author'        => 'author',
-		'contributor'   => 'contributor'
+		'author'        => 'author'
+	];
+
+	/**
+	 * Roles that we don't add the capabilities to.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @var array
+	 */
+	private $excludedRoles = [
+		'subscriber',
+		'contributor'
 	];
 
 	/**
@@ -55,6 +66,11 @@ class Access {
 		foreach ( $this->roles as $wpRole => $role ) {
 			$roleObject = get_role( $wpRole );
 			if ( ! is_object( $roleObject ) ) {
+				continue;
+			}
+
+			// Don't add the cap to the subscriber or contributor roles.
+			if ( in_array( $role, $this->excludedRoles, true ) ) {
 				continue;
 			}
 
@@ -101,7 +117,10 @@ class Access {
 			}
 
 			foreach ( $this->capabilities as $capability ) {
-				if ( $role->has_cap( $capability ) ) {
+				if (
+					$role->has_cap( $capability ) ||
+					in_array( $key, $this->excludedRoles, true )
+				) {
 					$role->remove_cap( $capability );
 				}
 			}

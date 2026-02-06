@@ -52,10 +52,11 @@ class InternalOptions {
 				'licenseKey'       => [ 'type' => 'string', 'default' => '' ],
 				'quota'            => [ 'type' => 'number', 'default' => 0 ],
 				'quotaRemaining'   => [ 'type' => 'number', 'default' => 0 ]
+			],
+			'emails'              => [
+				'connectReminder'       => [ 'type' => 'number', 'default' => 0 ],
+				'connectReminderSecond' => [ 'type' => 'number', 'default' => 0 ]
 			]
-		],
-		'database' => [
-			'installedTables' => [ 'type' => 'string' ]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 	];

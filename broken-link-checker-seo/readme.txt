@@ -1,10 +1,10 @@
 === Broken Link Checker by AIOSEO – Easily Fix/Monitor Internal and External links ===
 Contributors: aioseo, smub, benjaminprojas
 Tags: broken links, internal link, external link, check links, seo
-Tested up to: 6.8
-Requires at least: 5.3
+Tested up to: 6.9
+Requires at least: 5.7
 Requires PHP: 5.6
-Stable tag: 1.2.5
+Stable tag: 1.2.8
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -20,7 +20,7 @@ Unlike other broken link checker plugins, **AIOSEO's Broken Link Checker is offe
 
 By using Broken Link Checker as a SaaS, you can rest assured that your website's performance won't be negatively affected, and that you'll have access to the most up-to-date version of the service at all times. Additionally, it's incredibly user-friendly and provides actionable recommendations for fixing broken links, making it an essential tool for maintaining the health and functionality of your website.
 
-When you install this plugin, you’ll have the opportunity to register for a free account that includes scanning up to 200 internal links. Those 200 link credits will renew every month for free, and you’ll only be upgraded if you scan more than 200 links during the month. Or, if you already have an AIOSEO Broken Link Checker subscription, you can simply connect this plugin to it.
+When you install this plugin, you’ll have the opportunity to register for a free account that includes scanning up to 250 internal links. Those 250 link credits will renew every month for free, and you’ll only be upgraded if you scan more than 250 links during the month. Or, if you already have an <a href="https://aioseo.com/pricing-broken-link-checker/" target="_blank">AIOSEO Broken Link Checker subscription</a>, you can simply connect this plugin to it.
 
 === Link Monitoring ===
 
@@ -86,6 +86,30 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Changelog ==
 
+**New in Version 1.2.8**
+
+* Updated: Changed wording to reflect that free subscriptions never expire, but that their quota resets each month.
+
+**New in Version 1.2.7**
+
+* New: Users using AIOSEO, Broken Link Checker and Link Assistant now see their broken links count in the AIOSEO Details post column.
+* Updated: Compatibility with WordPress 6.9.
+* Updated: Cache class now uses JSON instead of PHP serialization to prevent cache misses when charsets don't match.
+* Updated: Various database performance improvements.
+* Updated: Hardened database queries against SQL attacks.
+* Fixed: "Good" filter now no longer shows URLs that still need to be scanned for the first time.
+
+**New in Version 1.2.6**
+
+* New: Added Link Distribution dashboard widget to the WordPress admin dashboard.
+* New: Added reminder emails to inform users when Broken Link Checker is not connected.
+* Updated: All BLC plans, including free, now support external links.
+* Updated: The free BLC plan now includes 50 more links for free, for a total of 250.
+* Updated: Added warning messages when indexed link count is larger than plan link quota or link quota is (almost) depleted.
+* Updated: Added hook to filter URLs when they are indexed to add compatibility with WP Offload Media.
+* Updated: Hardened REST API routes and added permission checks to improve security.
+* Fixed: Link scan sometimes getting stuck if AIOSEO is not installed due to missing function.
+
 **New in Version 1.2.5**
 
 * Fixed: Link status scan sometimes getting stuck due to URL hash collisions.
@@ -124,33 +148,10 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 * Fixed: Unified URL rows now correctly respect the included post types, included post status, excluded posts and excluded domain settings.
 * Fixed: When deleting a post, the confirmation modal now correctly shows up again.
 
-**New in Version 1.1.2**
-
-* Fixed: PHP error causing settings screen not to load when using default excluded domains value.
-
-**New in Version 1.1.1**
-
-* New: You can now exclude specific domains from being checked through the settings.
-* Fixed: Limit Modified Date setting sometimes not working because WordPress Core was overriding it.
-* Fixed: PHP notice when indexing links due to missing URL scheme.
-
-**New in Version 1.1.0**
-
-* New: Unified Links - Duplicate links are now grouped together in the UI for an improved user experience.
-* Updated: Added support for PHP 8.2.
-* Updated: Added sorting for the URL column in the Broken Links report table.
-* Updated: Added a progress bar for the link status scan.
-* Updated: Added a confirmation modal to prevent user from trashing posts by mistake.
-* Updated: Improved performance of rechecking links in bulk.
-* Updated: Improved general performance of database queries.
-* Updated: "Broken Links" is now the default table filter after the link status scan has been completed.
-* Fixed: Various issues where updating, removing or force-rechecking certain links sometimes failed.
-* Fixed: Connecting to remote server sometimes hanged until the user refreshed the page.
-
 **See our [changelog on aioseo.com](https://aioseo.com/changelog/broken-link-checker/?utm_source=wprepo&utm_medium=link&utm_campaign=blc) for previous releases.**
 
 == Upgrade Notice ==
 
-= 1.2.4 =
+= 1.2.8 =
 
 This update adds major improvements and bug fixes.

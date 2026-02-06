@@ -237,7 +237,7 @@ namespace AIOSEO\BrokenLinkChecker {
 
 			foreach ( $constants as $constant => $value ) {
 				if ( ! defined( $constant ) ) {
-					define( $constant, $value );
+					define( $constant, $value ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.VariableConstantNameFound	
 				}
 			}
 
@@ -261,7 +261,7 @@ namespace AIOSEO\BrokenLinkChecker {
 				if ( ! file_exists( AIOSEO_BROKEN_LINK_CHECKER_DIR . $path ) ) {
 					// Something is not right.
 					status_header( 500 );
-					wp_die( esc_html__( 'Plugin is missing required dependencies. Please contact support for more information.', 'aioseo-broken-link-checker' ) );
+					wp_die( esc_html__( 'Plugin is missing required dependencies. Please contact support for more information.', 'broken-link-checker-seo' ) );
 				}
 				require_once AIOSEO_BROKEN_LINK_CHECKER_DIR . $path;
 			}
@@ -306,8 +306,8 @@ namespace AIOSEO\BrokenLinkChecker {
 		private function preLoad() {
 			$this->core            = new Core\Core();
 			$this->internalOptions = new Options\InternalOptions();
+			$this->helpers         = new Utils\Helpers(); // Needs to load before preUpdates.
 			$this->preUpdates      = new Main\PreUpdates();
-			$this->helpers         = new Utils\Helpers();
 			$this->options         = new Options\Options();
 		}
 

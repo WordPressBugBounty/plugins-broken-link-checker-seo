@@ -146,6 +146,16 @@ class LinkStatus {
 			empty( $responseBody->scanId ) ||
 			! isset( $responseBody->quotaRemaining )
 		) {
+			if (
+				! empty( $responseBody->error ) &&
+				'out-of-quota' === strtolower( $responseBody->error )
+			) {
+				// If the scan failed because the user is out of quota, check again in 24h to see if the quota has been replenished.
+				aioseoBrokenLinkChecker()->actionScheduler->scheduleSingle( $this->actionName, DAY_IN_SECONDS + wp_rand( 60, 600 ) );
+
+				return;
+			}
+
 			aioseoBrokenLinkChecker()->actionScheduler->scheduleSingle( $this->actionName, MINUTE_IN_SECONDS );
 
 			return;

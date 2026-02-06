@@ -13,11 +13,13 @@ if ( ! function_exists( 'aioseo_blc_is_plugin_disabled' ) ) {
 	 * @return bool True if the plugin should be disabled.
 	 */
 	function aioseo_blc_is_plugin_disabled() {
-		if ( ! defined( 'AIOSEO_DEV_VERSION' ) && ! isset( $_REQUEST['aioseo-dev'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		// phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
+		if ( ! defined( 'AIOSEO_DEV_VERSION' ) && ! isset( $_REQUEST['aioseo-dev'] ) ) {
 			return false;
 		}
 
-		if ( ! isset( $_REQUEST['aioseo-disable-broken-link-checker'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		// phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_REQUEST['aioseo-disable-broken-link-checker'] ) ) {
 			return false;
 		}
 

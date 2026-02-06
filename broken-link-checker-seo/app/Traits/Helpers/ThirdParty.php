@@ -40,7 +40,8 @@ trait ThirdParty {
 			return is_shop();
 		}
 
-		$id = ! $id && ! empty( $_GET['post'] ) ? (int) wp_unslash( $_GET['post'] ) : (int) $id; // phpcs:ignore HM.Security.ValidatedSanitizedInput, HM.Security.NonceVerification.Recommended
+		// phpcs:ignore HM.Security.ValidatedSanitizedInput, HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$id = ! $id && ! empty( $_GET['post'] ) ? (int) wp_unslash( $_GET['post'] ) : (int) $id;
 
 		return $id && wc_get_page_id( 'shop' ) === $id;
 	}

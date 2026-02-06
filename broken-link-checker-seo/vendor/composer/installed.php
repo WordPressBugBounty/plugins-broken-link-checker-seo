@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => 'awesomemotive/aioseo-broken-link-checker',
+        'name' => 'awesomemotive/broken-link-checker-seo',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => 'ffa7236a53bfd306572fd00fcda88192824b22c9',
+        'reference' => '8bcd90a248a70990dbfbf00e4d70d3b75c56655d',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => false,
     ),
     'versions' => array(
-        'awesomemotive/aioseo-broken-link-checker' => array(
+        'awesomemotive/broken-link-checker-seo' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => 'ffa7236a53bfd306572fd00fcda88192824b22c9',
+            'reference' => '8bcd90a248a70990dbfbf00e4d70d3b75c56655d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

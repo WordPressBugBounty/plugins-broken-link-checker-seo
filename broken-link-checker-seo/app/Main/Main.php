@@ -67,6 +67,31 @@ class Main {
 		$this->linkStatus = new LinkStatus\LinkStatus();
 
 		add_filter( 'the_content', [ $this, 'filterLinks' ], 999 ); // High prio to make sure other plugins get a chance to render their content, parse their blocks, etc..
+
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueStandaloneApp' ] );
+		add_action( 'admin_footer', [ $this, 'adminFooter' ] );
+	}
+
+	/**
+	 * Enqueues the standalone app for admin menu styles.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function enqueueStandaloneApp() {
+		aioseoBrokenLinkChecker()->core->assets->load( 'src/vue/standalone/app/main.js', [], [], 'aioseoBrokenLinkCheckerApp' );
+	}
+
+	/**
+	 * Enqueue the footer div to let Vue attach.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	public function adminFooter() {
+		echo '<div id="aioseo-blc-admin"></div>';
 	}
 
 	/**

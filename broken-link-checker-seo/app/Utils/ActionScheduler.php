@@ -44,7 +44,7 @@ class ActionScheduler {
 			return;
 		}
 
-		if ( ! apply_filters( 'action_scheduler_enable_recreate_data_store', true ) ) {
+		if ( ! apply_filters( 'action_scheduler_enable_recreate_data_store', true ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			return;
 		}
 
@@ -159,7 +159,7 @@ class ActionScheduler {
 	public function scheduleSingle( $actionName, $time, $args = [] ) {
 		try {
 			if ( empty( $this->getPendingActions( $actionName, $args ) ) ) {
-				as_schedule_single_action( time() + $time, $actionName, $args, $this->actionSchedulerGroup );
+				\as_schedule_single_action( time() + $time, $actionName, $args, $this->actionSchedulerGroup );
 
 				return true;
 			}
@@ -198,6 +198,10 @@ class ActionScheduler {
 	 * @return array              The actions.
 	 */
 	public function getRunningActions( $actionName, $args = [] ) {
+		if ( ! class_exists( 'ActionScheduler_Store' ) ) {
+			return [];
+		}
+
 		$runningArgs = [
 			'hook'     => $actionName,
 			'status'   => \ActionScheduler_Store::STATUS_RUNNING,
@@ -223,6 +227,10 @@ class ActionScheduler {
 	 * @return array              The actions.
 	 */
 	public function getPendingActions( $actionName, $args = [] ) {
+		if ( ! class_exists( 'ActionScheduler_Store' ) ) {
+			return [];
+		}
+
 		$pendingArgs = [
 			'hook'     => $actionName,
 			'status'   => \ActionScheduler_Store::STATUS_PENDING,

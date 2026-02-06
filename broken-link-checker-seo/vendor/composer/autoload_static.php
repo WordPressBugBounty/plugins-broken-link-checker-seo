@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitea83457257a54dc833bf8ffd41c209c3
+class ComposerStaticInit078ce0cc9b4bd5fcd0ce5db9faa22e05
 {
     public static $prefixLengthsPsr4 = array (
         'A' => 
@@ -22,6 +22,10 @@ class ComposerStaticInitea83457257a54dc833bf8ffd41c209c3
 
     public static $classMap = array (
         'AIOSEO\\BrokenLinkChecker\\Admin\\Admin' => __DIR__ . '/../..' . '/app/Admin/Admin.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\Dashboard' => __DIR__ . '/../..' . '/app/Admin/Dashboard.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\ConnectReminder' => __DIR__ . '/../..' . '/app/Admin/Emails/ConnectReminder.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\ConnectReminderSecond' => __DIR__ . '/../..' . '/app/Admin/Emails/ConnectReminderSecond.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\Emails' => __DIR__ . '/../..' . '/app/Admin/Emails/Emails.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\License' => __DIR__ . '/../..' . '/app/Admin/License.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\NotConnected' => __DIR__ . '/../..' . '/app/Admin/Notices/NotConnected.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\Review' => __DIR__ . '/../..' . '/app/Admin/Notices/Review.php',
@@ -35,6 +39,7 @@ class ComposerStaticInitea83457257a54dc833bf8ffd41c209c3
         'AIOSEO\\BrokenLinkChecker\\Api\\LinkStatusTable' => __DIR__ . '/../..' . '/app/Api/LinkStatusTable.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\LinksTable' => __DIR__ . '/../..' . '/app/Api/LinksTable.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Notifications' => __DIR__ . '/../..' . '/app/Api/Notifications.php',
+        'AIOSEO\\BrokenLinkChecker\\Api\\Options' => __DIR__ . '/../..' . '/app/Api/Options.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Plugins' => __DIR__ . '/../..' . '/app/Api/Plugins.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Post' => __DIR__ . '/../..' . '/app/Api/Post.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\PostsTerms' => __DIR__ . '/../..' . '/app/Api/PostsTerms.php',
@@ -74,6 +79,7 @@ class ComposerStaticInitea83457257a54dc833bf8ffd41c209c3
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\DateTime' => __DIR__ . '/../..' . '/app/Traits/Helpers/DateTime.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Strings' => __DIR__ . '/../..' . '/app/Traits/Helpers/Strings.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\ThirdParty' => __DIR__ . '/../..' . '/app/Traits/Helpers/ThirdParty.php',
+        'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Url' => __DIR__ . '/../..' . '/app/Traits/Helpers/Url.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Vue' => __DIR__ . '/../..' . '/app/Traits/Helpers/Vue.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Wp' => __DIR__ . '/../..' . '/app/Traits/Helpers/Wp.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\WpContext' => __DIR__ . '/../..' . '/app/Traits/Helpers/WpContext.php',
@@ -92,9 +98,9 @@ class ComposerStaticInitea83457257a54dc833bf8ffd41c209c3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitea83457257a54dc833bf8ffd41c209c3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitea83457257a54dc833bf8ffd41c209c3::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitea83457257a54dc833bf8ffd41c209c3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit078ce0cc9b4bd5fcd0ce5db9faa22e05::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit078ce0cc9b4bd5fcd0ce5db9faa22e05::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit078ce0cc9b4bd5fcd0ce5db9faa22e05::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -78,14 +78,14 @@ class Review {
 	public function showNotice() {
 		$string1 = sprintf(
 			// Translators: 1 - The plugin name ("Broken Link Checker").
-			__( 'Hey, we noticed you have been using %1$s for some time - that’s awesome! Could you please do us a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation?', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			__( 'Hey, we noticed you have been using %1$s for some time - that’s awesome! Could you please do us a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation?', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 			'<strong>' . esc_html( AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_NAME ) . '</strong>'
 		);
 
 		// Translators: 1 - The plugin name ("Broken Link Checker").
-		$string9  = __( 'Ok, you deserve it', 'aioseo-broken-link-checker' );
-		$string10 = __( 'Nope, maybe later', 'aioseo-broken-link-checker' );
-		$string11 = __( 'I already did', 'aioseo-broken-link-checker' );
+		$string9  = __( 'Ok, you deserve it', 'broken-link-checker-seo' );
+		$string10 = __( 'Nope, maybe later', 'broken-link-checker-seo' );
+		$string11 = __( 'I already did', 'broken-link-checker-seo' );
 
 		?>
 		<div class="notice notice-info aioseo-blc-review-plugin-cta is-dismissible">
@@ -93,7 +93,7 @@ class Review {
 				<p><?php echo $string1; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 				<p>
 					<?php // phpcs:ignore Generic.Files.LineLength.MaxExceeded ?>
-					<a href="https://wordpress.org/support/plugin/broken-link-checker-seo/reviews/?filter=5#new-post" class="aioseo-blc-dismiss-review-notice" target="_blank" rel="noopener noreferrer">
+					<a href="https://aioseo.com/blc-wordpress-rating" class="aioseo-blc-dismiss-review-notice" target="_blank" rel="noopener noreferrer">
 						<?php echo esc_html( $string9 ); ?>
 					</a>&nbsp;&bull;&nbsp;
 					<a href="#" class="aioseo-blc-dismiss-review-notice-delay" target="_blank" rel="noopener noreferrer">
@@ -220,9 +220,16 @@ class Review {
 			return;
 		}
 
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error();
+		}
+
 		check_ajax_referer( 'aioseo-blc-dismiss-review', 'nonce' );
-		$delay = isset( $_POST['delay'] ) ? 'true' === wp_unslash( $_POST['delay'] ) : false; // phpcs:ignore HM.Security.ValidatedSanitizedInput.InputNotSanitized
-		$relay = isset( $_POST['relay'] ) ? 'true' === wp_unslash( $_POST['relay'] ) : false; // phpcs:ignore HM.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		// phpcs:disable HM.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
+		$delay = isset( $_POST['delay'] ) ? 'true' === sanitize_text_field( wp_unslash( $_POST['delay'] ) ) : false;
+		$relay = isset( $_POST['relay'] ) ? 'true' === sanitize_text_field( wp_unslash( $_POST['relay'] ) ) : false;
+		// phpcs:enable
 
 		if ( ! $delay ) {
 			update_user_meta( get_current_user_id(), '_aioseo_blc_plugin_review_dismissed', $relay ? '4' : '3' );

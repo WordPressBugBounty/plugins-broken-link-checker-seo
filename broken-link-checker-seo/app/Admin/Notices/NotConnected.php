@@ -63,7 +63,7 @@ class NotConnected {
 	public function showNotice() {
 		$string = sprintf(
 			// Translators: 1 - The plugin name ("Broken Link Checker").
-			__( 'Your site is not connected with %1$s. %2$sConnect now%3$s to start scanning for broken links and fix them to improve your SEO.', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			__( 'Your site is not connected with %1$s. %2$sConnect now%3$s to start scanning for broken links and fix them to improve your SEO.', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 			'<strong>' . esc_html( AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_NAME ) . '</strong>',
 			'<a href="' . esc_url( admin_url( 'admin.php?page=broken-link-checker#/settings' ) ) . '">',
 			'</a>'
@@ -88,6 +88,10 @@ class NotConnected {
 	public function dismissNotice() {
 		if ( ! isset( $_POST['action'] ) || 'aioseo-blc-dismiss-not-connected' !== $_POST['action'] ) {
 			return;
+		}
+
+		if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error();
 		}
 
 		check_ajax_referer( 'aioseo-blc-dismiss-not-connected', 'nonce' );

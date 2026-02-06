@@ -44,7 +44,7 @@ class SetupWizard {
 		// If we are redirecting, clear the transient so it just happens once.
 		aioseoBrokenLinkChecker()->core->cache->delete( 'activation_redirect' );
 
-		if ( isset( $_GET['activate-multi'] ) || is_network_admin() ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		if ( isset( $_GET['activate-multi'] ) || is_network_admin() ) { // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
@@ -61,8 +61,8 @@ class SetupWizard {
 	 */
 	public function addDashboardPage() {
 		add_dashboard_page(
-			__( 'Setup Wizard', 'aioseo-broken-link-checker' ),
-			__( 'Setup Wizard', 'aioseo-broken-link-checker' ),
+			__( 'Setup Wizard', 'broken-link-checker-seo' ),
+			__( 'Setup Wizard', 'broken-link-checker-seo' ),
 			'aioseo_blc_setup_wizard_page',
 			'broken-link-checker-setup-wizard',
 			''
@@ -92,10 +92,10 @@ class SetupWizard {
 			return;
 		}
 
-		// phpcs:disable HM.Security.ValidatedSanitizedInput.InputNotSanitized, HM.Security.NonceVerification.Recommended
+		// phpcs:disable HM.Security.ValidatedSanitizedInput.InputNotSanitized, HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 		if (
 			! isset( $_GET['page'] ) ||
-			'broken-link-checker-setup-wizard' !== wp_unslash( $_GET['page'] ) ||
+			'broken-link-checker-setup-wizard' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ||
 			! current_user_can( 'aioseo_blc_setup_wizard_page' )
 		) {
 			return;
@@ -163,7 +163,7 @@ class SetupWizard {
 			<title>
 			<?php
 				// Translators: 1 - The plugin name ("Broken Link Checker").
-				echo sprintf( esc_html__( '%1$s &rsaquo; Setup Wizard', 'aioseo-broken-link-checker' ), esc_html( AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_NAME ) );
+				echo sprintf( esc_html__( '%1$s &rsaquo; Setup Wizard', 'broken-link-checker-seo' ), esc_html( AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_NAME ) );
 			?>
 			</title>
 		</head>
@@ -197,8 +197,11 @@ class SetupWizard {
 		wp_print_scripts( 'aioseo-vendors' );
 		wp_print_scripts( 'aioseo-common' );
 		wp_print_scripts( 'aioseo-setup-wizard-script' );
+
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action( 'admin_footer', '' );
 		do_action( 'admin_print_footer_scripts' );
+		// phpcs:enable
 		?>
 		</body>
 		</html>

@@ -20,7 +20,7 @@ if ( ! function_exists( 'aioseo_blc_php_notice' ) ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - Opening HTML link tag, 4 - Closing HTML link tag.
-						__( 'Your site is running an %1$sinsecure version%2$s of PHP that is no longer supported. Please contact your web hosting provider to update your PHP version or switch to a %3$srecommended WordPress hosting company%4$s.', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						__( 'Your site is running an %1$sinsecure version%2$s of PHP that is no longer supported. Please contact your web hosting provider to update your PHP version or switch to a %3$srecommended WordPress hosting company%4$s.', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'<strong>',
 						'</strong>',
 						'<a href="https://www.wpbeginner.com/wordpress-hosting/" target="_blank" rel="noopener noreferrer">',
@@ -41,7 +41,7 @@ if ( ! function_exists( 'aioseo_blc_php_notice' ) ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The short plugin name ("AIOSEO"), 4 - Opening HTML link tag, 5 - Closing HTML link tag.
-						__( '%1$sNote:%2$s %3$s plugin is disabled on your site until you fix the issue. %4$sRead more for additional information.%5$s', 'aioseo-broken-link-checker' ),
+						__( '%1$sNote:%2$s %3$s plugin is disabled on your site until you fix the issue. %4$sRead more for additional information.%5$s', 'broken-link-checker-seo' ),
 						'<strong>',
 						'</strong>',
 						'AIOSEO',
@@ -63,7 +63,7 @@ if ( ! function_exists( 'aioseo_blc_php_notice' ) ) {
 
 		<?php
 		// In case this is on plugin activation.
-		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			unset( $_GET['activate'] );
 		}
 	}
@@ -71,11 +71,15 @@ if ( ! function_exists( 'aioseo_blc_php_notice' ) ) {
 
 if ( ! function_exists( 'aioseo_blc_php_notice_deprecated' ) ) {
 	/**
-	 * Display the notice after deactivation.
+	 * Displays a notice to users about deprecated PHP versions.
 	 *
 	 * @since 1.0.0
 	 */
 	function aioseo_blc_php_notice_deprecated() {
+		if ( ! current_user_can( 'administrator' ) ) {
+			return;
+		}
+
 		$medium = 'plugin';
 		?>
 		<div class="notice notice-error">
@@ -84,7 +88,7 @@ if ( ! function_exists( 'aioseo_blc_php_notice_deprecated' ) ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The plugin short name ("AIOSEO"), 4 - Opening HTML link tag, 5 - Closing HTML link tag.
-						__( 'Your site is running an %1$soutdated version%2$s of PHP that is no longer supported and may cause issues with %3$s. Please contact your web hosting provider to update your PHP version or switch to a %4$srecommended WordPress hosting company%5$s.', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						__( 'Your site is running an %1$soutdated version%2$s of PHP that is no longer supported and may cause issues with %3$s. Please contact your web hosting provider to update your PHP version or switch to a %4$srecommended WordPress hosting company%5$s.', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'<strong>',
 						'</strong>',
 						'<strong>AIOSEO</strong>',
@@ -107,11 +111,11 @@ if ( ! function_exists( 'aioseo_blc_php_notice_deprecated' ) ) {
 					sprintf(
 						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The PHP version, 4 - The current year, 5 - The short plugin name ("AIOSEO"), 6 - Opening HTML link tag, 7 - Closing HTML link tag.
-						__( '%1$sNote:%2$s Support for PHP %3$s will be discontinued in %4$s. After this, if no further action is taken, %5$s functionality will be disabled. %6$sRead more for additional information.%7$s', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						__( '%1$sNote:%2$s Support for PHP %3$s will be discontinued in %4$s. After this, if no further action is taken, %5$s functionality will be disabled. %6$sRead more for additional information.%7$s', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'<strong>',
 						'</strong>',
 						PHP_VERSION,
-						date( 'Y' ),
+						gmdate( 'Y' ),
 						'AIOSEO',
 						'<a href="https://aioseo.com/docs/supported-php-version/?utm_source=WordPress&utm_medium=' . $medium . '&utm_campaign=outdated-php-notice" target="_blank" rel="noopener noreferrer">', // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'</a>'
@@ -131,7 +135,7 @@ if ( ! function_exists( 'aioseo_blc_php_notice_deprecated' ) ) {
 
 		<?php
 		// In case this is on plugin activation.
-		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			unset( $_GET['activate'] );
 		}
 	}
@@ -152,7 +156,7 @@ if ( ! function_exists( 'aioseo_blc_wordpress_notice' ) ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The plugin name ("All in One SEO").
-						__( 'Your site is running an %1$sinsecure version%2$s of WordPress that is no longer supported. Please update your site to the latest version of WordPress in order to continue using %3$s.', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						__( 'Your site is running an %1$sinsecure version%2$s of WordPress that is no longer supported. Please update your site to the latest version of WordPress in order to continue using %3$s.', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'<strong>',
 						'</strong>',
 						'All in One SEO'
@@ -167,12 +171,13 @@ if ( ! function_exists( 'aioseo_blc_wordpress_notice' ) ) {
 				echo wp_kses(
 					sprintf(
 						// phpcs:ignore Generic.Files.LineLength.MaxExceeded
-						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The short plugin name ("AIOSEO"), 4 - The current year, 5 - Opening HTML link tag, 6 - Closing HTML link tag.
-						__( '%1$sNote:%2$s %3$s will be discontinuing support for WordPress versions older than version 5.3 by the end of %4$s. %5$sRead more for additional information.%6$s', 'aioseo-broken-link-checker' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+						// Translators: 1 - Opening HTML bold tag, 2 - Closing HTML bold tag, 3 - The short plugin name ("AIOSEO"), 4 - The WordPress version, 5 - The current year, 6 - Opening HTML link tag, 7 - Closing HTML link tag.
+						__( '%1$sNote:%2$s %3$s will be discontinuing support for WordPress versions older than version %4$s by the end of %5$s. %6$sRead more for additional information.%7$s', 'broken-link-checker-seo' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'<strong>',
 						'</strong>',
 						'AIOSEO',
-						date( 'Y' ),
+						'6.0',
+						gmdate( 'Y' ),
 						'<a href="https://aioseo.com/docs/update-wordpress/?utm_source=WordPress&utm_medium=' . $medium . '&utm_campaign=outdated-wordpress-notice" target="_blank" rel="noopener noreferrer">', // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 						'</a>'
 					),
@@ -191,7 +196,7 @@ if ( ! function_exists( 'aioseo_blc_wordpress_notice' ) ) {
 
 		<?php
 		// In case this is on plugin activation.
-		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended
+		if ( isset( $_GET['activate'] ) ) { // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			unset( $_GET['activate'] );
 		}
 	}

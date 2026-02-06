@@ -63,13 +63,10 @@ trait Vue {
 				'publicPath'    => aioseoBrokenLinkChecker()->core->assets->normalizeAssetsHost( plugin_dir_url( AIOSEO_BROKEN_LINK_CHECKER_FILE ) ),
 				'assetsPath'    => aioseoBrokenLinkChecker()->core->assets->getAssetsPath(),
 				'marketingSite' => $this->getMarketingSiteUrl(),
-				'connect'       => admin_url( 'index.php?page=broken-link-checker-connect' )
-			],
-			'user'                => [
-				'capabilities'   => aioseoBrokenLinkChecker()->access->getAllCapabilities(),
-				'data'           => wp_get_current_user(),
-				'locale'         => function_exists( 'get_user_locale' ) ? get_user_locale() : get_locale(),
-				'unfilteredHtml' => current_user_can( 'unfiltered_html' )
+				'connect'       => admin_url( 'index.php?page=broken-link-checker-connect' ),
+				'blc'           => [
+					'links' => admin_url( 'admin.php?page=broken-link-checker' )
+				]
 			],
 			'isDev'               => $this->isDev(),
 			'isSsl'               => is_ssl(),
@@ -78,12 +75,36 @@ trait Vue {
 			'mainSite'            => is_main_site(),
 			'hasUrlTrailingSlash' => '/' === user_trailingslashit( '' ),
 			'nonce'               => wp_create_nonce( 'wp_rest' ),
-			'translations'        => $this->getJedLocaleData( 'aioseo-broken-link-checker' )
+			'translations'        => $this->getJedLocaleData( 'broken-link-checker-seo' )
+		];
+
+		// In multisite, super admins may not have explicit roles on subsites.
+		// Ensure they have administrator role and capabilities for proper access.
+		$userData     = wp_get_current_user();
+		$roles        = $userData->roles;
+		$capabilities = $userData->allcaps;
+
+		// If the user is a network admin, and doesn't have a user on the subsite, give him admin role/caps.
+		if ( is_multisite() && is_super_admin() && empty( $roles ) ) {
+			$roles     = [ 'administrator' ];
+			$adminRole = get_role( 'administrator' );
+			if ( is_a( $adminRole, 'WP_Role' ) ) {
+				$capabilities = $adminRole->capabilities;
+			}
+		}
+
+		$this->vueData['user'] = [
+			'roles'        => $roles,
+			'capabilities' => $capabilities,
+			'locale'       => function_exists( 'get_user_locale' ) ? get_user_locale() : get_locale()
 		];
 
 		switch ( $currentPage ) {
 			case 'about':
 				$this->addAboutData();
+				break;
+			case 'dashboard':
+				$this->addDashboardData();
 				break;
 			case 'highlighter':
 				$this->addHighlighterData();
@@ -101,6 +122,8 @@ trait Vue {
 				break;
 		}
 
+		$this->cleanSensitiveData();
+
 		return $this->vueData;
 	}
 
@@ -113,6 +136,17 @@ trait Vue {
 	 */
 	private function addAboutData() {
 		$this->vueData['plugins'] = $this->getPluginData();
+	}
+
+	/**
+	 * Adds the data for the Dashboard widget.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	private function addDashboardData() {
+		$this->vueData['linkStatusOverview'] = $this->getLinkStatusDistribution();
 	}
 
 	/**
@@ -165,7 +199,7 @@ trait Vue {
 			'linkStatuses' => $this->getLinkStatusesData( $limit ),
 			'plugins'      => [
 				'isAioseoActive'          => function_exists( 'aioseo' ),
-				'isAioseoRedirectsActive' => function_exists( 'aioseoRedirects' )
+				'isAioseoRedirectsActive' => function_exists( 'aioseo' ) && ! empty( aioseo()->redirects )
 			],
 			'postTypes'    => $this->getPublicPostTypes( false, false, true ),
 			'postStatuses' => $this->getPublicPostStatuses(),
@@ -174,7 +208,8 @@ trait Vue {
 					'links'        => aioseoBrokenLinkChecker()->main->links->data->getScanPercentage(),
 					'linkStatuses' => aioseoBrokenLinkChecker()->main->linkStatus->data->getScanPercentage()
 				]
-			]
+			],
+			'totalLinks'   => aioseoBrokenLinkChecker()->main->linkStatus->data->getTotalLinks()
 		];
 	}
 
@@ -197,6 +232,10 @@ trait Vue {
 		$rows      = [];
 		$totalRows = [];
 		switch ( $filter ) {
+			case 'good':
+				$rows      = Models\LinkStatus::rowQuery( 'good', $limit, $offset, $whereClause, $orderBy, $orderDir );
+				$totalRows = Models\LinkStatus::rowCountQuery( 'good', $whereClause );
+				break;
 			case 'broken':
 				$rows      = Models\LinkStatus::rowQuery( 'broken', $limit, $offset, $whereClause, $orderBy, $orderDir );
 				$totalRows = Models\LinkStatus::rowCountQuery( 'broken', $whereClause );
@@ -233,31 +272,37 @@ trait Vue {
 			'filters' => [
 				[
 					'slug'   => 'all',
-					'name'   => __( 'All', 'aioseo-broken-link-checker' ),
+					'name'   => __( 'All', 'broken-link-checker-seo' ),
 					'count'  => Models\LinkStatus::rowCountQuery( 'all', $whereClause ),
 					'active' => ( ! $filter || 'all' === $filter ) && ! $searchTerm ? true : false
 				],
 				[
 					'slug'   => 'broken',
-					'name'   => __( 'Broken', 'aioseo-broken-link-checker' ),
+					'name'   => __( 'Broken', 'broken-link-checker-seo' ),
 					'count'  => Models\LinkStatus::rowCountQuery( 'broken', $whereClause ),
 					'active' => 'broken' === $filter ? true : false
 				],
 				[
 					'slug'   => 'redirects',
-					'name'   => __( 'Redirects', 'aioseo-broken-link-checker' ),
+					'name'   => __( 'Redirects', 'broken-link-checker-seo' ),
 					'count'  => Models\LinkStatus::rowCountQuery( 'redirects', $whereClause ),
 					'active' => 'redirects' === $filter ? true : false
 				],
 				[
+					'slug'   => 'good',
+					'name'   => __( 'Good', 'broken-link-checker-seo' ),
+					'count'  => Models\LinkStatus::rowCountQuery( 'good', $whereClause ),
+					'active' => 'good' === $filter ? true : false
+				],
+				[
 					'slug'   => 'not-checked',
-					'name'   => __( 'Not Checked Yet', 'aioseo-broken-link-checker' ),
+					'name'   => __( 'Pending', 'broken-link-checker-seo' ),
 					'count'  => Models\LinkStatus::rowCountQuery( 'not-checked', $whereClause ),
 					'active' => 'not-checked' === $filter ? true : false
 				],
 				[
 					'slug'   => 'dismissed',
-					'name'   => __( 'Dismissed', 'aioseo-broken-link-checker' ),
+					'name'   => __( 'Dismissed', 'broken-link-checker-seo' ),
 					'count'  => Models\LinkStatus::rowCountQuery( 'dismissed', $whereClause ),
 					'active' => 'dismissed' === $filter ? true : false
 				]
@@ -311,5 +356,53 @@ trait Vue {
 		}
 
 		return 'https://aioseo.com/';
+	}
+
+	/**
+	 * Returns the link status distribution data.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return array The link status distribution.
+	 */
+	private function getLinkStatusDistribution() {
+		$distribution = aioseoBrokenLinkChecker()->core->cache->get( 'link_status_distribution' );
+		if ( ! empty( $distribution ) ) {
+			return $distribution;
+		}
+
+		// Get counts for each link status type.
+		$good      = Models\LinkStatus::rowCountQuery( 'good' );
+		$broken    = Models\LinkStatus::rowCountQuery( 'broken' );
+		$redirects = Models\LinkStatus::rowCountQuery( 'redirects' );
+
+		$distribution = [
+			'total'     => $good + $broken + $redirects,
+			'good'      => $good,
+			'broken'    => $broken,
+			'redirects' => $redirects
+		];
+
+		aioseoBrokenLinkChecker()->core->cache->update( 'link_status_distribution', $distribution );
+
+		return $distribution;
+	}
+
+	/**
+	 * Clean sensitive data.
+	 *
+	 * @since 1.2.6
+	 *
+	 * @return void
+	 */
+	private function cleanSensitiveData() {
+		// If the user is an admin, don't hide the following data.
+		if ( aioseoBrokenLinkChecker()->access->isAdmin() ) {
+			return;
+		}
+
+		if ( ! empty( $this->vueData['internalOptions']['internal']['license']['licenseKey'] ) ) {
+			$this->vueData['internalOptions']['internal']['license']['licenseKey'] = '*****************';
+		}
 	}
 }

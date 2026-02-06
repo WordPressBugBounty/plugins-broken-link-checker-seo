@@ -7,6 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AIOSEO\\BrokenLinkChecker\\Admin\\Admin' => $baseDir . '/app/Admin/Admin.php',
+    'AIOSEO\\BrokenLinkChecker\\Admin\\Dashboard' => $baseDir . '/app/Admin/Dashboard.php',
+    'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\ConnectReminder' => $baseDir . '/app/Admin/Emails/ConnectReminder.php',
+    'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\ConnectReminderSecond' => $baseDir . '/app/Admin/Emails/ConnectReminderSecond.php',
+    'AIOSEO\\BrokenLinkChecker\\Admin\\Emails\\Emails' => $baseDir . '/app/Admin/Emails/Emails.php',
     'AIOSEO\\BrokenLinkChecker\\Admin\\License' => $baseDir . '/app/Admin/License.php',
     'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\NotConnected' => $baseDir . '/app/Admin/Notices/NotConnected.php',
     'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\Review' => $baseDir . '/app/Admin/Notices/Review.php',
@@ -20,6 +24,7 @@ return array(
     'AIOSEO\\BrokenLinkChecker\\Api\\LinkStatusTable' => $baseDir . '/app/Api/LinkStatusTable.php',
     'AIOSEO\\BrokenLinkChecker\\Api\\LinksTable' => $baseDir . '/app/Api/LinksTable.php',
     'AIOSEO\\BrokenLinkChecker\\Api\\Notifications' => $baseDir . '/app/Api/Notifications.php',
+    'AIOSEO\\BrokenLinkChecker\\Api\\Options' => $baseDir . '/app/Api/Options.php',
     'AIOSEO\\BrokenLinkChecker\\Api\\Plugins' => $baseDir . '/app/Api/Plugins.php',
     'AIOSEO\\BrokenLinkChecker\\Api\\Post' => $baseDir . '/app/Api/Post.php',
     'AIOSEO\\BrokenLinkChecker\\Api\\PostsTerms' => $baseDir . '/app/Api/PostsTerms.php',
@@ -59,6 +64,7 @@ return array(
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\DateTime' => $baseDir . '/app/Traits/Helpers/DateTime.php',
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Strings' => $baseDir . '/app/Traits/Helpers/Strings.php',
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\ThirdParty' => $baseDir . '/app/Traits/Helpers/ThirdParty.php',
+    'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Url' => $baseDir . '/app/Traits/Helpers/Url.php',
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Vue' => $baseDir . '/app/Traits/Helpers/Vue.php',
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Wp' => $baseDir . '/app/Traits/Helpers/Wp.php',
     'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\WpContext' => $baseDir . '/app/Traits/Helpers/WpContext.php',

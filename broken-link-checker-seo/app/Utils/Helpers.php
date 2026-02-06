@@ -20,6 +20,7 @@ class Helpers {
 	use TraitHelpers\DateTime;
 	use TraitHelpers\Strings;
 	use TraitHelpers\ThirdParty;
+	use TraitHelpers\Url;
 	use TraitHelpers\Vue;
 	use TraitHelpers\Wp;
 	use TraitHelpers\WpContext;
@@ -34,7 +35,8 @@ class Helpers {
 	 * @return boolean True if we are, false if not.
 	 */
 	public function isDev() {
-		return aioseoBrokenLinkChecker()->isDev || isset( $_REQUEST['aioseo-dev'] ); // phpcs:ignore HM.Security.NonceVerification.Recommended
+		// phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
+		return aioseoBrokenLinkChecker()->isDev || isset( $_REQUEST['aioseo-dev'] );
 	}
 
 	/**
@@ -144,7 +146,7 @@ class Helpers {
 
 		$post  = get_post( $postId );
 		$title = $post->post_title;
-		$title = $title ? $title : __( '(no title)' ); // phpcs:ignore AIOSEO.Wp.I18n.MissingArgDomain
+		$title = $title ? $title : __( '(no title)' ); // phpcs:ignore AIOSEO.Wp.I18n.MissingArgDomain, WordPress.WP.I18n.MissingArgDomain
 
 		$titles[ $postId ] = $this->decodeHtmlEntities( $title );
 

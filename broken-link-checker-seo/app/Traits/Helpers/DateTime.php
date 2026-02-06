@@ -23,6 +23,6 @@ trait DateTime {
 	public function timeToMysql( $time ) {
 		$time = is_string( $time ) ? strtotime( $time ) : $time;
 
-		return date( 'Y-m-d H:i:s', $time );
+		return date( 'Y-m-d H:i:s', $time ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	}
 }

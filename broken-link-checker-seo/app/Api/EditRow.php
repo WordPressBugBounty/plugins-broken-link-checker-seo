@@ -46,11 +46,35 @@ class EditRow extends CommonTableActions {
 		if ( $linkStatusId ) {
 			$links = Models\Link::getByLinkStatusId( $linkStatusId );
 			foreach ( $links as $link ) {
+				// Confirm user has permission to edit the post.
+				if ( ! current_user_can( 'edit_post', $link->post_id ) ) {
+					return new \WP_REST_Response( [
+						'success' => false,
+						'message' => 'User does not have permission to edit this post.'
+					], 403 );
+				}
+
 				self::updateLink( $link->id, '', $newUrl );
 			}
 		}
 
 		if ( $linkId ) {
+			$link = Models\Link::getById( $linkId );
+			if ( ! $link->exists() ) {
+				return new \WP_REST_Response( [
+					'success' => false,
+					'message' => 'Link not found.'
+				], 404 );
+			}
+
+			// Confirm user has permission to edit the post.
+			if ( ! current_user_can( 'edit_post', $link->post_id ) ) {
+				return new \WP_REST_Response( [
+					'success' => false,
+					'message' => 'User does not have permission to edit this post.'
+				], 403 );
+			}
+
 			self::updateLink( $linkId, $newAnchor, $newUrl );
 		}
 

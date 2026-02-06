@@ -217,10 +217,11 @@ class Data {
 			$paragraphHtml = aioseoBrokenLinkChecker()->main->paragraph->getHtml( $anchor, $paragraph, $postContent );
 
 			// Reformat the URL to get rid of params and fragments.
-			$url = $this->geturlWithoutParamsAndFragment( $parsedUrl );
+			$url = aioseoBrokenLinkChecker()->helpers->buildUrl( $parsedUrl, [], [ 'fragment' ] );
 
 			// We need to sanitize the URL here so the hash is calculated based on the escaped version.
 			$url = trim( sanitize_url( $url ) );
+			$url = apply_filters( 'aioseo_blc_link_url_before_save', $url );
 
 			$linkData = [
 				'post_id'            => (int) $postId,
@@ -310,29 +311,6 @@ class Data {
 	}
 
 	/**
-	 * Returns the URL without params and fragments.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param  array  $parsedUrl The parsed URL.
-	 * @return string            The URL without params and fragments.
-	 */
-	private function geturlWithoutParamsAndFragment( $parsedUrl ) {
-		$url = '';
-		if ( ! empty( $parsedUrl['scheme'] ) ) {
-			$url .= $parsedUrl['scheme'] . '://';
-		}
-
-		$url .= $parsedUrl['host'];
-
-		if ( ! empty( $parsedUrl['path'] ) ) {
-			$url .= $parsedUrl['path'];
-		}
-
-		return $url;
-	}
-
-	/**
 	 * Returns the posts to scan.
 	 *
 	 * @since 1.0.0
@@ -344,7 +322,8 @@ class Data {
 		$postsPerScan        = apply_filters( 'aioseo_blc_links_posts_per_scan', 50 );
 		$postTypes           = aioseoBrokenLinkChecker()->helpers->getScannablePostTypes();
 		$postStatuses        = aioseoBrokenLinkChecker()->helpers->getPublicPostStatuses( true );
-		$minimumLinkScanDate = aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate ?: date( 'Y-m-d H:i:s' );
+		// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$minimumLinkScanDate = esc_sql( aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate ?: date( 'Y-m-d H:i:s' ) );
 
 		$query = aioseoBrokenLinkChecker()->core->db->start( 'posts as p' )
 			->leftJoin( 'aioseo_blc_posts as abp', 'p.ID = abp.post_id' )

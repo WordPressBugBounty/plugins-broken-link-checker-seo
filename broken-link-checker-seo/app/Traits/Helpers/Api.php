@@ -13,46 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 trait Api {
 	/**
-	 * Request the remote URL via wp_remote_post and return a json decoded response.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  array       $body    The content to retrieve from the remote URL.
-	 * @param  array       $headers The headers to send to the remote URL.
-	 * @return string|null          JSON decoded response on success, false on failure.
-	 */
-	public function sendRequest( $url, $body = [], $headers = [] ) {
-		$body = wp_json_encode( $body );
-
-		// Build the headers of the request.
-		$headers = wp_parse_args(
-			$headers,
-			[
-				'Content-Type' => 'application/json'
-			]
-		);
-
-		// Setup variable for wp_remote_post.
-		$requestArgs = [
-			'headers' => $headers,
-			'body'    => $body,
-			'timeout' => 20
-		];
-
-		// Perform the query and retrieve the response.
-		$response     = $this->wpRemotePost( $url, $requestArgs );
-		$responseBody = wp_remote_retrieve_body( $response );
-
-		// Bail out early if there are any errors.
-		if ( ! $responseBody ) {
-			return null;
-		}
-
-		// Return the json decoded content.
-		return json_decode( $responseBody );
-	}
-
-	/**
 	 * Sends a request using wp_remote_post.
 	 *
 	 * @since 1.0.0
@@ -62,7 +22,27 @@ trait Api {
 	 * @return array|\WP_Error       The response as an array or WP_Error on failure.
 	 */
 	public function wpRemotePost( $url, $args = [] ) {
-		return wp_remote_post( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
+		$skipLock = ! empty( $args['aioseo_skip_lock'] );
+		unset( $args['aioseo_skip_lock'] );
+
+		$args['method'] = 'POST';
+
+		if ( ! $skipLock ) {
+			$lockKey = $this->getCacheKey( $url, $args );
+			if ( aioseo()->core->cache->get( $lockKey ) ) {
+				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
+			}
+
+			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+		}
+
+		$response = wp_remote_post( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
+
+		if ( ! $skipLock ) {
+			aioseo()->core->cache->delete( $lockKey );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -75,7 +55,75 @@ trait Api {
 	 * @return array|\WP_Error       The response as an array or WP_Error on failure.
 	 */
 	public function wpRemoteGet( $url, $args = [] ) {
-		return wp_remote_get( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
+		$skipLock = ! empty( $args['aioseo_skip_lock'] );
+		unset( $args['aioseo_skip_lock'] );
+
+		if ( ! $skipLock ) {
+			$lockKey = $this->getCacheKey( $url, $args );
+			if ( aioseo()->core->cache->get( $lockKey ) ) {
+				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
+			}
+
+			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+		}
+
+		$response = wp_remote_get( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
+
+		if ( ! $skipLock ) {
+			aioseo()->core->cache->delete( $lockKey );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Sends a DELETE request using wp_remote_request.
+	 *
+	 * @since 1.2.9
+	 *
+	 * @param  string          $url  The URL to send the request to.
+	 * @param  array           $args The args to use in the request.
+	 * @return array|\WP_Error       The response as an array or WP_Error on failure.
+	 */
+	public function wpRemoteDelete( $url, $args = [] ) {
+		$skipLock = ! empty( $args['aioseo_skip_lock'] );
+		unset( $args['aioseo_skip_lock'] );
+
+		$args['method'] = 'DELETE';
+
+		if ( ! $skipLock ) {
+			$lockKey = $this->getCacheKey( $url, $args );
+			if ( aioseo()->core->cache->get( $lockKey ) ) {
+				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
+			}
+
+			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+		}
+
+		$response = wp_remote_request( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
+
+		if ( ! $skipLock ) {
+			aioseo()->core->cache->delete( $lockKey );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Returns a cache key for a remote request lock based on the HTTP method, URL and body.
+	 *
+	 * @since 1.2.9
+	 *
+	 * @param  string $url  The request URL.
+	 * @param  array  $args The request arguments.
+	 * @return string       The lock cache key.
+	 */
+	private function getCacheKey( $url, $args = [] ) {
+		$method = ! empty( $args['method'] ) ? $args['method'] : 'GET';
+		$body   = ! empty( $args['body'] ) ? $args['body'] : '';
+		$raw    = is_array( $body ) || is_object( $body ) ? wp_json_encode( $body ) : (string) $body;
+
+		return 'remote_lock_' . md5( $method . $url . $raw );
 	}
 
 	/**
@@ -102,6 +150,7 @@ trait Api {
 	 */
 	private function getApiHeaders() {
 		return [
+			'Content-Type'         => 'application/json',
 			'X-AIOSEO-BLC-License' => aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey
 		];
 	}

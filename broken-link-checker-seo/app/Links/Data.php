@@ -66,9 +66,26 @@ class Data {
 	 * @return void
 	 */
 	private function storeLinks( $links ) {
-		$urls         = [];
-		$insertValues = [];
-		$currentDate  = gmdate( 'Y-m-d H:i:s' );
+		$columns    = [
+			'post_id',
+			'blc_link_status_id',
+			'url',
+			'url_hash',
+			'hostname',
+			'hostname_url',
+			'external',
+			'anchor',
+			'phrase',
+			'phrase_html',
+			'paragraph',
+			'paragraph_html',
+			'created',
+			'updated'
+		];
+		$currentDate = gmdate( 'Y-m-d H:i:s' );
+
+		$urls = [];
+		$rows = [];
 		foreach ( $links as $linkData ) {
 			$data = Models\Link::sanitizeLink( $linkData );
 			if ( empty( $data ) ) {
@@ -81,26 +98,10 @@ class Data {
 
 			$urls[ $data['url_hash'] ] = $data['url'];
 
-			$blcLinkStatusId = '%d';
-			if ( empty( $data['blc_link_status_id'] ) ) {
-				$blcLinkStatusId           = '%s';
-				$data['blc_link_status_id'] = 'null';
-			}
-
-			$insertValues[] = vsprintf(
-				"(%d, $blcLinkStatusId, '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '$currentDate', '$currentDate')",
-				$data
-			);
+			$rows[] = array_merge( array_values( $data ), [ $currentDate, $currentDate ] );
 		}
 
-		$implodedInsertValues = implode( ',', $insertValues );
-
-		$tableName = aioseoBrokenLinkChecker()->core->db->prefix . 'aioseo_blc_links';
-		aioseoBrokenLinkChecker()->core->db->execute(
-			"INSERT INTO $tableName
-			(`post_id`, `blc_link_status_id`, `url`, `url_hash`, `hostname`, `hostname_url`, `external`, `anchor`, `phrase`, `phrase_html`, `paragraph`, `paragraph_html`, `created`, `updated`)
-			VALUES $implodedInsertValues"
-		);
+		aioseoBrokenLinkChecker()->core->db->bulkInsert( 'aioseo_blc_links', $columns, $rows );
 
 		$existing = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_link_status' )
 			->select( 'url_hash' )

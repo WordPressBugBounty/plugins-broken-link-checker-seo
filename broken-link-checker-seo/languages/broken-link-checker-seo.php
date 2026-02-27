@@ -1,5 +1,5 @@
 <?php
-// phpcs:ignore Generic.Files.LineLength.MaxExceeded
+// phpcs:disable
 /* THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY. */
 $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:162
@@ -56,6 +56,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/router/paths.js:17
 	__( 'About Us', 'broken-link-checker-seo' ),
 
+	// Reference: /src/vue/components/license/Index.vue:62
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:76
 	__( 'Activate', 'broken-link-checker-seo' ),
 
@@ -67,7 +68,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:81
 	__( 'Activated', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:60
+	// Reference: /src/vue/pages/links/views/Settings.vue:62
 	__( 'Add any domains you want to exclude from being checked, one per line. Do not include the scheme or "www" part of the domain (e.g. enter "aioseo.com" instead of "https://aioseo.com" or "www.aioseo.com").', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:28
@@ -79,15 +80,15 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/seo-settings/views/SeoSettings.vue:76
 	__( 'Advanced SEO Modules', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:42
+	// Reference: /src/vue/pages/links/views/Settings.vue:44
 	__( 'Advanced Settings', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:84
 	__( 'All Groups', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:152
-	// Reference: /src/vue/components/license/Index.vue:167
-	// Reference: /src/vue/components/license/Index.vue:177
+	// Reference: /src/vue/components/license/Index.vue:164
+	// Reference: /src/vue/components/license/Index.vue:179
+	// Reference: /src/vue/components/license/Index.vue:189
 	__( 'An unknown error occurred, please try again later.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:35
@@ -156,11 +157,11 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:148
 	__( 'Check', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:79
+	// Reference: /src/vue/pages/links/views/Settings.vue:81
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Check this if you would like to remove ALL %1$s data upon plugin deletion. All data will be unrecoverable.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:48
+	// Reference: /src/vue/pages/links/views/Settings.vue:50
 	// Translators: 1 - Opening HTML span tag, 2 - Closing HTML span tag.
 	__( 'Choose whether broken links should be marked on the frontend when you are logged in. Broken links will be underlined in red like %1$sthis%2$s.', 'broken-link-checker-seo' ),
 
@@ -170,7 +171,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/standalone/setup-wizard/router/paths.js:26
 	__( 'Connect', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:50
+	// Reference: /src/vue/components/license/Index.vue:53
 	__( 'Connect to an Existing Account', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:312
@@ -182,13 +183,13 @@ $generated_i18n_strings = [
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Connect Your Site with %1$s', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:116
+	// Reference: /src/vue/components/license/Index.vue:128
 	__( 'Connect Your Site with Broken Link Checker', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:129
+	// Reference: /src/vue/components/license/Index.vue:141
 	__( 'Could not connect site to Broken Link Checker. Please try again later.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:49
+	// Reference: /src/vue/components/license/Index.vue:52
 	__( 'Create a Free Account', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:82
@@ -210,7 +211,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:11
 	__( 'Disabled', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:57
+	// Reference: /src/vue/components/license/Index.vue:60
 	__( 'Disconnect', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:186
@@ -224,7 +225,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:309
 	__( 'Dismiss', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:54
+	// Reference: /src/vue/pages/links/views/Settings.vue:56
 	__( 'Don\'t update the modified date for a page/post when a link is updated.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:244
@@ -255,13 +256,16 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:12
 	__( 'Enabled', 'broken-link-checker-seo' ),
 
+	// Reference: /src/vue/components/license/Index.vue:63
+	__( 'Enter your license key', 'broken-link-checker-seo' ),
+
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:40
 	__( 'Error', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:59
+	// Reference: /src/vue/pages/links/views/Settings.vue:61
 	__( 'Exclude Domains', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:58
+	// Reference: /src/vue/pages/links/views/Settings.vue:60
 	__( 'Exclude Posts', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:20
@@ -279,7 +283,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/standalone/setup-wizard/views/Success.vue:49
 	__( 'Follow on YouTube', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:89
+	// Reference: /src/vue/components/license/Index.vue:97
 	// Reference: /src/vue/standalone/dashboard-widgets/BrokenLinksOverview.vue:96
 	__( 'Free Forever', 'broken-link-checker-seo' ),
 
@@ -289,7 +293,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:184
 	__( 'Future proof your WordPress customizations with the most popular code snippet management plugin for WordPress. Trusted by over 1,500,000+ websites for easily adding code to WordPress right from the admin area.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:41
+	// Reference: /src/vue/pages/links/views/Settings.vue:43
 	__( 'General Settings', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/components/common/notifications/Review2.vue:36
@@ -323,7 +327,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:9
 	__( 'Hide', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:45
+	// Reference: /src/vue/pages/links/views/Settings.vue:47
 	__( 'Highlight Broken Links', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/RedirectsCtaModal.vue:58
@@ -338,10 +342,10 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/plugins/constants.js:13
 	__( 'Include', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:66
+	// Reference: /src/vue/pages/links/views/Settings.vue:68
 	__( 'Include All Post Statuses', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:57
+	// Reference: /src/vue/pages/links/views/Settings.vue:59
 	__( 'Include All Post Types', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:75
@@ -375,7 +379,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/standalone/setup-wizard/views/Welcome.vue:37
 	__( 'Let\'s Get Started', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:53
+	// Reference: /src/vue/pages/links/views/Settings.vue:55
 	__( 'Limit Modified Date', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:35
@@ -387,7 +391,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:34
 	__( 'Link Text', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:43
+	// Reference: /src/vue/pages/links/views/Settings.vue:45
 	__( 'Link Tweaks', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/components/core/Header.vue:59
@@ -428,7 +432,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/components/common/notifications/Review2.vue:33
 	__( 'Not Really...', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:44
+	// Reference: /src/vue/pages/links/views/Settings.vue:46
 	__( 'Note: These settings only apply to the content of posts; not comments or custom fields.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/plugins/constants.js:6
@@ -443,7 +447,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/seo-settings/views/SeoSettings.vue:73
 	__( 'On-Page SEO Analysis', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:51
+	// Reference: /src/vue/components/license/Index.vue:54
 	__( 'OR', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:64
@@ -452,14 +456,14 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:63
 	__( 'Over the years, we found that most other WordPress SEO plugins were bloated, buggy, slow, and very hard to use. So we designed our plugin as an easy and powerful tool.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:56
+	// Reference: /src/vue/pages/links/views/Settings.vue:58
 	__( 'Post Statuses', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinksTable.vue:41
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:32
 	__( 'Post Title', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:55
+	// Reference: /src/vue/pages/links/views/Settings.vue:57
 	__( 'Post Types', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:284
@@ -499,7 +503,7 @@ $generated_i18n_strings = [
 	__( 'Save and Continue', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/components/core/main/Index.vue:57
-	// Reference: /src/vue/components/core/main/Tabs.vue:48
+	// Reference: /src/vue/components/core/main/Tabs.vue:49
 	__( 'Save Changes', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:154
@@ -511,11 +515,11 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:43
 	__( 'seconds', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:69
+	// Reference: /src/vue/pages/links/views/Settings.vue:71
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Select which Post Statuses you want to enable %1$s for.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:63
+	// Reference: /src/vue/pages/links/views/Settings.vue:65
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Select which Post Types you want to enable %1$s for.', 'broken-link-checker-seo' ),
 
@@ -553,7 +557,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:79
 	__( 'Status:', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:52
+	// Reference: /src/vue/pages/links/views/Settings.vue:54
 	__( 'Stop search engines from following broken links', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/standalone/setup-wizard/router/paths.js:35
@@ -583,13 +587,13 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:133
 	__( 'The leading WordPress analytics plugin that shows you how people find and use your website, so you can make data driven decisions to grow your business. Properly set up Google Analytics without writing code.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:159
+	// Reference: /src/vue/components/license/Index.vue:171
 	__( 'The license key provided is disabled. Please use a different key.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:161
+	// Reference: /src/vue/components/license/Index.vue:173
 	__( 'The license key provided is expired. Please renew your license or use a different key.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:157
+	// Reference: /src/vue/components/license/Index.vue:169
 	__( 'The license key provided is invalid. Please use a different key.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:431
@@ -611,7 +615,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/about/views/AboutUs.vue:90
 	__( 'The original WordPress SEO plugin. Improve your WordPress SEO rankings and traffic with our comprehensive SEO tools and smart SEO optimizations!', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:165
+	// Reference: /src/vue/components/license/Index.vue:177
 	__( 'There was an error connecting to the licensing API. Please try again later.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:179
@@ -625,7 +629,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:153
 	__( 'This is your links quota, which is reset every month. Every URL on your site that is actively monitored counts against your quota.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:163
+	// Reference: /src/vue/components/license/Index.vue:175
 	__( 'This license has reached the maximum number of activations. Please deactivate it from another site or purchase a new license.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/columns/InfoColumn.vue:126
@@ -661,7 +665,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/composables/LicenseUpgrade.js:16
 	__( 'To unlock a higher quota, consider', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:76
+	// Reference: /src/vue/components/license/Index.vue:84
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:268
 	// Translators: 1 - "upgrading to Pro".
 	__( 'To unlock a higher quota, consider %1$s.', 'broken-link-checker-seo' ),
@@ -688,7 +692,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:311
 	__( 'Undismiss', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/pages/links/views/Settings.vue:74
+	// Reference: /src/vue/pages/links/views/Settings.vue:76
 	// Translators: 1 - The plugin name ("Broken Link Checker").
 	__( 'Uninstall %1$s', 'broken-link-checker-seo' ),
 
@@ -797,12 +801,12 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:155
 	__( 'You do not have sufficient permissions to edit any of the posts for this URL.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:95
+	// Reference: /src/vue/components/license/Index.vue:103
 	// Reference: /src/vue/standalone/dashboard-widgets/BrokenLinksOverview.vue:102
 	// Translators: 1 - The number of links, 2 - The remaining links, 3 - The expiration date.
 	__( 'You have a total quota of %1$s links (%2$s remaining), which renews on %3$s.', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:86
+	// Reference: /src/vue/components/license/Index.vue:94
 	// Reference: /src/vue/standalone/dashboard-widgets/BrokenLinksOverview.vue:93
 	// Translators: 1 - The number of links, 2 - The remaining links.
 	__( 'You have a total quota of %1$s links (%2$s remaining). Your free subscription resets each month.', 'broken-link-checker-seo' ),
@@ -814,7 +818,7 @@ $generated_i18n_strings = [
 	// Reference: /src/vue/pages/links/views/partials/settings/LicenseKey.vue:13
 	__( 'Your Account', 'broken-link-checker-seo' ),
 
-	// Reference: /src/vue/components/license/Index.vue:58
+	// Reference: /src/vue/components/license/Index.vue:61
 	__( 'Your account is connected!', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/LinkStatusTable.vue:85

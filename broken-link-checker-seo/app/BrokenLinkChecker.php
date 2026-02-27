@@ -175,6 +175,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $admin;
 
 		/**
+		 * Emails class instance.
+		 *
+		 * @since 1.2.9
+		 *
+		 * @var Emails\Emails
+		 */
+		public $emails;
+
+		/**
 		 * The main BrokenLinkChecker Instance.
 		 *
 		 * Insures that only one instance of BrokenLinkChecker exists in memory at any one
@@ -327,6 +336,7 @@ namespace AIOSEO\BrokenLinkChecker {
 			$this->api             = new Api\Api();
 			$this->standalone      = new Standalone\Standalone();
 			$this->notifications   = new Admin\Notifications();
+			$this->emails          = new Emails\Emails();
 			$this->admin           = new Admin\Admin();
 
 			add_action( 'init', [ $this, 'loadInit' ], 999 );

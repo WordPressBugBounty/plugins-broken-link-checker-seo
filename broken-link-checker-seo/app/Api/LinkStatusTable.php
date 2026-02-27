@@ -66,7 +66,7 @@ class LinkStatusTable extends CommonTableActions {
 					// If the quota changed, reactivate the license to pull in the latest date from the marketing site.
 					if ( aioseoBrokenLinkChecker()->internalOptions->internal->license->quota !== $responseBody->quota ) {
 						aioseoBrokenLinkChecker()->internalOptions->internal->license->quota = $responseBody->quota;
-						aioseoBrokenLinkChecker()->license->activate();
+						aioseoBrokenLinkChecker()->license->activateProgrammatic();
 					}
 				}
 				break;
@@ -135,7 +135,7 @@ class LinkStatusTable extends CommonTableActions {
 		if ( aioseoBrokenLinkChecker()->internalOptions->internal->license->quota !== $response->quota ) {
 			// If the quota changed, reactivate the license to pull in the latest date from the marketing site.
 			aioseoBrokenLinkChecker()->internalOptions->internal->license->quota = $response->quota;
-			aioseoBrokenLinkChecker()->license->activate();
+			aioseoBrokenLinkChecker()->license->activateProgrammatic();
 		}
 
 		return new \WP_REST_Response( [

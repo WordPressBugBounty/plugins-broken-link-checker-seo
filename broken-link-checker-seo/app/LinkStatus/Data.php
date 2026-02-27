@@ -58,6 +58,7 @@ class Data {
 			->join( 'aioseo_blc_links al', 'al.blc_link_status_id = als.id' )
 			->join( 'posts as p', 'p.ID = al.post_id' )
 			->where( 'als.dismissed', 0 )
+			->orderBy( 'als.last_scan_date ASC' )
 			->groupBy( 'als.id' );
 
 		if ( $ignoreStaleResults ) {

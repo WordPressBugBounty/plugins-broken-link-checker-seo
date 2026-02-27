@@ -3,7 +3,7 @@
         'name' => 'awesomemotive/broken-link-checker-seo',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => '8bcd90a248a70990dbfbf00e4d70d3b75c56655d',
+        'reference' => '7690a5eb7f557e7f76052f092a10095f72a4ecb1',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'awesomemotive/broken-link-checker-seo' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => '8bcd90a248a70990dbfbf00e4d70d3b75c56655d',
+            'reference' => '7690a5eb7f557e7f76052f092a10095f72a4ecb1',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

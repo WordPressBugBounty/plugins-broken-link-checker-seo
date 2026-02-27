@@ -70,15 +70,6 @@ class Admin {
 	public $dashboard;
 
 	/**
-	 * Emails class instance.
-	 *
-	 * @since 1.2.6
-	 *
-	 * @var Emails\Emails
-	 */
-	public $emails;
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 1.0.0
@@ -88,7 +79,6 @@ class Admin {
 			return;
 		}
 
-		$this->emails    = new Emails\Emails();
 		$this->dashboard = new Dashboard();
 
 		add_action( 'admin_menu', [ $this, 'registerMenu' ] );

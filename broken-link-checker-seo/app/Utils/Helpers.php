@@ -35,8 +35,7 @@ class Helpers {
 	 * @return boolean True if we are, false if not.
 	 */
 	public function isDev() {
-		// phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
-		return aioseoBrokenLinkChecker()->isDev || isset( $_REQUEST['aioseo-dev'] );
+		return aioseoBrokenLinkChecker()->isDev || isset( $_REQUEST['aioseo-dev'] ); // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**

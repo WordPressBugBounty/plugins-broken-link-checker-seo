@@ -41,7 +41,7 @@ class License {
 		}
 
 		$internalOptions->internal->license->licenseKey = $licenseKey;
-		$activated                                      = $license->activate();
+		$activated                                      = $license->activateManual();
 
 		if ( $activated ) {
 			// Force WordPress to check for updates.

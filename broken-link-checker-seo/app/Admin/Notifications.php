@@ -42,12 +42,23 @@ class Notifications {
 	private $notConnectedNotice;
 
 	/**
+	 * The action name for the notifications update.
+	 *
+	 * @since 1.2.9
+	 *
+	 * @var string
+	 */
+	private $actionName = 'aioseo_blc_admin_notifications_update';
+
+	/**
 	 * Class constructor.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.2.9 Schedule notifications update as a daily recurring action.
 	 */
 	public function __construct() {
-		add_action( 'aioseo_blc_admin_notifications_update', [ $this, 'update' ] );
+		add_action( 'admin_init', [ $this, 'scheduleNotificationsUpdate' ] );
+		add_action( $this->actionName, [ $this, 'update' ] );
 
 		if ( ! is_admin() ) {
 			return;
@@ -55,6 +66,21 @@ class Notifications {
 
 		add_action( 'init', [ $this, 'init' ], 2 );
 		add_action( 'admin_notices', [ $this, 'renderNotices' ] );
+	}
+
+	/**
+	 * Schedules the daily recurring notifications update.
+	 *
+	 * @since 1.2.9
+	 *
+	 * @return void
+	 */
+	public function scheduleNotificationsUpdate() {
+		if ( aioseoBrokenLinkChecker()->actionScheduler->isScheduled( $this->actionName ) ) {
+			return;
+		}
+
+		aioseoBrokenLinkChecker()->actionScheduler->scheduleRecurrent( $this->actionName, 0, DAY_IN_SECONDS );
 	}
 
 	/**
@@ -71,8 +97,6 @@ class Notifications {
 
 			return;
 		}
-
-		$this->checkForUpdates();
 
 		$this->notConnectedNotice = new Notices\NotConnected();
 		$this->reviewNotice       = new Notices\Review();
@@ -92,23 +116,6 @@ class Notifications {
 
 		$this->notConnectedNotice->maybeShowNotice();
 		$this->reviewNotice->maybeShowNotice();
-	}
-
-	/**
-	 * Checks if we should update our notifications.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	private function checkForUpdates() {
-		$nextRun = aioseoBrokenLinkChecker()->core->cache->get( 'admin_notifications_update' );
-		if ( null !== $nextRun && time() < $nextRun ) {
-			return;
-		}
-
-		aioseoBrokenLinkChecker()->actionScheduler->scheduleAsync( 'aioseo_blc_admin_notifications_update' );
-		aioseoBrokenLinkChecker()->core->cache->update( 'admin_notifications_update', time() + DAY_IN_SECONDS );
 	}
 
 	/**
@@ -176,6 +183,13 @@ class Notifications {
 	 * @return array A list of notifications.
 	 */
 	private function fetch() {
+		$cacheKey = 'blc_notifications_last_fetched';
+		if ( null !== aioseo()->core->cache->get( $cacheKey ) ) {
+			return [];
+		}
+
+		aioseo()->core->cache->update( $cacheKey, true, 12 * HOUR_IN_SECONDS );
+
 		$response = aioseoBrokenLinkChecker()->helpers->wpRemoteGet( $this->getUrl() );
 		if ( is_wp_error( $response ) ) {
 			return [];

@@ -154,7 +154,7 @@ class Link extends Model {
 				return [];
 			}
 
-			$sanitizedLink[ $k ] = esc_sql( $v );
+			$sanitizedLink[ $k ] = $v;
 		}
 
 		return $sanitizedLink;

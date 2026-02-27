@@ -47,7 +47,6 @@ class InternalOptions {
 				'connectionError'  => [ 'type' => 'boolean', 'default' => false ],
 				'activationsError' => [ 'type' => 'boolean', 'default' => false ],
 				'requestError'     => [ 'type' => 'boolean', 'default' => false ],
-				'lastChecked'      => [ 'type' => 'number', 'default' => 0 ],
 				'level'            => [ 'type' => 'string' ],
 				'licenseKey'       => [ 'type' => 'string', 'default' => '' ],
 				'quota'            => [ 'type' => 'number', 'default' => 0 ],
@@ -55,7 +54,8 @@ class InternalOptions {
 			],
 			'emails'              => [
 				'connectReminder'       => [ 'type' => 'number', 'default' => 0 ],
-				'connectReminderSecond' => [ 'type' => 'number', 'default' => 0 ]
+				'connectReminderSecond' => [ 'type' => 'number', 'default' => 0 ],
+				'emailDisabled'         => [ 'type' => 'boolean', 'default' => false ]
 			]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound

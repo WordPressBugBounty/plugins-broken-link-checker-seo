@@ -152,26 +152,7 @@ trait Wp {
 			return $capabilities[ $postType ];
 		}
 
-		if ( ! is_array( $postTypeObject->capability_type ) ) {
-			$postTypeObject->capability_type = [
-				$postTypeObject->capability_type,
-				$postTypeObject->capability_type . 's'
-			];
-		}
-
-		// Singular base for meta capabilities, plural base for primitive capabilities.
-		list( $singularBase, $pluralBase ) = $postTypeObject->capability_type;
-
-		$capabilities[ $postType ] = [
-			'edit_post'          => 'edit_' . $singularBase,
-			'read_post'          => 'read_' . $singularBase,
-			'delete_post'        => 'delete_' . $singularBase,
-			'edit_posts'         => 'edit_' . $pluralBase,
-			'edit_others_posts'  => 'edit_others_' . $pluralBase,
-			'delete_posts'       => 'delete_' . $pluralBase,
-			'publish_posts'      => 'publish_' . $pluralBase,
-			'read_private_posts' => 'read_private_' . $pluralBase,
-		];
+		$capabilities[ $postType ] = (array) $postTypeObject->cap;
 
 		return $capabilities[ $postType ];
 	}

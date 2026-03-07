@@ -88,7 +88,7 @@ $generated_i18n_strings = [
 
 	// Reference: /src/vue/components/license/Index.vue:164
 	// Reference: /src/vue/components/license/Index.vue:179
-	// Reference: /src/vue/components/license/Index.vue:189
+	// Reference: /src/vue/components/license/Index.vue:190
 	__( 'An unknown error occurred, please try again later.', 'broken-link-checker-seo' ),
 
 	// Reference: /src/vue/pages/links/views/partials/broken-links/EditRow.vue:35

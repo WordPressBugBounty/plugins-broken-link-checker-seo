@@ -213,7 +213,7 @@ class License {
 		}
 
 		// Something bad happened, error unknown.
-		if ( empty( $response->success ) || empty( $response->level ) || empty( $response->broken_links_count ) ) {
+		if ( empty( $response->success ) || empty( $response->level ) || ! isset( $response->broken_links_count ) ) {
 			return false;
 		}
 

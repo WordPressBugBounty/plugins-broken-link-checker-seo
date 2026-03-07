@@ -29,17 +29,17 @@ trait Api {
 
 		if ( ! $skipLock ) {
 			$lockKey = $this->getCacheKey( $url, $args );
-			if ( aioseo()->core->cache->get( $lockKey ) ) {
+			if ( aioseoBrokenLinkChecker()->core->cache->get( $lockKey ) ) {
 				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
 			}
 
-			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+			aioseoBrokenLinkChecker()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
 		}
 
 		$response = wp_remote_post( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
 
 		if ( ! $skipLock ) {
-			aioseo()->core->cache->delete( $lockKey );
+			aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
 		}
 
 		return $response;
@@ -60,17 +60,17 @@ trait Api {
 
 		if ( ! $skipLock ) {
 			$lockKey = $this->getCacheKey( $url, $args );
-			if ( aioseo()->core->cache->get( $lockKey ) ) {
+			if ( aioseoBrokenLinkChecker()->core->cache->get( $lockKey ) ) {
 				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
 			}
 
-			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+			aioseoBrokenLinkChecker()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
 		}
 
 		$response = wp_remote_get( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
 
 		if ( ! $skipLock ) {
-			aioseo()->core->cache->delete( $lockKey );
+			aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
 		}
 
 		return $response;
@@ -93,17 +93,17 @@ trait Api {
 
 		if ( ! $skipLock ) {
 			$lockKey = $this->getCacheKey( $url, $args );
-			if ( aioseo()->core->cache->get( $lockKey ) ) {
+			if ( aioseoBrokenLinkChecker()->core->cache->get( $lockKey ) ) {
 				return new \WP_Error( 'concurrent_request', 'A request to this URL is already in progress.' );
 			}
 
-			aioseo()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
+			aioseoBrokenLinkChecker()->core->cache->update( $lockKey, true, MINUTE_IN_SECONDS );
 		}
 
 		$response = wp_remote_request( $url, array_replace_recursive( $this->getWpApiRequestDefaults(), $args ) );
 
 		if ( ! $skipLock ) {
-			aioseo()->core->cache->delete( $lockKey );
+			aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
 		}
 
 		return $response;

@@ -184,11 +184,11 @@ class Notifications {
 	 */
 	private function fetch() {
 		$cacheKey = 'blc_notifications_last_fetched';
-		if ( null !== aioseo()->core->cache->get( $cacheKey ) ) {
+		if ( null !== aioseoBrokenLinkChecker()->core->cache->get( $cacheKey ) ) {
 			return [];
 		}
 
-		aioseo()->core->cache->update( $cacheKey, true, 12 * HOUR_IN_SECONDS );
+		aioseoBrokenLinkChecker()->core->cache->update( $cacheKey, true, 12 * HOUR_IN_SECONDS );
 
 		$response = aioseoBrokenLinkChecker()->helpers->wpRemoteGet( $this->getUrl() );
 		if ( is_wp_error( $response ) ) {

@@ -4,7 +4,7 @@ Tags: broken links, internal link, external link, check links, seo
 Tested up to: 6.9
 Requires at least: 5.7
 Requires PHP: 5.6
-Stable tag: 1.2.9
+Stable tag: 1.2.10
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -86,6 +86,10 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Changelog ==
 
+**New in Version 1.2.10**
+
+* Fixed: PHP error when connecting BLC when AIOSEO is not active.
+
 **New in Version 1.2.9**
 
 * Updated: Links that have never been checked before are now prioritized better.
@@ -162,6 +166,6 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Upgrade Notice ==
 
-= 1.2.9 =
+= 1.2.10 =
 
 This update adds major improvements and bug fixes.

@@ -5,7 +5,7 @@
  * Description: Monitor and test all internal and external links on your site for broken links. By AIOSEO, the original SEO plugin for WordPress.
  * Author:      All in One SEO Team
  * Author URI:  https://aioseo.com
- * Version:     1.2.9
+ * Version:     1.2.10
  * Text Domain: broken-link-checker-seo
  * Domain Path: /languages
  * License: GPLv3 or later

@@ -49,6 +49,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $core;
 
 		/**
+		 * Database Schema class instance.
+		 *
+		 * @since 1.3.0
+		 *
+		 * @var Db\Schema
+		 */
+		public $dbSchema;
+
+		/**
 		 * InternalOptions class instance.
 		 *
 		 * @since 1.0.0
@@ -58,6 +67,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $internalOptions;
 
 		/**
+		 * SensitiveOptions class instance.
+		 *
+		 * @since 1.3.0
+		 *
+		 * @var Options\SensitiveOptions
+		 */
+		public $sensitiveOptions;
+
+		/**
 		 * Pre updates class instance.
 		 *
 		 * @since 1.0.0
@@ -65,6 +83,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		 * @var Main\PreUpdates
 		 */
 		public $preUpdates;
+
+		/**
+		 * MigrationRunner class instance.
+		 *
+		 * @since 1.3.0
+		 *
+		 * @var Main\Migrations\MigrationRunner
+		 */
+		public $migrationRunner;
 
 		/**
 		 * Helpers class instance.
@@ -313,11 +340,21 @@ namespace AIOSEO\BrokenLinkChecker {
 		 * @return void
 		 */
 		private function preLoad() {
-			$this->core            = new Core\Core();
-			$this->internalOptions = new Options\InternalOptions();
-			$this->helpers         = new Utils\Helpers(); // Needs to load before preUpdates.
-			$this->preUpdates      = new Main\PreUpdates();
-			$this->options         = new Options\Options();
+			$this->core             = new Core\Core();
+			$this->dbSchema         = new Db\Schema();
+			$this->internalOptions  = new Options\InternalOptions();
+			$this->sensitiveOptions = new Options\SensitiveOptions();
+			$this->helpers          = new Utils\Helpers(); // Needs to load before preUpdates.
+			$this->preUpdates       = new Main\PreUpdates();
+			$this->options          = new Options\Options();
+
+			// Runs after preUpdates so legacy version-gated work has already had its turn.
+			$this->migrationRunner = new Main\Migrations\MigrationRunner();
+			$this->migrationRunner->register( new Main\Migrations\Definitions\DropLegacyCacheKeyColumn() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkStatusRescanColumns() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\DedupePosts() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\MigrateSensitiveOptions() );
+			$this->migrationRunner->run();
 		}
 
 		/**

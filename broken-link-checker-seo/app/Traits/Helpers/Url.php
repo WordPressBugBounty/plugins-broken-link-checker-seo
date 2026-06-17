@@ -66,6 +66,11 @@ trait Url {
 		}
 
 		if ( ! empty( $params['path'] ) ) {
+			// Insert a '/' between host and path when the path lacks one — otherwise a relative
+			// link like `who-we-are` resolves to `host.comwho-we-are` instead of `host.com/who-we-are`.
+			if ( ! empty( $params['host'] ) && '/' !== substr( $params['path'], 0, 1 ) ) {
+				$url .= '/';
+			}
 			$url .= $params['path'];
 		}
 

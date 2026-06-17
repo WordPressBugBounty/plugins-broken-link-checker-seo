@@ -24,10 +24,11 @@ class Options {
 	 */
 	public static function getOptions() {
 		return new \WP_REST_Response( [
-			'success'         => true,
-			'options'         => aioseoBrokenLinkChecker()->options->all(),
-			'internalOptions' => aioseoBrokenLinkChecker()->internalOptions->all(),
-			'settings'        => aioseoBrokenLinkChecker()->vueSettings->all()
+			'success'          => true,
+			'options'          => aioseoBrokenLinkChecker()->options->all(),
+			'internalOptions'  => aioseoBrokenLinkChecker()->internalOptions->all(),
+			'sensitiveOptions' => aioseoBrokenLinkChecker()->sensitiveOptions->allHas(),
+			'settings'         => aioseoBrokenLinkChecker()->vueSettings->all()
 		], 200 );
 	}
 

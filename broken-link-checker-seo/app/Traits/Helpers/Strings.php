@@ -45,7 +45,8 @@ trait Strings {
 			return $escapeRegexReplacement[ $string ];
 		}
 
-		$escapeRegexReplacement[ $string ] = str_replace( '$', '\$', $string );
+		// Backslashes must be escaped first to avoid double-escaping the dollar sign escape.
+		$escapeRegexReplacement[ $string ] = str_replace( [ '\\', '$' ], [ '\\\\', '\$' ], $string );
 
 		return $escapeRegexReplacement[ $string ];
 	}

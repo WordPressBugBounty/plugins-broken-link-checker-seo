@@ -46,6 +46,15 @@ class EditRow extends CommonTableActions {
 		if ( $linkStatusId ) {
 			$links = Models\Link::getByLinkStatusId( $linkStatusId );
 			foreach ( $links as $link ) {
+				$post = get_post( $link->post_id );
+
+				// Skip orphaned links whose post no longer exists.
+				if ( ! is_a( $post, 'WP_Post' ) ) {
+					$link->delete();
+
+					continue;
+				}
+
 				// Confirm user has permission to edit the post.
 				if ( ! current_user_can( 'edit_post', $link->post_id ) ) {
 					return new \WP_REST_Response( [

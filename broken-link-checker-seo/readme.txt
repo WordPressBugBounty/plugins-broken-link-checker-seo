@@ -1,10 +1,10 @@
 === Broken Link Checker by AIOSEO – Easily Fix/Monitor Internal and External links ===
 Contributors: aioseo, smub, benjaminprojas
 Tags: broken links, internal link, external link, check links, seo
-Tested up to: 6.9
+Tested up to: 7.0
 Requires at least: 5.7
-Requires PHP: 5.6
-Stable tag: 1.2.10
+Requires PHP: 7.2
+Stable tag: 1.3.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -86,6 +86,20 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Changelog ==
 
+**New in Version 1.3.0**
+
+* New: Video support - Broken Link Checker now auto-detects video links and checks whether the linked video still exists, instead of just making sure that the link works. YouTube, Vimeo and 10+ platforms supported!
+* New: Broken links are now scanned a second time client-side to reduce false-negatives due to WAF blocks or timeouts.
+* Updated: Added support for HTML API for WP 6.6 and above to make link updates/removals more reliable.
+* Updated: Added a license recheck action link to settings to refresh subscription data (useful in case of connection issues/subscription upgrades) + an indicator for the amount of sites that are active under the subscription.
+* Updated: Added a mechanism to prevent duplicate actions from being scheduled.
+* Updated: Link Assistant and Broken Link Checker now clean up database rows for trashed, private, or deleted posts so tables don't accumulate invisible bloat over time.
+* Updated: Hardened options against unintended frontend exposure.
+* Fixed: Setup Wizard sometimes not triggering due to missing cache table.
+* Fixed: Relative URLs are now resolved against the post permalink before storing them to the DB.
+* Fixed: Malformed URLs sent to Broken Link Checker server in rare cases.
+* Fixed: Scan sometimes getting stuck due to duplicate rows in the DB.
+
 **New in Version 1.2.10**
 
 * Fixed: PHP error when connecting BLC when AIOSEO is not active.
@@ -166,6 +180,6 @@ Visit <a href="http://www.wpbeginner.com/" rel="friend" title="WPBeginner">WPBeg
 
 == Upgrade Notice ==
 
-= 1.2.10 =
+= 1.3.0 =
 
 This update adds major improvements and bug fixes.

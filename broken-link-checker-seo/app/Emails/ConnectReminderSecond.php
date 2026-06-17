@@ -56,8 +56,7 @@ class ConnectReminderSecond {
 
 		// Check if the user has already connected their license.
 		// Also check if a license is set, even if expired/invalid.
-		$license = aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey;
-		if ( aioseoBrokenLinkChecker()->license->isActive() || ! empty( $license ) ) {
+		if ( aioseoBrokenLinkChecker()->license->isActive() || aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			aioseoBrokenLinkChecker()->internalOptions->internal->emails->connectReminderSecond = time();
 
 			return;
@@ -102,8 +101,7 @@ class ConnectReminderSecond {
 
 		// Check if the user has already connected their license.
 		// Also check if a license is set, even if expired/invalid.
-		$license = aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey;
-		if ( aioseoBrokenLinkChecker()->license->isActive() || ! empty( $license ) ) {
+		if ( aioseoBrokenLinkChecker()->license->isActive() || aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			aioseoBrokenLinkChecker()->internalOptions->internal->emails->connectReminderSecond = time();
 
 			return;
@@ -120,8 +118,7 @@ class ConnectReminderSecond {
 
 		$siteName = get_bloginfo( 'name' ) ?? site_url();
 		$subject  = sprintf(
-			// Translators: 1 - The site name.
-			__( 'I don\'t want you to get penalized by Google', 'broken-link-checker-seo' ),
+			__( 'Avoid losing traffic from broken links — connect to Broken Link Checker', 'broken-link-checker-seo' ),
 			$siteName
 		);
 

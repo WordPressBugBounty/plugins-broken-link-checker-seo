@@ -390,7 +390,9 @@ class Model implements \JsonSerializable {
 	 * @return void
 	 */
 	public function reset( $id = null ) {
-		$id = ! empty( $id ) ? $id : $this->{$this->pk};
+		// A failed insert (e.g. a duplicate post_id rejected by the UNIQUE index) never sets the PK,
+		// so fall back to null instead of reading an undefined property.
+		$id = ! empty( $id ) ? $id : ( $this->{$this->pk} ?? null );
 		$this->__construct( $id );
 	}
 

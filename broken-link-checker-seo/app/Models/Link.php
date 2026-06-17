@@ -48,7 +48,7 @@ class Link extends Model {
 	 *
 	 * @var array
 	 */
-	protected $booleanFields = [ 'external' ];
+	protected $booleanFields = [ 'external', 'is_video' ];
 
 	/**
 	 * Appended as an extra column, but not stored in the DB.
@@ -104,6 +104,26 @@ class Link extends Model {
 	}
 
 	/**
+	 * Returns the distinct link-status IDs referenced by the given post's links.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  int   $postId The post ID.
+	 * @return int[]         The referenced link-status IDs.
+	 */
+	public static function getLinkStatusIds( $postId ) {
+		$rows = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_links' )
+			->select( 'blc_link_status_id' )
+			->where( 'post_id', $postId )
+			->run()
+			->result();
+
+		return array_values( array_filter( array_unique( array_map( function( $row ) {
+			return (int) $row->blc_link_status_id;
+		}, $rows ) ) ) );
+	}
+
+	/**
 	 * Sanitizes the link object.
 	 *
 	 * @since 1.0.0
@@ -114,7 +134,8 @@ class Link extends Model {
 	public static function sanitizeLink( $link ) {
 		$instance = new self();
 
-		$sanitizedLink = [];
+		$sanitizedLink     = [];
+		$optionalForVideos = [ 'anchor', 'phrase', 'phrase_html', 'paragraph', 'paragraph_html' ];
 		foreach ( $link as $k => $v ) {
 			switch ( $k ) {
 				case 'post_id':
@@ -125,6 +146,7 @@ class Link extends Model {
 					$v = intval( $v );
 					break;
 				case 'external':
+				case 'is_video':
 					$v = rest_sanitize_boolean( $v );
 					break;
 				case 'url':
@@ -149,7 +171,8 @@ class Link extends Model {
 			if (
 				empty( $v ) &&
 				! in_array( $k, $instance->booleanFields, true ) &&
-				! in_array( $k, $instance->nullFields, true )
+				! in_array( $k, $instance->nullFields, true ) &&
+				! ( ! empty( $link['is_video'] ) && in_array( $k, $optionalForVideos, true ) )
 			) {
 				return [];
 			}
@@ -179,9 +202,17 @@ class Link extends Model {
 			'paragraph_html'
 		];
 
+		// Videos may legitimately have no anchor, phrase or paragraph, but url and hostname are always required.
+		$optionalForVideos = [ 'anchor', 'phrase', 'phrase_html', 'paragraph', 'paragraph_html' ];
+
 		foreach ( $propsToCheck as $prop ) {
 			$value = wp_strip_all_tags( $link[ $prop ] );
+
 			if ( empty( $value ) ) {
+				if ( ! empty( $link['is_video'] ) && in_array( $prop, $optionalForVideos, true ) ) {
+					continue;
+				}
+
 				return false;
 			}
 		}
@@ -244,10 +275,30 @@ class Link extends Model {
 	 * @return int                  The row count.
 	 */
 	public static function rowQueryCount( $linkStatusId, $whereClause = '' ) {
-		$query = self::baseQuery( $linkStatusId, $whereClause )
-			->count();
+		return self::baseQuery( $linkStatusId, $whereClause )->count();
+	}
 
-		return $query;
+	/**
+	 * Returns both the total link count and the distinct post count in a single query.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  int    $linkStatusId The link status ID.
+	 * @param  string $whereClause  The WHERE clause.
+	 * @return array{total: int, distinctPosts: int} The counts.
+	 */
+	public static function rowQueryCounts( $linkStatusId, $whereClause = '' ) {
+		$result = self::baseQuery( $linkStatusId, $whereClause )
+			->select( 'COUNT(*) as total, COUNT(DISTINCT al.post_id) as distinct_posts' )
+			->run()
+			->result();
+
+		$row = ! empty( $result[0] ) ? $result[0] : null;
+
+		return [
+			'total'         => $row ? (int) $row->total : 0,
+			'distinctPosts' => $row ? (int) $row->distinct_posts : 0
+		];
 	}
 
 	/**
@@ -285,11 +336,6 @@ class Link extends Model {
 			$query->whereNotIn( 'p.ID', $excludedPostIds );
 		}
 
-		if ( ! empty( $excludedDomains ) ) {
-			$query->whereNotIn( 'al.hostname', $excludedDomains );
-		}
-
-		$excludedDomains = aioseoBrokenLinkChecker()->helpers->getExcludedDomains();
 		if ( ! empty( $excludedDomains ) ) {
 			$query->whereNotIn( 'al.hostname', $excludedDomains );
 		}

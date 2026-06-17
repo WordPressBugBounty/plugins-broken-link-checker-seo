@@ -143,6 +143,39 @@ class ActionScheduler {
 			AND `aa`.`group_id` = 0
 			AND `aa`.`status` IN ('complete', 'failed', 'canceled');"
 		);
+
+		if ( ! aioseoBrokenLinkChecker()->core->cache->get( 'blc_action_scheduler_dedup' ) ) {
+			$this->deduplicatePendingActions( $prefix );
+
+			aioseoBrokenLinkChecker()->core->cache->update( 'blc_action_scheduler_dedup', true, DAY_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Removes duplicate pending actions for the aioseo_blc group, keeping only the earliest per hook+args.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  string $prefix The database table prefix.
+	 * @return void
+	 */
+	private function deduplicatePendingActions( $prefix ) {
+		aioseoBrokenLinkChecker()->core->db->execute(
+			"DELETE aa FROM {$prefix}actionscheduler_actions AS aa
+			JOIN {$prefix}actionscheduler_groups AS ag ON ag.group_id = aa.group_id
+			WHERE ag.slug = '{$this->actionSchedulerGroup}'
+			AND aa.status = 'pending'
+			AND aa.action_id NOT IN (
+				SELECT action_id FROM (
+					SELECT MIN(aa2.action_id) AS action_id
+					FROM {$prefix}actionscheduler_actions AS aa2
+					JOIN {$prefix}actionscheduler_groups AS ag2 ON ag2.group_id = aa2.group_id
+					WHERE ag2.slug = '{$this->actionSchedulerGroup}'
+					AND aa2.status = 'pending'
+					GROUP BY aa2.hook, aa2.args
+				) AS keepers
+			);"
+		);
 	}
 
 	/**

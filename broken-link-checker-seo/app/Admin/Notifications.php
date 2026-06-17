@@ -91,10 +91,10 @@ class Notifications {
 	 * @return void
 	 */
 	public function init() {
-		// If our tables do not exist, create them now.
+		// If our tables do not exist, let runUpdates() handle creation.
+		// Calling updateDbSchema() here AND in runUpdates() causes duplicate
+		// dbDelta() calls which triggers "table already exists" errors.
 		if ( ! aioseoBrokenLinkChecker()->core->db->tableExists( 'aioseo_blc_notifications' ) ) {
-			aioseoBrokenLinkChecker()->updates->addInitialTables();
-
 			return;
 		}
 
@@ -114,8 +114,13 @@ class Notifications {
 			return;
 		}
 
-		$this->notConnectedNotice->maybeShowNotice();
-		$this->reviewNotice->maybeShowNotice();
+		if ( ! empty( $this->notConnectedNotice ) ) {
+			$this->notConnectedNotice->maybeShowNotice();
+		}
+
+		if ( ! empty( $this->reviewNotice ) ) {
+			$this->reviewNotice->maybeShowNotice();
+		}
 	}
 
 	/**

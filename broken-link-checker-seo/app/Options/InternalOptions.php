@@ -37,6 +37,7 @@ class InternalOptions {
 		'internal' => [
 			'firstActivated'      => [ 'type' => 'number', 'default' => 0 ],
 			'lastActiveVersion'   => [ 'type' => 'string', 'default' => '0.0' ],
+			'lastSchemaVersion'   => [ 'type' => 'string', 'default' => '0.0' ],
 			'scanId'              => [ 'type' => 'string', 'default' => null ],
 			'minimumLinkScanDate' => [ 'type' => 'string', 'default' => null ],
 			'license'             => [
@@ -48,7 +49,7 @@ class InternalOptions {
 				'activationsError' => [ 'type' => 'boolean', 'default' => false ],
 				'requestError'     => [ 'type' => 'boolean', 'default' => false ],
 				'level'            => [ 'type' => 'string' ],
-				'licenseKey'       => [ 'type' => 'string', 'default' => '' ],
+				'counts'           => [ 'type' => 'string', 'default' => '' ],
 				'quota'            => [ 'type' => 'number', 'default' => 0 ],
 				'quotaRemaining'   => [ 'type' => 'number', 'default' => 0 ]
 			],

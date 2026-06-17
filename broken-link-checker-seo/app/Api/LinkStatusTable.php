@@ -60,7 +60,7 @@ class LinkStatusTable extends CommonTableActions {
 			case 'recheck':
 				$responseBody = self::recheckLinks( $rows );
 
-				if ( null !== $responseBody ) {
+				if ( false !== $responseBody ) {
 					aioseoBrokenLinkChecker()->internalOptions->internal->license->quotaRemaining = $responseBody->quotaRemaining;
 
 					// If the quota changed, reactivate the license to pull in the latest date from the marketing site.

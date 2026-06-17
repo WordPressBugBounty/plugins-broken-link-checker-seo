@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
+class ComposerStaticInit3bc9972c45dc36d351839aa972643d12
 {
     public static $prefixLengthsPsr4 = array (
         'A' => 
@@ -50,15 +50,24 @@ class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
         'AIOSEO\\BrokenLinkChecker\\Core\\Filesystem' => __DIR__ . '/../..' . '/app/Core/Filesystem.php',
         'AIOSEO\\BrokenLinkChecker\\Core\\NetworkCache' => __DIR__ . '/../..' . '/app/Core/NetworkCache.php',
         'AIOSEO\\BrokenLinkChecker\\Core\\Uninstall' => __DIR__ . '/../..' . '/app/Core/Uninstall.php',
+        'AIOSEO\\BrokenLinkChecker\\Db\\Schema' => __DIR__ . '/../..' . '/app/Db/Schema.php',
         'AIOSEO\\BrokenLinkChecker\\Emails\\ConnectReminder' => __DIR__ . '/../..' . '/app/Emails/ConnectReminder.php',
         'AIOSEO\\BrokenLinkChecker\\Emails\\ConnectReminderSecond' => __DIR__ . '/../..' . '/app/Emails/ConnectReminderSecond.php',
         'AIOSEO\\BrokenLinkChecker\\Emails\\Emails' => __DIR__ . '/../..' . '/app/Emails/Emails.php',
         'AIOSEO\\BrokenLinkChecker\\LinkStatus\\Data' => __DIR__ . '/../..' . '/app/LinkStatus/Data.php',
         'AIOSEO\\BrokenLinkChecker\\LinkStatus\\LinkStatus' => __DIR__ . '/../..' . '/app/LinkStatus/LinkStatus.php',
+        'AIOSEO\\BrokenLinkChecker\\LinkStatus\\LocalScan' => __DIR__ . '/../..' . '/app/LinkStatus/LocalScan.php',
         'AIOSEO\\BrokenLinkChecker\\Links\\Data' => __DIR__ . '/../..' . '/app/Links/Data.php',
         'AIOSEO\\BrokenLinkChecker\\Links\\Links' => __DIR__ . '/../..' . '/app/Links/Links.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Activate' => __DIR__ . '/../..' . '/app/Main/Activate.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Main' => __DIR__ . '/../..' . '/app/Main/Main.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkStatusRescanColumns' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkStatusRescanColumns.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\DedupePosts' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/DedupePosts.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\DropLegacyCacheKeyColumn' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/DropLegacyCacheKeyColumn.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\MigrateSensitiveOptions' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/MigrateSensitiveOptions.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Migration' => __DIR__ . '/../..' . '/app/Main/Migrations/Migration.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\MigrationLog' => __DIR__ . '/../..' . '/app/Main/Migrations/MigrationLog.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\MigrationRunner' => __DIR__ . '/../..' . '/app/Main/Migrations/MigrationRunner.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Paragraph' => __DIR__ . '/../..' . '/app/Main/Paragraph.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\PreUpdates' => __DIR__ . '/../..' . '/app/Main/PreUpdates.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Updates' => __DIR__ . '/../..' . '/app/Main/Updates.php',
@@ -70,6 +79,7 @@ class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
         'AIOSEO\\BrokenLinkChecker\\Options\\Cache' => __DIR__ . '/../..' . '/app/Options/Cache.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\InternalOptions' => __DIR__ . '/../..' . '/app/Options/InternalOptions.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\Options' => __DIR__ . '/../..' . '/app/Options/Options.php',
+        'AIOSEO\\BrokenLinkChecker\\Options\\SensitiveOptions' => __DIR__ . '/../..' . '/app/Options/SensitiveOptions.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\Highlighter' => __DIR__ . '/../..' . '/app/Standalone/Highlighter.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\SetupWizard' => __DIR__ . '/../..' . '/app/Standalone/SetupWizard.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\Standalone' => __DIR__ . '/../..' . '/app/Standalone/Standalone.php',
@@ -88,6 +98,7 @@ class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
         'AIOSEO\\BrokenLinkChecker\\Traits\\Options' => __DIR__ . '/../..' . '/app/Traits/Options.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\Access' => __DIR__ . '/../..' . '/app/Utils/Access.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\ActionScheduler' => __DIR__ . '/../..' . '/app/Utils/ActionScheduler.php',
+        'AIOSEO\\BrokenLinkChecker\\Utils\\BlcHtmlTagProcessor' => __DIR__ . '/../..' . '/app/Utils/BlcHtmlTagProcessor.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\Helpers' => __DIR__ . '/../..' . '/app/Utils/Helpers.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\PluginUpgraderSilentAjax' => __DIR__ . '/../..' . '/app/Utils/PluginUpgraderSilentAjax.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\PluginUpgraderSkin' => __DIR__ . '/../..' . '/app/Utils/PluginUpgraderSkin.php',
@@ -98,9 +109,9 @@ class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$classMap;
 
         }, null, ClassLoader::class);
     }

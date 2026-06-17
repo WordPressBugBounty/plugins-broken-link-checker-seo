@@ -1763,6 +1763,35 @@ class Database {
 	}
 
 	/**
+	 * Checks whether the given index exists on the given table.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  string $tableName      The table name.
+	 * @param  string $indexName      The index name.
+	 * @param  bool   $includesPrefix Whether the table name includes the WordPress prefix or not.
+	 * @return bool                   Whether the index exists or not.
+	 */
+	public function indexExists( $tableName, $indexName, $includesPrefix = false ) {
+		$prefix    = $includesPrefix ? '' : $this->prefix;
+		$tableName = strtolower( $prefix . $tableName );
+		$indexName = strtolower( $indexName );
+
+		$indexes = $this->db->get_results( "SHOW INDEX FROM `$tableName`" );
+		foreach ( $indexes as $index ) {
+			if ( empty( $index->Key_name ) ) {
+				continue;
+			}
+
+			if ( strtolower( $index->Key_name ) === $indexName ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Acquires a database lock with the given name.
 	 *
 	 * @since 1.2.5

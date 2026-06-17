@@ -163,6 +163,10 @@ class LinkStatus {
 		}
 
 		$responseBody = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( $this->setIdleIfError( $responseBody ) ) {
+			return;
+		}
+
 		if (
 			is_wp_error( $response ) ||
 			200 !== $responseCode ||
@@ -170,17 +174,7 @@ class LinkStatus {
 			empty( $responseBody->scanId ) ||
 			! isset( $responseBody->quotaRemaining )
 		) {
-			if (
-				! empty( $responseBody->error ) &&
-				'out-of-quota' === strtolower( $responseBody->error )
-			) {
-				// If the scan failed because the user is out of quota, check again in 24h to see if the quota has been replenished.
-				aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_link_status_idle', true, DAY_IN_SECONDS + wp_rand( 60, 600 ) );
-
-				return;
-			}
-
-			// Generic error: just return and let the next recurring tick retry.
+			// Return and let the next recurring action give it another go.
 			return;
 		}
 
@@ -223,13 +217,17 @@ class LinkStatus {
 		}
 
 		$responseBody = json_decode( wp_remote_retrieve_body( $response ) );
-		if ( is_wp_error( $response ) && 200 !== $responseCode || empty( $responseBody->success ) ) {
+		if ( $this->setIdleIfError( $responseBody ) ) {
+			return;
+		}
+
+		if ( is_wp_error( $response ) || 200 !== $responseCode || empty( $responseBody->success ) ) {
 			// If the scan data cannot be found on the server, wipe the scan ID so the scan restarts.
 			if ( ! empty( $responseBody->error ) && 'missing-scan-data' === strtolower( $responseBody->error ) ) {
 				aioseoBrokenLinkChecker()->internalOptions->internal->scanId = '';
 			}
 
-			// Generic error: just return and let the next recurring tick retry.
+			// Return and let the next recurring action give it another go.
 			return;
 		}
 
@@ -245,6 +243,29 @@ class LinkStatus {
 		// Once the request is successful, we know the scan has been completed and we can go ahead and reset it.
 		$this->doDeleteRequest( "scan/{$scanId}/" );
 		aioseoBrokenLinkChecker()->internalOptions->internal->scanId = '';
+	}
+
+	/**
+	 * Checks the response body for error codes and sets the idle cache if found.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  object|null $responseBody The decoded response body.
+	 * @return bool                      Whether an error was found and idle was set.
+	 */
+	private function setIdleIfError( $responseBody ) {
+		if ( empty( $responseBody->error ) ) {
+			return false;
+		}
+
+		$errors = [ 'no-license', 'invalid-license', 'invalid-token', 'quota-exceeded', 'out-of-quota' ];
+		if ( in_array( strtolower( $responseBody->error ), $errors, true ) ) {
+			aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_link_status_idle', true, DAY_IN_SECONDS + wp_rand( 60, 600 ) );
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -269,7 +290,8 @@ class LinkStatus {
 	/**
 	 * Helper function for parseResults().
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.0 Set needs_additional_scan and clear idle cache on broken results.
 	 *
 	 * @param  Object $url The URL object.
 	 * @return void
@@ -297,6 +319,8 @@ class LinkStatus {
 				$linkStatus->first_failure = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
 			}
 
+			$this->maybeQueueLocalScan( $linkStatus );
+
 			$linkStatus->save();
 
 			return;
@@ -320,13 +344,37 @@ class LinkStatus {
 		];
 
 		if ( $success ) {
-			$linkStatus->last_success  = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
-			$linkStatus->first_failure = null;
-		} elseif ( ! $linkStatus->first_failure ) {
-			$linkStatus->first_failure = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+			$linkStatus->last_success             = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+			$linkStatus->first_failure            = null;
+			$linkStatus->needs_additional_scan    = false;
+			$linkStatus->client_confirmed_broken  = false;
+			$linkStatus->local_scan_count         = 0;
+		} else {
+			if ( ! $linkStatus->first_failure ) {
+				$linkStatus->first_failure = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+			}
+
+			$this->maybeQueueLocalScan( $linkStatus );
 		}
 
 		$linkStatus->save();
+	}
+
+	/**
+	 * Queues a local re-scan unless the client has already confirmed the link is broken.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  Models\LinkStatus $linkStatus The link status model instance.
+	 * @return void
+	 */
+	private function maybeQueueLocalScan( Models\LinkStatus $linkStatus ) {
+		if ( ! $linkStatus->client_confirmed_broken ) {
+			$linkStatus->needs_additional_scan = true;
+			aioseoBrokenLinkChecker()->core->cache->delete( 'as_blc_local_scan_idle' );
+		} else {
+			$linkStatus->needs_additional_scan = false;
+		}
 	}
 
 	/**

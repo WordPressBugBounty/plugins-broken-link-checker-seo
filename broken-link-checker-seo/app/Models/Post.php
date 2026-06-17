@@ -52,7 +52,8 @@ class Post extends Model {
 	/**
 	 * Returns a Post with a given ID.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.0 Pick the freshest row by link_scan_date so stale duplicates (legacy installs without the UNIQUE constraint) don't shadow the scanned row.
 	 *
 	 * @param  int  $postId The Post ID.
 	 * @return Post         The Post object.
@@ -60,6 +61,8 @@ class Post extends Model {
 	public static function getPost( $postId ) {
 		$post = aioseoBrokenLinkChecker()->core->db->start( 'aioseo_blc_posts' )
 			->where( 'post_id', $postId )
+			->orderBy( 'link_scan_date DESC, id DESC' )
+			->limit( 1 )
 			->run()
 			->model( 'AIOSEO\\BrokenLinkChecker\\Models\\Post' );
 
@@ -68,5 +71,19 @@ class Post extends Model {
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Deletes the scan-metadata row for the given post.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  int  $postId The Post ID.
+	 * @return void
+	 */
+	public static function deleteByPostId( $postId ) {
+		aioseoBrokenLinkChecker()->core->db->delete( 'aioseo_blc_posts' )
+			->where( 'post_id', $postId )
+			->run();
 	}
 }

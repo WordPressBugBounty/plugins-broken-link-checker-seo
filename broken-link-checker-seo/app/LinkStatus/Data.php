@@ -90,10 +90,14 @@ class Data {
 			return $query->count();
 		}
 
-		$linksToScan = $query->select( 'als.id, als.url' )
+		$linksToScan = $query->select( 'als.id, als.url, als.last_scan_date' )
 			->limit( $linksPerScan )
 			->run()
 			->result();
+
+		foreach ( $linksToScan as $link ) {
+			$link->isFirstScan = empty( $link->last_scan_date );
+		}
 
 		return $linksToScan;
 	}

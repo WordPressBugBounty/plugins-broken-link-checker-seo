@@ -27,6 +27,11 @@ class License {
 		$network    = is_multisite() && ! empty( $body['network'] ) ? (bool) $body['network'] : false;
 		$licenseKey = ! empty( $body['licenseKey'] ) ? sanitize_text_field( $body['licenseKey'] ) : null;
 		if ( empty( $licenseKey ) ) {
+			// Fall back to the existing stored key (e.g. for re-validation after upgrade).
+			$licenseKey = aioseoBrokenLinkChecker()->sensitiveOptions->get( 'licenseKey' );
+		}
+
+		if ( empty( $licenseKey ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => 'No license key given.'
@@ -40,8 +45,8 @@ class License {
 			$license         = aioseoBrokenLinkChecker()->networkLicense;
 		}
 
-		$internalOptions->internal->license->licenseKey = $licenseKey;
-		$activated                                      = $license->activateManual();
+		aioseoBrokenLinkChecker()->sensitiveOptions->set( 'licenseKey', $licenseKey );
+		$activated = $license->activateManual();
 
 		if ( $activated ) {
 			// Force WordPress to check for updates.
@@ -50,18 +55,23 @@ class License {
 			// Scan for some posts to fill the report.
 			aioseoBrokenLinkChecker()->actionScheduler->scheduleAsync( 'aioseo_blc_links_scan' );
 		} else {
-			$internalOptions->internal->license->licenseKey = null;
+			aioseoBrokenLinkChecker()->sensitiveOptions->set( 'licenseKey', '' );
 
 			return new \WP_REST_Response( [
-				'success' => false
+				'error'       => true,
+				'licenseData' => $internalOptions->internal->license->all()
 			], 400 );
 		}
 
 		aioseoBrokenLinkChecker()->notifications->init();
 
+		$licenseData = $internalOptions->internal->license->all();
+		unset( $licenseData['licenseKey'] );
+
 		return new \WP_REST_Response( [
 			'success'       => true,
-			'licenseData'   => $internalOptions->internal->license->all(),
+			'hasLicenseKey' => true,
+			'licenseData'   => $licenseData,
 			'notifications' => Models\Notification::getNotifications()
 		], 200 );
 	}
@@ -85,8 +95,8 @@ class License {
 			$license         = aioseoBrokenLinkChecker()->networkLicense;
 		}
 
-		$deactivated                                    = $license->deactivate();
-		$internalOptions->internal->license->licenseKey = null;
+		$deactivated = $license->deactivate();
+		aioseoBrokenLinkChecker()->sensitiveOptions->set( 'licenseKey', '' );
 
 		if ( $deactivated ) {
 			// Force WordPress to check for updates.
@@ -112,9 +122,13 @@ class License {
 
 		aioseoBrokenLinkChecker()->notifications->init();
 
+		$licenseData = $internalOptions->internal->license->all();
+		unset( $licenseData['licenseKey'] );
+
 		return new \WP_REST_Response( [
 			'success'       => true,
-			'licenseData'   => $internalOptions->internal->license->all(),
+			'hasLicenseKey' => false,
+			'licenseData'   => $licenseData,
 			'notifications' => Models\Notification::getNotifications()
 		], 200 );
 	}

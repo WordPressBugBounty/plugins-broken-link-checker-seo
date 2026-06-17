@@ -55,8 +55,7 @@ class ConnectReminder {
 
 		// Check if the user has already connected their license.
 		// Also check if a license is set, even if expired/invalid.
-		$license = aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey;
-		if ( aioseoBrokenLinkChecker()->license->isActive() || ! empty( $license ) ) {
+		if ( aioseoBrokenLinkChecker()->license->isActive() || aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			aioseoBrokenLinkChecker()->internalOptions->internal->emails->connectReminder = time();
 
 			return;
@@ -101,8 +100,7 @@ class ConnectReminder {
 
 		// Check if the user has already connected their license.
 		// Also check if a license is set, even if expired/invalid.
-		$license = aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey;
-		if ( aioseoBrokenLinkChecker()->license->isActive() || ! empty( $license ) ) {
+		if ( aioseoBrokenLinkChecker()->license->isActive() || aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			aioseoBrokenLinkChecker()->internalOptions->internal->emails->connectReminder = time();
 
 			return;

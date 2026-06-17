@@ -47,9 +47,11 @@ trait Vue {
 		$this->vueData = [
 			// The following data is needed on all screens.
 			'wpVersion'           => $wp_version, // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+			'dateFormat'          => get_option( 'date_format' ),
 			'page'                => $currentPage,
 			'screen'              => aioseoBrokenLinkChecker()->helpers->getCurrentScreen(),
 			'internalOptions'     => aioseoBrokenLinkChecker()->internalOptions->all(),
+			'sensitiveOptions'    => aioseoBrokenLinkChecker()->sensitiveOptions->allHas(),
 			'options'             => aioseoBrokenLinkChecker()->options->all(),
 			'settings'            => aioseoBrokenLinkChecker()->vueSettings->all(),
 			'notifications'       => array_merge( Models\Notification::getNotifications( false ), [ 'force' => $showNotificationsDrawer ] ),
@@ -121,8 +123,6 @@ trait Vue {
 			default:
 				break;
 		}
-
-		$this->cleanSensitiveData();
 
 		return $this->vueData;
 	}
@@ -386,23 +386,5 @@ trait Vue {
 		aioseoBrokenLinkChecker()->core->cache->update( 'link_status_distribution', $distribution );
 
 		return $distribution;
-	}
-
-	/**
-	 * Clean sensitive data.
-	 *
-	 * @since 1.2.6
-	 *
-	 * @return void
-	 */
-	private function cleanSensitiveData() {
-		// If the user is an admin, don't hide the following data.
-		if ( aioseoBrokenLinkChecker()->access->isAdmin() ) {
-			return;
-		}
-
-		if ( ! empty( $this->vueData['internalOptions']['internal']['license']['licenseKey'] ) ) {
-			$this->vueData['internalOptions']['internal']['license']['licenseKey'] = '*****************';
-		}
 	}
 }

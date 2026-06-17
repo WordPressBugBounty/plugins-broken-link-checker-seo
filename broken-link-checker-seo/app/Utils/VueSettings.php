@@ -44,8 +44,9 @@ class VueSettings {
 		],
 		'toggledRadio'    => [],
 		'tablePagination' => [
-			'brokenLinks' => 20,
-			'linksTable'  => 20
+			'brokenLinks'      => 20,
+			'linksTable'       => 20,
+			'linksTableInline' => 5
 		]
 	];
 

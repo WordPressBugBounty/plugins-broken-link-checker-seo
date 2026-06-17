@@ -56,7 +56,30 @@ class Links {
 		add_action( $this->scanActionName, [ $this, 'scanPosts' ], 11, 1 );
 
 		add_action( 'save_post', [ $this, 'scanPost' ], 21, 1 );
+		add_action( 'delete_post', [ $this, 'deletePostLinks' ] );
 		add_action( 'shutdown', [ $this, 'rescanPosts' ] );
+	}
+
+	/**
+	 * Deletes all link records for a given post when it is permanently deleted, plus any
+	 * link-status rows left unreferenced once those links are gone.
+	 *
+	 * Statuses are captured before the links are deleted; only fires on permanent delete,
+	 * so a link status whose post is merely trashed (and may be restored) is kept.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  int  $postId The post ID.
+	 * @return void
+	 */
+	public function deletePostLinks( $postId ) {
+		$linkStatusIds = Models\Link::getLinkStatusIds( $postId );
+
+		Models\Link::deleteLinks( $postId );
+
+		if ( $linkStatusIds ) {
+			Models\LinkStatus::deleteOrphaned( $linkStatusIds );
+		}
 	}
 
 	/**
@@ -148,6 +171,10 @@ class Links {
 
 		if ( ! is_object( $post ) ) {
 			$post = get_post( $post );
+		}
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
 		}
 
 		// Check if we didn't scan this post in the last 3 seconds. This is to prevent a second, subsequent request from scanning the same post.

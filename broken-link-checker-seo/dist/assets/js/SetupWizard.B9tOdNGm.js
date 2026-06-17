@@ -1,0 +1,1 @@
+import{B as e,nt as t}from"./app-core.CLalenlL.js";var n=`broken-link-checker-seo`,r=()=>({nextScreen:t=>{let n=e();t.$router.push(n.getNextLink)},strings:{skipThisStep:t(`Skip this Step`,n),goBackStep:t(`Go Back`,n),saveAndContinue:t(`Save and Continue`,n)}});export{r as t};

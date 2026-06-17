@@ -151,7 +151,7 @@ trait Api {
 	private function getApiHeaders() {
 		return [
 			'Content-Type'         => 'application/json',
-			'X-AIOSEO-BLC-License' => aioseoBrokenLinkChecker()->internalOptions->internal->license->licenseKey
+			'X-AIOSEO-BLC-License' => aioseoBrokenLinkChecker()->sensitiveOptions->get( 'licenseKey' )
 		];
 	}
 

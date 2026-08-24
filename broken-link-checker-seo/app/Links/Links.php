@@ -158,7 +158,7 @@ class Links {
 	/**
 	 * Scans the given individual post for links.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
 	 *
 	 * @param  Object|int $post The post object or ID (if called on "save_post").
 	 * @return void
@@ -169,8 +169,11 @@ class Links {
 			return;
 		}
 
-		if ( ! is_object( $post ) ) {
-			$post = get_post( $post );
+		// The bulk scan hands us raw stdClass rows, so hydrate anything that isn't already a WP_Post.
+		// The ID is resolved first because get_post() falls back to the global post for empty input.
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			$postId = is_object( $post ) ? ( $post->ID ?? 0 ) : $post;
+			$post   = $postId ? get_post( (int) $postId ) : null;
 		}
 
 		if ( ! is_a( $post, 'WP_Post' ) ) {

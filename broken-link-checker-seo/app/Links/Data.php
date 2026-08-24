@@ -783,8 +783,9 @@ class Data {
 			return $query->count( 'DISTINCT p.ID' );
 		}
 
+		// Only the ID is needed — the scan hydrates each post through get_post().
 		$postsToScan = $query
-			->select( 'DISTINCT p.ID, p.post_content, p.post_type, p.post_status' )
+			->select( 'DISTINCT p.ID' )
 			->limit( $postsPerScan )
 			->run()
 			->result();

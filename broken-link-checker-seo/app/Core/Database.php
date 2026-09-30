@@ -318,12 +318,12 @@ class Database {
 	 */
 	public function getColumns( $table ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
-			$table = $this->prefix . $table;
+		if ( 0 !== stripos( $table, $this->db->prefix ) ) {
+			$table = $this->db->prefix . $table;
 		}
 
 		// If the table is not an AIOSEO one, get it from the DB.
-		if ( 0 !== strpos( $table, $this->prefix . 'aioseo_' ) ) {
+		if ( 0 !== stripos( $table, $this->db->prefix . 'aioseo_' ) ) {
 			return $this->db->get_col( 'SHOW COLUMNS FROM `' . $table . '`' );
 		}
 
@@ -343,8 +343,8 @@ class Database {
 	 */
 	public function tableExists( $table ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
-			$table = $this->prefix . $table;
+		if ( 0 !== stripos( $table, $this->db->prefix ) ) {
+			$table = $this->db->prefix . $table;
 		}
 
 		$tables = $this->getAioseoTablesWithColumns();
@@ -364,8 +364,8 @@ class Database {
 	 */
 	public function columnExists( $table, $column ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
-			$table = $this->prefix . $table;
+		if ( 0 !== stripos( $table, $this->db->prefix ) ) {
+			$table = $this->db->prefix . $table;
 		}
 
 		$tables = $this->getAioseoTablesWithColumns();
@@ -395,7 +395,7 @@ class Database {
 		// For multisites, only include tables for the current site and the main site.
 		// This prevents cache entries from containing data from other subsites' tables.
 		// Subsite tables follow the pattern {base_prefix}{blog_id}_ (e.g. wp_2_, wp_3_).
-		$siteTablesPrefix   = is_multisite() ? $this->db->get_blog_prefix( get_current_blog_id() ) : $this->prefix;
+		$siteTablesPrefix   = is_multisite() ? $this->db->get_blog_prefix( get_current_blog_id() ) : $this->db->prefix;
 		$subsitePrefixRegex = is_multisite() ? '/^' . preg_quote( $this->db->base_prefix, '/' ) . '\d/' : '';
 
 		$tables = [];
@@ -617,7 +617,7 @@ class Database {
 	public function start( $table = null, $includesPrefix = false, $statement = 'SELECT' ) {
 		// Always reset everything when starting a new query.
 		$this->reset();
-		$this->table = $includesPrefix ? $table : $this->prefix . $table;
+		$this->table = $includesPrefix ? $table : $this->db->prefix . $table;
 		$this->statement = $statement;
 
 		return $this;
@@ -672,7 +672,7 @@ class Database {
 			return;
 		}
 
-		$tableName = $this->prefix . $table;
+		$tableName = $this->db->prefix . $table;
 
 		$valueSets = [];
 		foreach ( $rows as $row ) {
@@ -1032,7 +1032,7 @@ class Database {
 	 * @return Database                     Returns the Database class which can be method chained for more query building.
 	 */
 	public function join( $table, $conditions, $direction = '', $includesPrefix = false ) {
-		$this->join[] = [ $includesPrefix ? $table : $this->prefix . $table, $conditions, $direction ];
+		$this->join[] = [ $includesPrefix ? $table : $this->db->prefix . $table, $conditions, $direction ];
 
 		return $this;
 	}
@@ -1280,6 +1280,9 @@ class Database {
 		$queryHash       = md5( $queryString );
 		$cacheTableName  = $this->getCacheTableName();
 
+		// reset() nulls out the statement below, so we have to grab it before that happens.
+		$statement = $this->statement;
+
 		// Pull the result from the in-memory cache if everything checks out.
 		if (
 			! $this->shouldResetCache &&
@@ -1309,7 +1312,7 @@ class Database {
 		}
 
 		// Only cache SELECT queries for performance.
-		if ( in_array( $this->statement, [ 'SELECT', 'SELECT DISTINCT' ], true ) ) {
+		if ( in_array( $statement, [ 'SELECT', 'SELECT DISTINCT' ], true ) ) {
 			$this->cache[ $cacheTableName ][ $queryHash ][ $return ] = $this->result;
 		}
 
@@ -1322,18 +1325,53 @@ class Database {
 	/**
 	 * Inject a count select statement and return the result.
 	 *
-	 * @since 1.0.0
+	 * NOTE: A grouped query is counted by wrapping it, because `count()` on one returns a row per
+	 * group rather than a total. Counting those rows in PHP instead means transferring every group —
+	 * on a table with a hundred thousand groups that is a hundred thousand rows fetched and held in
+	 * memory to learn a single number, and it is the same number the database can return on its own.
+	 *
+	 * @since   1.0.0
+	 * @version 1.3.1 Counts a grouped query in SQL rather than by transferring its rows.
 	 *
 	 * @param  string $countColumn The column to count with. Defaults to '*' all.
 	 * @return int                 The count total.
 	 */
 	public function count( $countColumn = '*' ) {
-		$usingGroup = ! empty( $this->group );
-		$results    = $this->select( 'count(' . $countColumn . ') as count' )
+		if ( ! empty( $this->group ) ) {
+			return $this->countGrouped( $countColumn );
+		}
+
+		$results = $this->select( 'count(' . $countColumn . ') as count' )
 			->run()
 			->result();
 
-		return 1 === $this->numRows() && ! $usingGroup ? (int) $results[0]->count : $this->numRows();
+		return 1 === $this->numRows() ? (int) $results[0]->count : $this->numRows();
+	}
+
+	/**
+	 * Returns how many groups a grouped query has, counted by the database.
+	 *
+	 * NOTE: Selects the grouped column rather than the caller's column list, so the derived table
+	 * stays one narrow column wide instead of carrying every field the query would have returned.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $countColumn The column to count with.
+	 * @return int                 The count total.
+	 */
+	private function countGrouped( $countColumn = '*' ) {
+		// Narrow the derived table to the grouped columns. select() only ever appends, so this sets
+		// the list rather than calling it, and the ORDER BY goes because sorting groups we are only
+		// going to count is work for nothing.
+		$this->select = $this->escapeColNames( $this->group );
+		$this->order  = [];
+		$this->limit  = '';
+
+		$count = $this->db->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			'SELECT count(' . $countColumn . ') as count FROM ( ' . $this->query() . ' ) as aioseo_count_wrapper'
+		);
+
+		return (int) $count;
 	}
 
 	/**
@@ -1723,7 +1761,7 @@ class Database {
 		$cacheTableName = empty( $cacheTableName ) ? $this->table : $cacheTableName;
 
 		foreach ( $this->customTables as $tableName ) {
-			if ( false !== stripos( $cacheTableName, $this->prefix . $tableName ) ) {
+			if ( false !== stripos( $cacheTableName, $this->db->prefix . $tableName ) ) {
 				$cacheTableName = $tableName;
 				break;
 			}
@@ -1773,7 +1811,7 @@ class Database {
 	 * @return bool                   Whether the index exists or not.
 	 */
 	public function indexExists( $tableName, $indexName, $includesPrefix = false ) {
-		$prefix    = $includesPrefix ? '' : $this->prefix;
+		$prefix    = $includesPrefix ? '' : $this->db->prefix;
 		$tableName = strtolower( $prefix . $tableName );
 		$indexName = strtolower( $indexName );
 

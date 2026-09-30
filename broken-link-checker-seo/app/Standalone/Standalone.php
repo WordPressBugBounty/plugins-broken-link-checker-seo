@@ -18,7 +18,9 @@ class Standalone {
 	 * @since 1.0.0
 	 */
 	public function __construct() {
+		new AdminBarWarning();
 		new Highlighter();
+		new NpsSurvey();
 		new SetupWizard();
 	}
 }

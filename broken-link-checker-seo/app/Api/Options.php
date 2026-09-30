@@ -50,8 +50,11 @@ class Options {
 		// Re-initialize the notices.
 		aioseoBrokenLinkChecker()->notifications->init();
 
+		// Returned so the screen shows what was stored rather than what was typed, which is the only
+		// signal a user gets that a capped or normalized value came back different.
 		return new \WP_REST_Response( [
 			'success'       => true,
+			'options'       => aioseoBrokenLinkChecker()->options->all(),
 			'notifications' => Models\Notification::getNotifications()
 		], 200 );
 	}

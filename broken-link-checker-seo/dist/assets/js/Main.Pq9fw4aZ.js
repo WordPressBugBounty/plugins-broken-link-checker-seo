@@ -1,0 +1,1 @@
+import{B as e,G as t,O as n,P as r,S as i}from"./vendor-vue-ui.C8nti6z2.js";import{t as a}from"./Index.CvnkVXut.js";import o from"./SiteActivations.BSBwGN23.js";var s={__name:`Main`,setup(s){return(s,c)=>(r(),i(t(a),{showTabs:!1,showSaveButton:!1},{default:e(()=>[n(t(o))]),_:1}))}};export{s as default};

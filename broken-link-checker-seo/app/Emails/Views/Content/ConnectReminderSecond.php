@@ -4,18 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound	
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable	
 
 $siteName    = get_bloginfo( 'name' );
 $settingsUrl = admin_url( 'admin.php?page=broken-link-checker#/settings' );
 
-// Get the admin user's first name.
-$adminEmail = get_option( 'admin_email' );
-$adminUser  = get_user_by( 'email', $adminEmail );
-$firstName  = '';
-if ( $adminUser && ! empty( $adminUser->first_name ) ) {
-	$firstName = $adminUser->first_name;
-}
+// Get the recipient's first name.
+$recipient = get_user_by( 'email', isset( $recipientEmail ) ? $recipientEmail : get_option( 'admin_email' ) );
+$firstName = ( $recipient && ! empty( $recipient->first_name ) ) ? $recipient->first_name : '';
 
 $greeting = ! empty( $firstName ) ? sprintf( 'Hi %s,', $firstName ) : 'Hi there,';
 
@@ -42,6 +38,7 @@ Benjamin Rojas, President of AIOSEO', 'broken-link-checker-seo' ),
 $paragraphs  = explode( "\n\n", $message );
 $couponCode  = 'BLC1MONTHFREE';
 $buttonAdded = false;
+$linkColor   = \AIOSEO\BrokenLinkChecker\Emails\Emails::LINK_COLOR;
 
 foreach ( $paragraphs as $paragraph ) {
 	$paragraph = trim( $paragraph );
@@ -52,27 +49,26 @@ foreach ( $paragraphs as $paragraph ) {
 	// Convert URLs to links, then escape for safe output.
 	$paragraph = make_clickable( $paragraph );
 
-	// Highlight the coupon code with bold and blue color.
 	$hasCoupon = strpos( $paragraph, $couponCode ) !== false;
 	if ( $hasCoupon ) {
 		$paragraph = str_replace(
 			$couponCode,
-			'<strong style="color: #2271b1;">' . esc_html( $couponCode ) . '</strong>',
+			'<strong style="background-color: #ffffff; color: ' . esc_attr( $linkColor ) . ';">' . esc_html( $couponCode ) . '</strong>',
 			$paragraph
 		);
 	}
 
-	echo '<p>' . wp_kses_post( $paragraph ) . '</p>';
+	echo aioseoBrokenLinkChecker()->emails->renderParagraph( $paragraph ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 	// Add the button after the paragraph containing the coupon code.
 	if ( $hasCoupon && ! $buttonAdded ) {
-		?>
-		<div class="email-cta">
-			<a href="<?php echo esc_url( $settingsUrl ); ?>" class="email-button">
-				<?php echo esc_html__( 'Connect Your Account Now', 'broken-link-checker-seo' ); ?>
-			</a>
-		</div>
-		<?php
+		$ctaButton = aioseoBrokenLinkChecker()->emails->renderButton(
+			$settingsUrl,
+			__( 'Connect Your Account Now', 'broken-link-checker-seo' )
+		);
+
+		echo $ctaButton; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		$buttonAdded = true;
 	}
 }

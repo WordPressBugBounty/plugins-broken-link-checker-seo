@@ -67,6 +67,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $internalOptions;
 
 		/**
+		 * ScanState class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Main\ScanState
+		 */
+		public $scanState;
+
+		/**
 		 * SensitiveOptions class instance.
 		 *
 		 * @since 1.3.0
@@ -74,6 +83,24 @@ namespace AIOSEO\BrokenLinkChecker {
 		 * @var Options\SensitiveOptions
 		 */
 		public $sensitiveOptions;
+
+		/**
+		 * InternalNetworkOptions class instance. Null unless this is a multisite.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Options\InternalNetworkOptions|null
+		 */
+		public $internalNetworkOptions;
+
+		/**
+		 * NetworkSensitiveOptions class instance. Null unless this is a multisite.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Options\NetworkSensitiveOptions|null
+		 */
+		public $networkSensitiveOptions;
 
 		/**
 		 * Pre updates class instance.
@@ -112,6 +139,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $options;
 
 		/**
+		 * Objects class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Objects\Objects
+		 */
+		public $objects;
+
+		/**
 		 * Updates class instance.
 		 *
 		 * @since 1.0.0
@@ -137,6 +173,24 @@ namespace AIOSEO\BrokenLinkChecker {
 		 * @var Admin\License
 		 */
 		public $license;
+
+		/**
+		 * NetworkLicense class. Null unless this is a multisite.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Admin\NetworkLicense|null
+		 */
+		public $networkLicense;
+
+		/**
+		 * NetworkAdmin class. Null unless this is a multisite.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Admin\NetworkAdmin|null
+		 */
+		public $networkAdmin;
 
 		/**
 		 * Access class.
@@ -202,6 +256,42 @@ namespace AIOSEO\BrokenLinkChecker {
 		public $admin;
 
 		/**
+		 * SiteHealth class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Admin\SiteHealth
+		 */
+		public $siteHealth;
+
+		/**
+		 * Activation notice class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Admin\ActivationNotice
+		 */
+		public $activationNotice;
+
+		/**
+		 * Export class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Admin\Export
+		 */
+		public $export;
+
+		/**
+		 * Newsroom class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Newsroom\Newsroom
+		 */
+		public $newsroom;
+
+		/**
 		 * Emails class instance.
 		 *
 		 * @since 1.2.9
@@ -209,6 +299,15 @@ namespace AIOSEO\BrokenLinkChecker {
 		 * @var Emails\Emails
 		 */
 		public $emails;
+
+		/**
+		 * Abilities class instance.
+		 *
+		 * @since 1.3.1
+		 *
+		 * @var Abilities\Abilities
+		 */
+		public $abilities;
 
 		/**
 		 * The main BrokenLinkChecker Instance.
@@ -343,17 +442,38 @@ namespace AIOSEO\BrokenLinkChecker {
 			$this->core             = new Core\Core();
 			$this->dbSchema         = new Db\Schema();
 			$this->internalOptions  = new Options\InternalOptions();
+			$this->scanState        = new Main\ScanState();
 			$this->sensitiveOptions = new Options\SensitiveOptions();
+
+			// The network's own licence store. Absent on a single site, so every consumer has to check.
+			if ( is_multisite() ) {
+				$this->internalNetworkOptions  = new Options\InternalNetworkOptions();
+				$this->networkSensitiveOptions = new Options\NetworkSensitiveOptions();
+			}
 			$this->helpers          = new Utils\Helpers(); // Needs to load before preUpdates.
 			$this->preUpdates       = new Main\PreUpdates();
 			$this->options          = new Options\Options();
+			$this->objects          = new Objects\Objects();
 
 			// Runs after preUpdates so legacy version-gated work has already had its turn.
 			$this->migrationRunner = new Main\Migrations\MigrationRunner();
+			$this->migrationRunner->register( new Main\Migrations\Definitions\ReconcileUninstallWithAdvancedToggle() );
 			$this->migrationRunner->register( new Main\Migrations\Definitions\DropLegacyCacheKeyColumn() );
 			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkStatusRescanColumns() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkObjectColumns() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\RescanPostsForCustomFields() );
 			$this->migrationRunner->register( new Main\Migrations\Definitions\DedupePosts() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\GrantSettingsCapability() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkStatusIdIndex() );
 			$this->migrationRunner->register( new Main\Migrations\Definitions\MigrateSensitiveOptions() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\FoldExcludedDomainsIntoPatterns() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkIsImageColumn() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\MergeDuplicateLinkStatuses() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkIsEmbedColumn() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\RestoreCapabilities() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\AddLinkStatusCheckUrlColumns() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\MergeNonCanonicalLinkStatuses() );
+			$this->migrationRunner->register( new Main\Migrations\Definitions\MoveScanStateToOwnOption() );
 			$this->migrationRunner->run();
 		}
 
@@ -367,6 +487,12 @@ namespace AIOSEO\BrokenLinkChecker {
 		public function load() {
 			$this->updates         = new Main\Updates();
 			$this->actionScheduler = new Utils\ActionScheduler();
+
+			// Before the site licence, which falls back to this one.
+			if ( is_multisite() ) {
+				$this->networkLicense = new Admin\NetworkLicense();
+			}
+
 			$this->license         = new Admin\License();
 			$this->access          = new Utils\Access();
 			$this->main            = new Main\Main();
@@ -375,6 +501,16 @@ namespace AIOSEO\BrokenLinkChecker {
 			$this->notifications   = new Admin\Notifications();
 			$this->emails          = new Emails\Emails();
 			$this->admin           = new Admin\Admin();
+
+			if ( is_multisite() ) {
+				$this->networkAdmin = new Admin\NetworkAdmin();
+			}
+
+			$this->siteHealth      = new Admin\SiteHealth();
+			$this->activationNotice = new Admin\ActivationNotice();
+			$this->export          = new Admin\Export();
+			$this->newsroom        = new Newsroom\Newsroom();
+			$this->abilities       = new Abilities\Abilities();
 
 			add_action( 'init', [ $this, 'loadInit' ], 999 );
 		}

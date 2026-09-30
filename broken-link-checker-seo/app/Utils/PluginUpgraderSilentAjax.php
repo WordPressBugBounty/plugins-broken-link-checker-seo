@@ -35,6 +35,9 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'aioseo'               => 'https://downloads.wordpress.org/plugins/all-in-one-seo-pack.zip',
 		'optinMonster'         => 'https://downloads.wordpress.org/plugin/optinmonster.zip',
 		'wpForms'              => 'https://downloads.wordpress.org/plugin/wpforms-lite.zip',
+		'wpConsent'            => 'https://downloads.wordpress.org/plugin/wpconsent-cookies-banner-privacy-suite.zip',
+		'wpVibe'               => 'https://downloads.wordpress.org/plugin/vibe-ai.zip',
+		'universally'          => 'https://downloads.wordpress.org/plugin/universally-language-translation-multilingual-tool.zip',
 		'miLite'               => 'https://downloads.wordpress.org/plugin/google-analytics-for-wordpress.zip',
 		'emLite'               => 'https://downloads.wordpress.org/plugin/google-analytics-dashboard-for-wp.zip',
 		'wpMail'               => 'https://downloads.wordpress.org/plugin/wp-mail-smtp.zip',
@@ -53,7 +56,14 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'searchWp'             => '',
 		'affiliateWp'          => '',
 		'charitable'           => 'https://downloads.wordpress.org/plugin/charitable.zip',
-		'duplicator'           => 'https://downloads.wordpress.org/plugin/duplicator.zip'
+		'duplicator'           => 'https://downloads.wordpress.org/plugin/duplicator.zip',
+		'uncannyAutomator'     => 'https://downloads.wordpress.org/plugin/uncanny-automator.zip',
+		'pdfEmbedder'          => 'https://downloads.wordpress.org/plugin/pdf-embedder.zip',
+		'reviewsFeed'          => 'https://downloads.wordpress.org/plugin/reviews-feed.zip',
+		'enviraGallery'        => 'https://downloads.wordpress.org/plugin/envira-gallery-lite.zip',
+		'userFeedback'         => 'https://downloads.wordpress.org/plugin/userfeedback-lite.zip',
+		'activeLayer'          => 'https://downloads.wordpress.org/plugin/activelayer-anti-spam-spam-protection-for-forms-comments.zip',
+		'wpChat'               => 'https://downloads.wordpress.org/plugin/smashballoon-wpchat-livechat-customer-support.zip'
 	];
 
 	/**
@@ -64,27 +74,37 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 	 * @var array
 	 */
 	public $wpPluginLinks = [
-		'aioseo'        => 'https://wordpress.org/plugins/all-in-one-seo-pack/',
-		'optinMonster'  => 'https://wordpress.org/plugin/optinmonster/',
-		'wpForms'       => 'https://wordpress.org/plugin/wpforms-lite/',
-		'miLite'        => 'https://wordpress.org/plugin/google-analytics-for-wordpress/',
-		'emLite'        => 'https://wordpress.org/plugin/google-analytics-dashboard-for-wp/',
-		'wpMail'        => 'https://wordpress.org/plugin/wp-mail-smtp/',
-		'rafflePress'   => 'https://wordpress.org/plugin/rafflepress/',
-		'seedProd'      => 'https://wordpress.org/plugin/coming-soon/',
-		'trustPulse'    => 'https://wordpress.org/plugin/trustpulse-api/',
-		'instagramFeed' => 'https://wordpress.org/plugin/instagram-feed/',
-		'facebookFeed'  => 'https://wordpress.org/plugin/custom-facebook-feed/',
-		'twitterFeed'   => 'https://wordpress.org/plugin/custom-twitter-feeds/',
-		'youTubeFeed'   => 'https://wordpress.org/plugin/feeds-for-youtube/',
-		'pushEngage'    => 'https://wordpress.org/plugins/pushengage/',
-		'sugarCalendar' => 'https://wordpress.org/plugins/sugar-calendar-lite/',
-		'wpSimplePay'   => 'https://wordpress.org/plugins/stripe/',
-		'searchWp'      => 'https://searchwp.com/',
-		'affiliateWp'   => 'https://affiliatewp.com/',
-		'wpcode'        => 'https://wordpress.org/plugins/insert-headers-and-footers/',
-		'charitable'    => 'https://wordpress.org/plugins/charitable/',
-		'duplicator'    => 'https://wordpress.org/plugins/duplicator/'
+		'aioseo'           => 'https://wordpress.org/plugins/all-in-one-seo-pack/',
+		'optinMonster'     => 'https://wordpress.org/plugin/optinmonster/',
+		'wpForms'          => 'https://wordpress.org/plugin/wpforms-lite/',
+		'wpConsent'        => 'https://wordpress.org/plugins/wpconsent-cookies-banner-privacy-suite/',
+		'wpVibe'           => 'https://wordpress.org/plugins/vibe-ai/',
+		'universally'      => 'https://wordpress.org/plugins/universally-language-translation-multilingual-tool/',
+		'miLite'           => 'https://wordpress.org/plugin/google-analytics-for-wordpress/',
+		'emLite'           => 'https://wordpress.org/plugin/google-analytics-dashboard-for-wp/',
+		'wpMail'           => 'https://wordpress.org/plugin/wp-mail-smtp/',
+		'rafflePress'      => 'https://wordpress.org/plugin/rafflepress/',
+		'seedProd'         => 'https://wordpress.org/plugin/coming-soon/',
+		'trustPulse'       => 'https://wordpress.org/plugin/trustpulse-api/',
+		'instagramFeed'    => 'https://wordpress.org/plugin/instagram-feed/',
+		'facebookFeed'     => 'https://wordpress.org/plugin/custom-facebook-feed/',
+		'twitterFeed'      => 'https://wordpress.org/plugin/custom-twitter-feeds/',
+		'youTubeFeed'      => 'https://wordpress.org/plugin/feeds-for-youtube/',
+		'pushEngage'       => 'https://wordpress.org/plugins/pushengage/',
+		'sugarCalendar'    => 'https://wordpress.org/plugins/sugar-calendar-lite/',
+		'wpSimplePay'      => 'https://wordpress.org/plugins/stripe/',
+		'searchWp'         => 'https://searchwp.com/',
+		'affiliateWp'      => 'https://affiliatewp.com/',
+		'wpcode'           => 'https://wordpress.org/plugins/insert-headers-and-footers/',
+		'charitable'       => 'https://wordpress.org/plugins/charitable/',
+		'duplicator'       => 'https://wordpress.org/plugins/duplicator/',
+		'uncannyAutomator' => 'https://wordpress.org/plugins/uncanny-automator/',
+		'pdfEmbedder'      => 'https://wordpress.org/plugins/pdf-embedder/',
+		'reviewsFeed'      => 'https://wordpress.org/plugins/reviews-feed/',
+		'enviraGallery'    => 'https://wordpress.org/plugins/envira-gallery-lite/',
+		'userFeedback'     => 'https://wordpress.org/plugins/userfeedback-lite/',
+		'activeLayer'      => 'https://wordpress.org/plugins/activelayer-anti-spam-spam-protection-for-forms-comments/',
+		'wpChat'           => 'https://wordpress.org/plugins/smashballoon-wpchat-livechat-customer-support/'
 	];
 
 	/**
@@ -100,6 +120,9 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'optinMonster'            => 'optinmonster/optin-monster-wp-api.php',
 		'wpForms'                 => 'wpforms-lite/wpforms.php',
 		'wpFormsPro'              => 'wpforms/wpforms.php',
+		'wpConsent'               => 'wpconsent-cookies-banner-privacy-suite/wpconsent.php',
+		'wpVibe'                  => 'vibe-ai/vibe-ai.php',
+		'universally'             => 'universally-language-translation-multilingual-tool/universally.php',
 		'miLite'                  => 'google-analytics-for-wordpress/googleanalytics.php',
 		'miPro'                   => 'google-analytics-premium/googleanalytics-premium.php',
 		'emLite'                  => 'google-analytics-dashboard-for-wp/gadwp.php',
@@ -131,7 +154,14 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'wpcode'                  => 'insert-headers-and-footers/ihaf.php',
 		'wpcodePro'               => 'wpcode-premium/wpcode.php',
 		'charitable'              => 'charitable/charitable.php',
-		'duplicator'              => 'duplicator/duplicator.php'
+		'duplicator'              => 'duplicator/duplicator.php',
+		'uncannyAutomator'        => 'uncanny-automator/uncanny-automator.php',
+		'pdfEmbedder'             => 'pdf-embedder/pdf_embedder.php',
+		'reviewsFeed'             => 'reviews-feed/sb-reviews.php',
+		'enviraGallery'           => 'envira-gallery-lite/envira-gallery-lite.php',
+		'userFeedback'            => 'userfeedback-lite/userfeedback.php',
+		'activeLayer'             => 'activelayer-anti-spam-spam-protection-for-forms-comments/activelayer-anti-spam-spam-protection-for-forms-comments.php',
+		'wpChat'                  => 'smashballoon-wpchat-livechat-customer-support/wp-chat.php'
 	];
 
 	/**
@@ -147,6 +177,9 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'optinMonster'            => 'admin.php?page=optin-monster-api-settings',
 		'wpForms'                 => 'admin.php?page=wpforms-settings',
 		'wpFormsPro'              => 'admin.php?page=wpforms-settings',
+		'wpConsent'               => 'admin.php?page=wpconsent',
+		'wpVibe'                  => 'admin.php?page=vibe-ai',
+		'universally'             => 'admin.php?page=universally_settings',
 		'miLite'                  => 'admin.php?page=monsterinsights_settings#/',
 		'miPro'                   => 'admin.php?page=monsterinsights_settings#/',
 		'emLite'                  => 'admin.php?page=exactmetrics_settings#/',
@@ -178,6 +211,13 @@ class PluginUpgraderSilentAjax extends \Plugin_Upgrader {
 		'wpcode'                  => 'admin.php?page=wpcode',
 		'wpcodePro'               => 'admin.php?page=wpcode',
 		'charitable'              => 'admin.php?page=charitable-settings',
-		'duplicator'              => 'admin.php?page=duplicator-settings'
+		'duplicator'              => 'admin.php?page=duplicator-settings',
+		'uncannyAutomator'        => 'edit.php?post_type=uo-recipe',
+		'pdfEmbedder'             => 'options-general.php?page=pdf_embedder',
+		'reviewsFeed'             => 'admin.php?page=sbr',
+		'enviraGallery'           => 'edit.php?post_type=envira',
+		'userFeedback'            => 'admin.php?page=userfeedback',
+		'activeLayer'             => 'admin.php?page=activelayer',
+		'wpChat'                  => 'admin.php?page=wpchat'
 	];
 }

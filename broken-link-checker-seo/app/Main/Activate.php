@@ -25,12 +25,20 @@ class Activate {
 	/**
 	 * Runs on activation.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Added $networkWide; capabilities reach every subsite on a network activation.
 	 *
+	 * @param  bool $networkWide Whether this is a network-wide activation.
 	 * @return void
 	 */
-	public function activate() {
-		aioseoBrokenLinkChecker()->access->addCapabilities();
+	public function activate( $networkWide = false ) {
+		if ( is_multisite() && $networkWide ) {
+			$this->activateNetworkWide();
+		}
+
+		// Forced: roles are site configuration, so granting them must not depend on who is making the
+		// request. Anyone who can activate a plugin is already an administrator.
+		aioseoBrokenLinkChecker()->access->addCapabilities( true );
 
 		// On a fresh install the cache table doesn't exist yet during activation (the plugin
 		// is loaded after the 'init' hook that normally creates it). Without it, the
@@ -48,9 +56,51 @@ class Activate {
 			$this->showSetupWizard();
 
 			aioseoBrokenLinkChecker()->internalOptions->internal->firstActivated = $time;
+
+			// The admin email is often a shared or unattended inbox, so the reminder emails also
+			// go to whoever actually installed the plugin.
+			$activatingUserId = get_current_user_id();
+
+			aioseoBrokenLinkChecker()->internalOptions->internal->activatingUserId = $activatingUserId;
+
+			aioseoBrokenLinkChecker()->options->seedEmailReports( $activatingUserId );
 		}
 
 		aioseoBrokenLinkChecker()->core->cache->clear();
+	}
+
+	/**
+	 * Builds the tables and capabilities on every site of the network.
+	 *
+	 * Roles are stored per site, so activating for the network does not reach a subsite's roles on its
+	 * own - without this, an administrator on a subsite would find the plugin's menu missing until
+	 * something else wrote them.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return void
+	 */
+	private function activateNetworkWide() {
+		$sites = get_sites( [
+			'network_id' => get_current_network_id(),
+			'number'     => 0,
+			'fields'     => 'ids'
+		] );
+
+		foreach ( $sites as $blogId ) {
+			// The network's main site is handled by the caller, on the current request.
+			if ( get_current_blog_id() === (int) $blogId ) {
+				continue;
+			}
+
+			aioseoBrokenLinkChecker()->helpers->switchToBlog( (int) $blogId );
+
+			aioseoBrokenLinkChecker()->updates->updateDbSchema();
+			// Forced: nothing is logged in on the subsite we just switched into.
+			aioseoBrokenLinkChecker()->access->addCapabilities( true );
+
+			aioseoBrokenLinkChecker()->helpers->restoreCurrentBlog();
+		}
 	}
 
 	/**

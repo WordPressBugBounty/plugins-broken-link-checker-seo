@@ -84,13 +84,17 @@ class MigrateSensitiveOptions implements Migration {
 	}
 
 	/**
-	 * The internal options option name, network-aware.
+	 * The internal options option name.
 	 *
-	 * @since 1.3.0
+	 * NOTE: Always the per-site name. Migrations run from init() on whichever site is loading, never in
+	 * a network admin context, and the network's own licence key has never lived in this option.
+	 *
+	 * @since   1.3.0
+	 * @version 1.3.1 Dropped the is_network_admin() branch, which never evaluated true.
 	 *
 	 * @return string
 	 */
 	private function optionName() {
-		return is_network_admin() ? 'aioseo_blc_options_internal_network' : 'aioseo_blc_options_internal';
+		return 'aioseo_blc_options_internal';
 	}
 }

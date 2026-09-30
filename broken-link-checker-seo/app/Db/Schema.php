@@ -32,6 +32,10 @@ class Schema {
 	/**
 	 * Get the schema for aioseo_blc_link_status table.
 	 *
+	 * Column history:
+	 * - 1.3.0: needs_additional_scan, client_confirmed_broken, last_success, local_scan_count
+	 * - 1.3.1: check_url, check_url_hash
+	 *
 	 * @since 1.3.0
 	 *
 	 * @return string SQL CREATE TABLE statement.
@@ -44,6 +48,8 @@ class Schema {
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			url text NOT NULL,
 			url_hash varchar(40) NOT NULL,
+			check_url text DEFAULT NULL,
+			check_url_hash varchar(40) DEFAULT NULL,
 			http_status_code smallint(6) DEFAULT NULL,
 			broken tinyint(1) unsigned DEFAULT 0 NOT NULL,
 			dismissed tinyint(1) DEFAULT 0 NOT NULL,
@@ -61,12 +67,19 @@ class Schema {
 			created datetime NOT NULL,
 			updated datetime NOT NULL,
 			PRIMARY KEY  (id),
-			UNIQUE KEY ndx_aioseo_blc_link_status_url_hash (url_hash)
+			UNIQUE KEY ndx_aioseo_blc_link_status_url_hash (url_hash),
+			KEY ndx_aioseo_blc_link_status_check_url_hash (check_url_hash),
+			KEY ndx_aioseo_blc_link_status_report (dismissed, broken, needs_additional_scan, last_scan_date),
+			KEY ndx_aioseo_blc_link_status_queue (needs_additional_scan, local_scan_count, updated)
 		) {$charsetCollate};";
 	}
 
 	/**
 	 * Get the schema for aioseo_blc_links table.
+	 *
+	 * Column history:
+	 * - 1.3.1: object_type, object_id, object_subtype
+	 * - 1.3.1: index on blc_link_status_id
 	 *
 	 * @since 1.3.0
 	 *
@@ -79,6 +92,9 @@ class Schema {
 		return "CREATE TABLE {$tableName} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			post_id bigint(20) unsigned NOT NULL,
+			object_type varchar(20) NOT NULL DEFAULT 'post',
+			object_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			object_subtype varchar(191) NOT NULL DEFAULT '',
 			blc_link_status_id bigint(20) unsigned DEFAULT NULL,
 			url text NOT NULL,
 			url_hash varchar(40) NOT NULL,
@@ -91,11 +107,16 @@ class Schema {
 			paragraph text NOT NULL,
 			paragraph_html text NOT NULL,
 			is_video tinyint(1) DEFAULT 0 NOT NULL,
+			is_image tinyint(1) DEFAULT 0 NOT NULL,
+			is_embed tinyint(1) DEFAULT 0 NOT NULL,
 			created datetime NOT NULL,
 			updated datetime NOT NULL,
 			PRIMARY KEY  (id),
 			KEY ndx_aioseo_blc_links_post_id (post_id),
-			KEY ndx_aioseo_blc_links_hostname (hostname(10))
+			KEY ndx_aioseo_blc_links_object (object_type, object_id),
+			KEY ndx_aioseo_blc_links_hostname (hostname(10)),
+			KEY ndx_aioseo_blc_links_link_status_id (blc_link_status_id),
+			KEY ndx_aioseo_blc_links_url_hash (url_hash)
 		) {$charsetCollate};";
 	}
 

@@ -457,18 +457,35 @@ class Assets {
 	 * @param  string $asset The asset to find imports for.
 	 * @return array         An array of imports.
 	 */
-	private function importsUrls( $asset ) {
+	private function importsUrls( $asset, &$seen = [] ) {
 		$urls          = [];
 		$manifestAsset = $this->getManifestItem( $asset );
-		if ( ! empty( $manifestAsset['imports'] ) ) {
-			foreach ( $manifestAsset['imports'] as $import ) {
-				$importAsset = $this->getManifestItem( $import );
-				if ( ! empty( $importAsset['file'] ) ) {
-					$urls[] = $this->getPublicUrlBase() . $importAsset['file'];
 
-					// Load the import's CSS if any.
-					$this->loadCss( $import );
-				}
+		if ( empty( $manifestAsset['imports'] ) ) {
+			return $urls;
+		}
+
+		foreach ( $manifestAsset['imports'] as $import ) {
+			// The graph is a graph, not a tree - two entries share a chunk, and a chunk can be reached
+			// more than one way.
+			if ( isset( $seen[ $import ] ) ) {
+				continue;
+			}
+
+			$seen[ $import ] = true;
+
+			// Walked to the bottom, not one level down. A chunk everything shares - the base styles for a
+			// button, say - sits deeper than the chunk that imports it, so stopping at the first level
+			// left its CSS off the page and the markup borrowing whatever else happened to be loaded.
+			// Depth first, so the most shared styles are enqueued before the chunks that override them.
+			$urls = array_merge( $urls, $this->importsUrls( $import, $seen ) );
+
+			$importAsset = $this->getManifestItem( $import );
+			if ( ! empty( $importAsset['file'] ) ) {
+				$urls[] = $this->getPublicUrlBase() . $importAsset['file'];
+
+				// Load the import's CSS if any.
+				$this->loadCss( $import );
 			}
 		}
 

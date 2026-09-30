@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\BrokenLinkChecker\Links\Url;
 use AIOSEO\BrokenLinkChecker\Models;
 
 /**
@@ -14,6 +15,15 @@ use AIOSEO\BrokenLinkChecker\Models;
  * @since 1.0.0
  */
 class LinkStatus {
+	/**
+	 * The failure reasons that say nothing about the link itself, so a fetch from the site can still settle them.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var string[]
+	 */
+	const INCONCLUSIVE_FAILURES = [ 'blocked', 'timeout', 'unreachable' ];
+
 	/**
 	 * The base URL for the broken link checker server.
 	 *
@@ -59,6 +69,7 @@ class LinkStatus {
 	 *
 	 * @since   1.0.0
 	 * @version 1.2.9 Switch to recurring action with cache-based idle state.
+	 * @version 1.3.1 A backoff no longer holds while links are due.
 	 *
 	 * @return void
 	 */
@@ -69,9 +80,16 @@ class LinkStatus {
 
 		// If we're in idle/backoff mode, unschedule and don't reschedule yet.
 		if ( aioseoBrokenLinkChecker()->core->cache->get( 'as_blc_link_status_idle' ) ) {
-			aioseoBrokenLinkChecker()->actionScheduler->unschedule( $this->actionName );
+			// The backoff is a timer, and a timer cannot know that links became due inside its window -
+			// a post saved, an import, a plugin update whose one empty read parked the scan for an hour
+			// with a queue waiting. Checked only while backing off, so an ordinary load pays nothing.
+			if ( ! $this->data->getLinksToCheck( true ) ) {
+				aioseoBrokenLinkChecker()->actionScheduler->unschedule( $this->actionName );
 
-			return;
+				return;
+			}
+
+			aioseoBrokenLinkChecker()->core->cache->delete( 'as_blc_link_status_idle' );
 		}
 
 		if ( aioseoBrokenLinkChecker()->actionScheduler->isScheduled( $this->actionName ) ) {
@@ -105,7 +123,7 @@ class LinkStatus {
 			return;
 		}
 
-		$scanId = aioseoBrokenLinkChecker()->internalOptions->internal->scanId;
+		$scanId = aioseoBrokenLinkChecker()->scanState->getScanId();
 		if ( ! empty( $scanId ) ) {
 			// If we have a scan ID, check if the results are ready.
 			$this->checkForScanResults();
@@ -117,8 +135,15 @@ class LinkStatus {
 		// If we don't have a scan ID, first check if there are links that need to be checked.
 		$linksToCheck = $this->data->getlinksToCheck();
 		if ( empty( $linksToCheck ) ) {
-			// No links to check - set idle cache. The schedule method on the next init will unschedule.
-			aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_link_status_idle', true, HOUR_IN_SECONDS );
+			// Backed off only when the queue could actually be read. Without the object columns there is
+			// no queue to read {@see \AIOSEO\BrokenLinkChecker\LinkStatus\Data::getLinksToCheck()}, and
+			// the schema they are read from is cached - so an update that flushes that cache answers
+			// "nothing due" when it means "cannot tell", and an hour of scanning is lost to it.
+			if ( aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ) {
+				// Nothing is due. The schedule method on the next init will unschedule.
+				aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_link_status_idle', true, HOUR_IN_SECONDS );
+			}
+
 			aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
 
 			return;
@@ -142,7 +167,10 @@ class LinkStatus {
 		$requestBody = array_merge(
 			$this->data->getBaseData(),
 			[
-				'links' => $this->data->getlinksToCheck()
+				'links'        => $this->data->getlinksToCheck(),
+				// The whole queue, not this batch of it. The service forwards it to the marketing
+				// site, which sizes the plan it offers a reader who has run out of credits.
+				'linksToCheck' => (int) $this->data->getLinksToCheck( true )
 			]
 		);
 
@@ -178,13 +206,9 @@ class LinkStatus {
 			return;
 		}
 
-		aioseoBrokenLinkChecker()->internalOptions->internal->scanId                  = $responseBody->scanId;
-		aioseoBrokenLinkChecker()->internalOptions->internal->license->quotaRemaining = $responseBody->quotaRemaining;
-		if ( aioseoBrokenLinkChecker()->internalOptions->internal->license->quota !== $responseBody->quota ) {
-			// If the quota changed, reactivate the license to pull in the latest date from the marketing site.
-			aioseoBrokenLinkChecker()->internalOptions->internal->license->quota = $responseBody->quota;
-			aioseoBrokenLinkChecker()->license->activateProgrammatic();
-		}
+		aioseoBrokenLinkChecker()->scanState->setScanId( $responseBody->scanId );
+
+		aioseoBrokenLinkChecker()->license->applyQuotaFromResponse( $responseBody );
 	}
 
 	/**
@@ -196,7 +220,7 @@ class LinkStatus {
 	 * @return void
 	 */
 	private function checkForScanResults() {
-		$scanId = aioseoBrokenLinkChecker()->internalOptions->internal->scanId;
+		$scanId = aioseoBrokenLinkChecker()->scanState->getScanId();
 		if ( empty( $scanId ) ) {
 			return;
 		}
@@ -224,7 +248,7 @@ class LinkStatus {
 		if ( is_wp_error( $response ) || 200 !== $responseCode || empty( $responseBody->success ) ) {
 			// If the scan data cannot be found on the server, wipe the scan ID so the scan restarts.
 			if ( ! empty( $responseBody->error ) && 'missing-scan-data' === strtolower( $responseBody->error ) ) {
-				aioseoBrokenLinkChecker()->internalOptions->internal->scanId = '';
+				aioseoBrokenLinkChecker()->scanState->setScanId( '' );
 			}
 
 			// Return and let the next recurring action give it another go.
@@ -233,16 +257,11 @@ class LinkStatus {
 
 		$this->parseResults( $responseBody );
 
-		aioseoBrokenLinkChecker()->internalOptions->internal->license->quotaRemaining = $responseBody->quotaRemaining;
-		if ( aioseoBrokenLinkChecker()->internalOptions->internal->license->quota !== $responseBody->quota ) {
-			// If the quota changed, reactivate the license to pull in the latest date from the marketing site.
-			aioseoBrokenLinkChecker()->internalOptions->internal->license->quota = $responseBody->quota;
-			aioseoBrokenLinkChecker()->license->activateProgrammatic();
-		}
+		aioseoBrokenLinkChecker()->license->applyQuotaFromResponse( $responseBody );
 
 		// Once the request is successful, we know the scan has been completed and we can go ahead and reset it.
 		$this->doDeleteRequest( "scan/{$scanId}/" );
-		aioseoBrokenLinkChecker()->internalOptions->internal->scanId = '';
+		aioseoBrokenLinkChecker()->scanState->setScanId( '' );
 	}
 
 	/**
@@ -285,20 +304,173 @@ class LinkStatus {
 		foreach ( $scanData->urls as $url ) {
 			$this->parseResultsHelper( $url );
 		}
+
+		// The dashboard widget counts these, and it cannot be left describing the site as it was before
+		// this batch landed.
+		aioseoBrokenLinkChecker()->helpers->clearLinkStatusDistribution();
+	}
+
+	/**
+	 * Whether two URLs differ by nothing more than a trailing slash.
+	 *
+	 * NOTE: The address the check was made at, not the row's own. One result settles every row sharing
+	 * that address, and the destination redirected from it - so any other row's copy answers nothing.
+	 *
+	 * @since   1.3.1
+	 * @version 1.3.1 Takes the address the check was made at.
+	 *
+	 * @param  string $requestedUrl The address the check was made at.
+	 * @param  string $finalUrl     The URL it ended up at.
+	 * @return bool                 Whether the two are the same but for a trailing slash.
+	 */
+	private function isTrailingSlashOnly( $requestedUrl, $finalUrl ) {
+		if ( empty( $finalUrl ) ) {
+			return false;
+		}
+
+		return untrailingslashit( (string) $requestedUrl ) === untrailingslashit( (string) $finalUrl );
+	}
+
+	/**
+	 * Names why a check failed for a given row.
+	 *
+	 * NOTE: A host the standard leaves no room for keeps its own reason whatever came back, on every
+	 * path a row can be settled by. Without this a recheck of one reads as merely unreachable, which
+	 * queues a local retry - and no fetch from anywhere can settle what DNS will not answer.
+	 *
+	 * NOTE: The address that was requested, not the row's own. One result settles every row sharing
+	 * that address, and the host that was asked after is the one the answer is about.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $requestedUrl The address the check was made at.
+	 * @param  object $data         The scan data the service returned.
+	 * @return string               The reason slug, or an empty string when the status says enough.
+	 */
+	private function reasonFor( $requestedUrl, $data ) {
+		if ( Url::hasUnresolvableHost( $requestedUrl ) ) {
+			return 'invalid-host';
+		}
+
+		return $this->failureReason( $data );
+	}
+
+	/**
+	 * Names why a check failed, as a slug the report turns into a sentence.
+	 *
+	 * NOTE: Stored because the status code alone cannot say it. A 403 from a firewall and a 403 from a
+	 * page that is genuinely gone are the same number, and a check that never got a status at all could
+	 * have timed out or found nothing there.
+	 *
+	 * The wording lives in the report rather than here, so it stays translatable.
+	 *
+	 * @since   1.3.1
+	 * @version 1.3.1 Recognises an address that was metered rather than fetched.
+	 * @version 1.3.1 Recognises a certificate a browser would refuse.
+	 *
+	 * @param  object $data The scan data the service returned.
+	 * @return string       The reason slug, or an empty string when the status says enough.
+	 */
+	private function failureReason( $data ) {
+		// The service knows a block when it sees one, and a blocked check never established anything
+		// about the link. It is the one reason that means "we do not know" rather than "it is broken".
+		if ( ! empty( $data->blockedByWaf ) ) {
+			return 'blocked';
+		}
+
+		// Ahead of the status: these answer 200 over a certificate a browser refuses, so the code
+		// says the page is fine while no visitor can reach it.
+		if ( ! empty( $data->certError ) ) {
+			return 'invalid-certificate';
+		}
+
+		$error = '';
+		if ( ! empty( $data->error ) ) {
+			$error = is_scalar( $data->error ) ? strtolower( (string) $data->error ) : strtolower( wp_json_encode( $data->error ) );
+		}
+
+		// Established by the sender, not by the check: the row was reported broken before anything went
+		// out, and the service is only asked to meter the address {@see Data::fetchLinksToCheck()}.
+		if ( false !== strpos( $error, 'invalid-host' ) ) {
+			return 'invalid-host';
+		}
+
+		if ( false !== strpos( $error, 'timeout' ) || false !== strpos( $error, 'timed out' ) ) {
+			return 'timeout';
+		}
+
+		if ( empty( $data->status ) ) {
+			return 'unreachable';
+		}
+
+		// The page is there and wants a login. Worth saying, because a reader who is told a link is
+		// simply broken goes looking for a fault that isn't one - the address is fine.
+		if ( in_array( (int) $data->status, [ 401, 407 ], true ) ) {
+			return 'login-required';
+		}
+
+		return '';
 	}
 
 	/**
 	 * Helper function for parseResults().
 	 *
+	 * NOTE: One result settles every row requested at that address. Only one of them was sent, because
+	 * one is all a credit buys; leaving the rest untouched would keep them unchecked forever and put them
+	 * back in the next batch.
+	 *
 	 * @since   1.0.0
 	 * @version 1.3.0 Set needs_additional_scan and clear idle cache on broken results.
+	 * @version 1.3.1 A trailing-slash-only redirect is recorded as no redirect.
+	 * @version 1.3.1 Records why a check failed alongside the status.
+	 * @version 1.3.1 Settles every row requested at the same address.
 	 *
 	 * @param  Object $url The URL object.
 	 * @return void
 	 */
 	public function parseResultsHelper( $url ) {
-		$linkStatus = Models\LinkStatus::getByUrl( $url->url );
+		// The address the check was made at, which the service echoes back exactly as it was sent.
+		$requestedUrl = (string) $url->url;
+
+		$linkStatus = Models\LinkStatus::getByUrl( $requestedUrl );
 		if ( ! $linkStatus->exists() || empty( $url->data ) ) {
+			return;
+		}
+
+		foreach ( Models\LinkStatus::getSiblings( $linkStatus ) as $sibling ) {
+			$this->settleRow( $sibling, $requestedUrl, $url );
+		}
+	}
+
+	/**
+	 * Writes one result onto one row.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  Models\LinkStatus $linkStatus   The row to settle.
+	 * @param  string            $requestedUrl The address the check was made at.
+	 * @param  Object            $url          The URL object.
+	 * @return void
+	 */
+	private function settleRow( $linkStatus, $requestedUrl, $url ) {
+		// Our scanning proxy failing establishes nothing about this link, so the previous verdict stands.
+		// Left to the branch below, an unset status reads as broken and a working link is reported as
+		// dead. first_failure is deliberately untouched: a check that never happened is not a failure.
+		if ( ! empty( $url->data->proxyFailed ) ) {
+			$linkStatus->scanning       = false;
+			$linkStatus->scan_count     = $linkStatus->scan_count + 1;
+			$linkStatus->last_scan_date = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+			$linkStatus->log            = [
+				'error'   => ! empty( $url->data->error ) ? $url->data->error : '',
+				'headers' => ! empty( $url->data->headers ) ? $url->data->headers : ''
+			];
+
+			// Rescanned from this site instead, where our proxy is not in the path. The reason is passed
+			// because the default queues nothing, which left these rows re-metered every interval forever.
+			$this->maybeQueueLocalScan( $linkStatus, 'unreachable' );
+
+			$linkStatus->save();
+
 			return;
 		}
 
@@ -310,25 +482,36 @@ class LinkStatus {
 			$linkStatus->final_url        = '';
 			$linkStatus->scan_count       = $linkStatus->scan_count + 1;
 			$linkStatus->last_scan_date   = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+			$reason                       = $this->reasonFor( $requestedUrl, $url->data );
 			$linkStatus->log              = [
 				'error'   => ! empty( $url->data->error ) ? $url->data->error : '',
-				'headers' => ! empty( $url->data->headers ) ? $url->data->headers : ''
+				'headers' => ! empty( $url->data->headers ) ? $url->data->headers : '',
+				'reason'  => $reason
 			];
 
 			if ( ! $linkStatus->first_failure ) {
 				$linkStatus->first_failure = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
 			}
 
-			$this->maybeQueueLocalScan( $linkStatus );
+			$this->maybeQueueLocalScan( $linkStatus, $reason );
 
 			$linkStatus->save();
 
 			return;
 		}
 
-		$success       = (int) $url->data->status < 400;
+		// A certificate a browser refuses is a broken link whatever the status says: the server answers
+		// 200 happily, and the visitor never gets past the interstitial to see it.
+		$success       = (int) $url->data->status < 400 && empty( $url->data->certError );
 		$redirectCount = count( $url->data->redirects );
 		$finalUrl      = $redirectCount ? $url->data->redirects[ $redirectCount - 1 ] : '';
+
+		// Landing on the same URL with a trailing slash added or dropped is the destination normalising
+		// itself, not somewhere else to point the link, so this counts as no redirect at all.
+		if ( $redirectCount && $this->isTrailingSlashOnly( $requestedUrl, $finalUrl ) ) {
+			$redirectCount = 0;
+			$finalUrl      = '';
+		}
 
 		$linkStatus->scanning         = false;
 		$linkStatus->broken           = ! $success;
@@ -338,9 +521,11 @@ class LinkStatus {
 		$linkStatus->request_duration = ! empty( $url->data->stats->loadTime ) ? abs( $url->data->stats->loadTime ) : 0;
 		$linkStatus->scan_count       = $linkStatus->scan_count + 1;
 		$linkStatus->last_scan_date   = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
+		$reason                       = $success ? '' : $this->reasonFor( $requestedUrl, $url->data );
 		$linkStatus->log              = [
 			'error'   => ! empty( $url->data->error ) ? $url->data->error : '',
-			'headers' => ! empty( $url->data->headers ) ? $url->data->headers : ''
+			'headers' => ! empty( $url->data->headers ) ? $url->data->headers : '',
+			'reason'  => $reason
 		];
 
 		if ( $success ) {
@@ -354,27 +539,39 @@ class LinkStatus {
 				$linkStatus->first_failure = aioseoBrokenLinkChecker()->helpers->timeToMysql( time() );
 			}
 
-			$this->maybeQueueLocalScan( $linkStatus );
+			$this->maybeQueueLocalScan( $linkStatus, $reason );
 		}
 
 		$linkStatus->save();
 	}
 
 	/**
-	 * Queues a local re-scan unless the client has already confirmed the link is broken.
+	 * Queues a local re-scan for the failures that did not establish anything about the link.
 	 *
-	 * @since 1.3.0
+	 * NOTE: Only for a reason that means "we could not tell" - a WAF that turned the service away, a
+	 * destination that never answered, one that could not be reached at all. Fetching from the site
+	 * itself can only settle those. An answer the service did get - a 404, a 410, a 500 - is the
+	 * destination's own, and asking again from a different address cannot change it.
+	 *
+	 * NOTE: The default reason queues nothing. A caller that means "inconclusive" has to say which
+	 * kind, or its rows settle as though the answer were the destination's own.
+	 *
+	 * @since   1.3.0
+	 * @version 1.3.1 Added the $reason parameter; only queues for an inconclusive failure.
 	 *
 	 * @param  Models\LinkStatus $linkStatus The link status model instance.
+	 * @param  string            $reason     The failure reason {@see self::failureReason()}.
 	 * @return void
 	 */
-	private function maybeQueueLocalScan( Models\LinkStatus $linkStatus ) {
-		if ( ! $linkStatus->client_confirmed_broken ) {
-			$linkStatus->needs_additional_scan = true;
-			aioseoBrokenLinkChecker()->core->cache->delete( 'as_blc_local_scan_idle' );
-		} else {
+	private function maybeQueueLocalScan( Models\LinkStatus $linkStatus, $reason = '' ) {
+		if ( ! in_array( $reason, self::INCONCLUSIVE_FAILURES, true ) || $linkStatus->client_confirmed_broken ) {
 			$linkStatus->needs_additional_scan = false;
+
+			return;
 		}
+
+		$linkStatus->needs_additional_scan = true;
+		aioseoBrokenLinkChecker()->core->cache->delete( 'as_blc_local_scan_idle' );
 	}
 
 	/**

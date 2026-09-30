@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use AIOSEO\BrokenLinkChecker\Models;
+use AIOSEO\BrokenLinkChecker\Objects;
 
 /**
  * Handles the Links scan.
@@ -17,11 +18,12 @@ class Links {
 	/**
 	 * The action name of the scan.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Made public so the Abilities layer can report on the scan.
 	 *
 	 * @var string
 	 */
-	private $scanActionName = 'aioseo_blc_links_scan';
+	public $scanActionName = 'aioseo_blc_links_scan';
 
 	/**
 	 * Data class instance.
@@ -56,7 +58,9 @@ class Links {
 		add_action( $this->scanActionName, [ $this, 'scanPosts' ], 11, 1 );
 
 		add_action( 'save_post', [ $this, 'scanPost' ], 21, 1 );
-		add_action( 'delete_post', [ $this, 'deletePostLinks' ] );
+		add_action( 'added_post_meta', [ $this, 'queueBuilderMeta' ], 10, 3 );
+		add_action( 'updated_post_meta', [ $this, 'queueBuilderMeta' ], 10, 3 );
+		add_action( 'delete_post', [ $this, 'deletePostLinks' ], 10, 2 );
 		add_action( 'shutdown', [ $this, 'rescanPosts' ] );
 	}
 
@@ -67,18 +71,52 @@ class Links {
 	 * Statuses are captured before the links are deleted; only fires on permanent delete,
 	 * so a link status whose post is merely trashed (and may be restored) is kept.
 	 *
-	 * @since 1.3.0
+	 * @since   1.3.0
+	 * @version 1.3.1 Covers menu items, which are posts of their own type.
+	 * @version 1.3.1 Covers the post's custom fields.
 	 *
-	 * @param  int  $postId The post ID.
+	 * NOTE: Wrapped, because of when this can fire. Installing a plugin from a ZIP deletes the upload at
+	 * the end of the same request, which reaches this hook after our own files have been replaced on
+	 * disk - so the class already in memory and the one autoloaded next can be different versions of
+	 * the plugin, and a method the caller expects need not exist in the other. Nothing is lost by
+	 * giving up here: the rows belong to a post that is gone, and the sweep collects them.
+	 *
+	 * @param  int           $postId The post ID.
+	 * @param  \WP_Post|null $post   The post, when the hook supplies it.
 	 * @return void
 	 */
-	public function deletePostLinks( $postId ) {
-		$linkStatusIds = Models\Link::getLinkStatusIds( $postId );
+	public function deletePostLinks( $postId, $post = null ) {
+		// An upgrade may already have replaced our files in this request, so anything that reads our own
+		// classes would be reading a different build. The rows outlive the request; the sweep collects them.
+		if ( aioseoBrokenLinkChecker()->helpers->filesReplacedThisRequest() ) {
+			return;
+		}
 
-		Models\Link::deleteLinks( $postId );
+		if ( ! aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ) {
+			return;
+		}
 
-		if ( $linkStatusIds ) {
-			Models\LinkStatus::deleteOrphaned( $linkStatusIds );
+		$post       = is_a( $post, 'WP_Post' ) ? $post : get_post( $postId );
+		$isMenuItem = is_a( $post, 'WP_Post' ) && 'nav_menu_item' === $post->post_type;
+
+		// The post's custom fields go with it. They are addressed by the same ID, and a menu item's own
+		// meta is the item, so only a content post has fields of its own to drop.
+		$objectTypes = $isMenuItem ? [ 'menu_item' ] : [ 'post', 'post_meta' ];
+
+		try {
+			$linkStatusIds = [];
+			foreach ( $objectTypes as $objectType ) {
+				$linkStatusIds = array_merge( $linkStatusIds, Models\Link::getObjectLinkStatusIds( $objectType, $postId ) );
+
+				Models\Link::deleteObjectLinks( $objectType, $postId );
+			}
+
+			if ( $linkStatusIds ) {
+				Models\LinkStatus::deleteOrphaned( array_values( array_unique( $linkStatusIds ) ) );
+			}
+		} catch ( \Throwable $e ) {
+			// A half-replaced plugin, not something the caller can act on. Left for the sweep.
+			return;
 		}
 	}
 
@@ -110,10 +148,17 @@ class Links {
 	 *
 	 * @since   1.0.0
 	 * @version 1.2.9 Use recurring action with runtime lock and idle state.
+	 * @version 1.3.1 The other sources share the budget instead of taking a batch and returning.
 	 *
 	 * @return void
 	 */
 	public function scanPosts() {
+		// Never idles or stamps anything: the scan has to be able to pick up where it left off once the
+		// object columns land, and it stays scheduled so it does.
+		if ( ! aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ) {
+			return;
+		}
+
 		// Runtime lock: Prevent concurrent execution of this action.
 		$lockKey = 'as_blc_links_scan_running';
 		if ( aioseoBrokenLinkChecker()->core->cache->get( $lockKey ) ) {
@@ -131,11 +176,16 @@ class Links {
 		$postsToScan = $this->data->getPostsToScan();
 
 		if ( empty( $postsToScan ) ) {
-			// No more posts to scan - enter idle mode and unschedule the recurring action.
-			aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_links_scan_idle', true, HOUR_IN_SECONDS );
-			aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
+			// The other sources have no post_modified to compare against, so they take their turn once the
+			// posts are drained. They share the budget below rather than getting one batch per tick, which
+			// is minutes per thousand objects on a site where the scan is otherwise idle.
+			if ( ! aioseoBrokenLinkChecker()->main->objectScan->run() ) {
+				// Nothing left in any source - enter idle mode and unschedule the recurring action.
+				aioseoBrokenLinkChecker()->core->cache->update( 'as_blc_links_scan_idle', true, HOUR_IN_SECONDS );
+				aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
 
-			return;
+				return;
+			}
 		}
 
 		foreach ( $postsToScan as $postToScan ) {
@@ -159,11 +209,19 @@ class Links {
 	 * Scans the given individual post for links.
 	 *
 	 * @since   1.0.0
+	 * @version 1.3.1 Bails while the object columns are missing.
+	 * @version 1.3.1 Indexes the post's custom fields along with its content.
 	 *
 	 * @param  Object|int $post The post object or ID (if called on "save_post").
 	 * @return void
 	 */
 	public function scanPost( $post ) {
+		// Stamping the scan date is what takes a post out of the queue, and nothing puts it back: the
+		// queue is post_modified against link_scan_date. So a scan that can't store links can't stamp.
+		if ( ! aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ) {
+			return;
+		}
+
 		if ( doing_action( 'save_post' ) && ! empty( $this->postsToRescan ) ) {
 			// If posts need to be reindexed manually, bail.
 			return;
@@ -190,6 +248,8 @@ class Links {
 		}
 
 		$this->data->indexLinks( $post->ID );
+		$this->data->indexPostMetaLinks( $post->ID );
+		$this->data->indexPostBuilderLinks( $post->ID );
 
 		$aioseoPost                 = Models\Post::getPost( $post->ID );
 		$aioseoPost->link_scan_date = gmdate( 'Y-m-d H:i:s' );
@@ -197,6 +257,40 @@ class Links {
 
 		// Set a transient to prevent scanning the same post again in the next 3 seconds.
 		aioseoBrokenLinkChecker()->core->cache->update( 'aioseo_blc_scan_post_' . $post->ID, true, 3 );
+	}
+
+	/**
+	 * Reindexes a post's builder content when the builder writes it.
+	 *
+	 * The Elementor editor saves through the meta API, and the save_post that would otherwise carry the
+	 * reindex does not always come with it, so the write itself is the signal.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  int    $metaId  The meta ID.
+	 * @param  int    $postId  The post ID.
+	 * @param  string $metaKey The meta key.
+	 * @return void
+	 */
+	public function queueBuilderMeta( $metaId, $postId, $metaKey ) {
+		// Whichever builder owns this key; a site can run more than one, and only the one whose layout
+		// just changed needs reading again.
+		$builder = null;
+		foreach ( aioseoBrokenLinkChecker()->objects->all() as $type ) {
+			// Only the builders that keep a layout in meta have a key to watch; the shortcode ones are
+			// reindexed by the post save itself, and have no metaKey() to ask for.
+			if ( $type instanceof Objects\MetaBuilderObject && $type->metaKey() === $metaKey ) {
+				$builder = $type;
+
+				break;
+			}
+		}
+
+		if ( ! $builder ) {
+			return;
+		}
+
+		$this->data->indexObjectLinks( $builder->type(), (int) $postId );
 	}
 
 	/**

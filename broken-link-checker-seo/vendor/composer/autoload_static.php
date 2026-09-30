@@ -4,41 +4,49 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit3bc9972c45dc36d351839aa972643d12
+class ComposerStaticInit6d7a59c378063965a7d4a8d54727986f
 {
     public static $prefixLengthsPsr4 = array (
-        'A' => 
+        'A' =>
         array (
             'AIOSEO\\BrokenLinkChecker\\' => 25,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'AIOSEO\\BrokenLinkChecker\\' => 
+        'AIOSEO\\BrokenLinkChecker\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
     );
 
     public static $classMap = array (
+        'AIOSEO\\BrokenLinkChecker\\Abilities\\Abilities' => __DIR__ . '/../..' . '/app/Abilities/Abilities.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\ActivationNotice' => __DIR__ . '/../..' . '/app/Admin/ActivationNotice.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Admin' => __DIR__ . '/../..' . '/app/Admin/Admin.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Dashboard' => __DIR__ . '/../..' . '/app/Admin/Dashboard.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\Export' => __DIR__ . '/../..' . '/app/Admin/Export.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\License' => __DIR__ . '/../..' . '/app/Admin/License.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\NetworkAdmin' => __DIR__ . '/../..' . '/app/Admin/NetworkAdmin.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\NetworkLicense' => __DIR__ . '/../..' . '/app/Admin/NetworkLicense.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\NotConnected' => __DIR__ . '/../..' . '/app/Admin/Notices/NotConnected.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Notices\\Review' => __DIR__ . '/../..' . '/app/Admin/Notices/Review.php',
         'AIOSEO\\BrokenLinkChecker\\Admin\\Notifications' => __DIR__ . '/../..' . '/app/Admin/Notifications.php',
+        'AIOSEO\\BrokenLinkChecker\\Admin\\SiteHealth' => __DIR__ . '/../..' . '/app/Admin/SiteHealth.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Api' => __DIR__ . '/../..' . '/app/Api/Api.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\BrokenLinks' => __DIR__ . '/../..' . '/app/Api/BrokenLinks.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\CommonTableActions' => __DIR__ . '/../..' . '/app/Api/CommonTableActions.php',
+        'AIOSEO\\BrokenLinkChecker\\Api\\Dashboard' => __DIR__ . '/../..' . '/app/Api/Dashboard.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\EditRow' => __DIR__ . '/../..' . '/app/Api/EditRow.php',
+        'AIOSEO\\BrokenLinkChecker\\Api\\EmailReports' => __DIR__ . '/../..' . '/app/Api/EmailReports.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\License' => __DIR__ . '/../..' . '/app/Api/License.php',
-        'AIOSEO\\BrokenLinkChecker\\Api\\LinkStatusDetail' => __DIR__ . '/../..' . '/app/Api/LinkStatusDetail.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\LinkStatusTable' => __DIR__ . '/../..' . '/app/Api/LinkStatusTable.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\LinksTable' => __DIR__ . '/../..' . '/app/Api/LinksTable.php',
+        'AIOSEO\\BrokenLinkChecker\\Api\\Network' => __DIR__ . '/../..' . '/app/Api/Network.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Notifications' => __DIR__ . '/../..' . '/app/Api/Notifications.php',
+        'AIOSEO\\BrokenLinkChecker\\Api\\NpsSurvey' => __DIR__ . '/../..' . '/app/Api/NpsSurvey.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Options' => __DIR__ . '/../..' . '/app/Api/Options.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Plugins' => __DIR__ . '/../..' . '/app/Api/Plugins.php',
-        'AIOSEO\\BrokenLinkChecker\\Api\\Post' => __DIR__ . '/../..' . '/app/Api/Post.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\PostsTerms' => __DIR__ . '/../..' . '/app/Api/PostsTerms.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\Redirects' => __DIR__ . '/../..' . '/app/Api/Redirects.php',
         'AIOSEO\\BrokenLinkChecker\\Api\\VueSettings' => __DIR__ . '/../..' . '/app/Api/VueSettings.php',
@@ -50,37 +58,85 @@ class ComposerStaticInit3bc9972c45dc36d351839aa972643d12
         'AIOSEO\\BrokenLinkChecker\\Core\\Filesystem' => __DIR__ . '/../..' . '/app/Core/Filesystem.php',
         'AIOSEO\\BrokenLinkChecker\\Core\\NetworkCache' => __DIR__ . '/../..' . '/app/Core/NetworkCache.php',
         'AIOSEO\\BrokenLinkChecker\\Core\\Uninstall' => __DIR__ . '/../..' . '/app/Core/Uninstall.php',
+        'AIOSEO\\BrokenLinkChecker\\Dashboard\\Data' => __DIR__ . '/../..' . '/app/Dashboard/Data.php',
         'AIOSEO\\BrokenLinkChecker\\Db\\Schema' => __DIR__ . '/../..' . '/app/Db/Schema.php',
-        'AIOSEO\\BrokenLinkChecker\\Emails\\ConnectReminder' => __DIR__ . '/../..' . '/app/Emails/ConnectReminder.php',
-        'AIOSEO\\BrokenLinkChecker\\Emails\\ConnectReminderSecond' => __DIR__ . '/../..' . '/app/Emails/ConnectReminderSecond.php',
+        'AIOSEO\\BrokenLinkChecker\\Emails\\ConnectReminders' => __DIR__ . '/../..' . '/app/Emails/ConnectReminders.php',
         'AIOSEO\\BrokenLinkChecker\\Emails\\Emails' => __DIR__ . '/../..' . '/app/Emails/Emails.php',
+        'AIOSEO\\BrokenLinkChecker\\Emails\\Reports\\Content' => __DIR__ . '/../..' . '/app/Emails/Reports/Content.php',
+        'AIOSEO\\BrokenLinkChecker\\Emails\\Reports\\Reports' => __DIR__ . '/../..' . '/app/Emails/Reports/Reports.php',
         'AIOSEO\\BrokenLinkChecker\\LinkStatus\\Data' => __DIR__ . '/../..' . '/app/LinkStatus/Data.php',
         'AIOSEO\\BrokenLinkChecker\\LinkStatus\\LinkStatus' => __DIR__ . '/../..' . '/app/LinkStatus/LinkStatus.php',
         'AIOSEO\\BrokenLinkChecker\\LinkStatus\\LocalScan' => __DIR__ . '/../..' . '/app/LinkStatus/LocalScan.php',
         'AIOSEO\\BrokenLinkChecker\\Links\\Data' => __DIR__ . '/../..' . '/app/Links/Data.php',
         'AIOSEO\\BrokenLinkChecker\\Links\\Links' => __DIR__ . '/../..' . '/app/Links/Links.php',
+        'AIOSEO\\BrokenLinkChecker\\Links\\ObjectScan' => __DIR__ . '/../..' . '/app/Links/ObjectScan.php',
+        'AIOSEO\\BrokenLinkChecker\\Links\\Url' => __DIR__ . '/../..' . '/app/Links/Url.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Activate' => __DIR__ . '/../..' . '/app/Main/Activate.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Main' => __DIR__ . '/../..' . '/app/Main/Main.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkIsEmbedColumn' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkIsEmbedColumn.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkIsImageColumn' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkIsImageColumn.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkObjectColumns' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkObjectColumns.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkStatusCheckUrlColumns' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkStatusCheckUrlColumns.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkStatusIdIndex' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkStatusIdIndex.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\AddLinkStatusRescanColumns' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/AddLinkStatusRescanColumns.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\DedupePosts' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/DedupePosts.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\DropLegacyCacheKeyColumn' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/DropLegacyCacheKeyColumn.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\FoldExcludedDomainsIntoPatterns' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/FoldExcludedDomainsIntoPatterns.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\GrantSettingsCapability' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/GrantSettingsCapability.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\MergeDuplicateLinkStatuses' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/MergeDuplicateLinkStatuses.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\MergeNonCanonicalLinkStatuses' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/MergeNonCanonicalLinkStatuses.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\MigrateSensitiveOptions' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/MigrateSensitiveOptions.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\MoveScanStateToOwnOption' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/MoveScanStateToOwnOption.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\ReconcileUninstallWithAdvancedToggle' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/ReconcileUninstallWithAdvancedToggle.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\RescanPostsForCustomFields' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/RescanPostsForCustomFields.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Definitions\\RestoreCapabilities' => __DIR__ . '/../..' . '/app/Main/Migrations/Definitions/RestoreCapabilities.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\Migration' => __DIR__ . '/../..' . '/app/Main/Migrations/Migration.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\MigrationLog' => __DIR__ . '/../..' . '/app/Main/Migrations/MigrationLog.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Migrations\\MigrationRunner' => __DIR__ . '/../..' . '/app/Main/Migrations/MigrationRunner.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Paragraph' => __DIR__ . '/../..' . '/app/Main/Paragraph.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\PreUpdates' => __DIR__ . '/../..' . '/app/Main/PreUpdates.php',
+        'AIOSEO\\BrokenLinkChecker\\Main\\ScanState' => __DIR__ . '/../..' . '/app/Main/ScanState.php',
         'AIOSEO\\BrokenLinkChecker\\Main\\Updates' => __DIR__ . '/../..' . '/app/Main/Updates.php',
         'AIOSEO\\BrokenLinkChecker\\Models\\Link' => __DIR__ . '/../..' . '/app/Models/Link.php',
         'AIOSEO\\BrokenLinkChecker\\Models\\LinkStatus' => __DIR__ . '/../..' . '/app/Models/LinkStatus.php',
         'AIOSEO\\BrokenLinkChecker\\Models\\Model' => __DIR__ . '/../..' . '/app/Models/Model.php',
         'AIOSEO\\BrokenLinkChecker\\Models\\Notification' => __DIR__ . '/../..' . '/app/Models/Notification.php',
         'AIOSEO\\BrokenLinkChecker\\Models\\Post' => __DIR__ . '/../..' . '/app/Models/Post.php',
+        'AIOSEO\\BrokenLinkChecker\\Newsroom\\Newsroom' => __DIR__ . '/../..' . '/app/Newsroom/Newsroom.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\AvadaObject' => __DIR__ . '/../..' . '/app/Objects/AvadaObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\BlockContentObject' => __DIR__ . '/../..' . '/app/Objects/BlockContentObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\BuilderObject' => __DIR__ . '/../..' . '/app/Objects/BuilderObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\CustomFields' => __DIR__ . '/../..' . '/app/Objects/CustomFields.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\DiviObject' => __DIR__ . '/../..' . '/app/Objects/DiviObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\ElementorObject' => __DIR__ . '/../..' . '/app/Objects/ElementorObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\MenuItemObject' => __DIR__ . '/../..' . '/app/Objects/MenuItemObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\MetaBuilderObject' => __DIR__ . '/../..' . '/app/Objects/MetaBuilderObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\NavigationObject' => __DIR__ . '/../..' . '/app/Objects/NavigationObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\ObjectType' => __DIR__ . '/../..' . '/app/Objects/ObjectType.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\Objects' => __DIR__ . '/../..' . '/app/Objects/Objects.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\PostMetaObject' => __DIR__ . '/../..' . '/app/Objects/PostMetaObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\PostObject' => __DIR__ . '/../..' . '/app/Objects/PostObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\ReusableBlockObject' => __DIR__ . '/../..' . '/app/Objects/ReusableBlockObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\SeedProdObject' => __DIR__ . '/../..' . '/app/Objects/SeedProdObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\ShortcodeBuilderObject' => __DIR__ . '/../..' . '/app/Objects/ShortcodeBuilderObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\SiteOriginObject' => __DIR__ . '/../..' . '/app/Objects/SiteOriginObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\TemplateObject' => __DIR__ . '/../..' . '/app/Objects/TemplateObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\TemplatePartObject' => __DIR__ . '/../..' . '/app/Objects/TemplatePartObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\TermObject' => __DIR__ . '/../..' . '/app/Objects/TermObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\UnknownObject' => __DIR__ . '/../..' . '/app/Objects/UnknownObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\UserObject' => __DIR__ . '/../..' . '/app/Objects/UserObject.php',
+        'AIOSEO\\BrokenLinkChecker\\Objects\\WpBakeryObject' => __DIR__ . '/../..' . '/app/Objects/WpBakeryObject.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\Cache' => __DIR__ . '/../..' . '/app/Options/Cache.php',
+        'AIOSEO\\BrokenLinkChecker\\Options\\InternalNetworkOptions' => __DIR__ . '/../..' . '/app/Options/InternalNetworkOptions.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\InternalOptions' => __DIR__ . '/../..' . '/app/Options/InternalOptions.php',
+        'AIOSEO\\BrokenLinkChecker\\Options\\NetworkSensitiveOptions' => __DIR__ . '/../..' . '/app/Options/NetworkSensitiveOptions.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\Options' => __DIR__ . '/../..' . '/app/Options/Options.php',
         'AIOSEO\\BrokenLinkChecker\\Options\\SensitiveOptions' => __DIR__ . '/../..' . '/app/Options/SensitiveOptions.php',
+        'AIOSEO\\BrokenLinkChecker\\Services\\BrokenLinksService' => __DIR__ . '/../..' . '/app/Services/BrokenLinksService.php',
+        'AIOSEO\\BrokenLinkChecker\\Services\\Service' => __DIR__ . '/../..' . '/app/Services/Service.php',
+        'AIOSEO\\BrokenLinkChecker\\Standalone\\AdminBarWarning' => __DIR__ . '/../..' . '/app/Standalone/AdminBarWarning.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\Highlighter' => __DIR__ . '/../..' . '/app/Standalone/Highlighter.php',
+        'AIOSEO\\BrokenLinkChecker\\Standalone\\NpsSurvey' => __DIR__ . '/../..' . '/app/Standalone/NpsSurvey.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\SetupWizard' => __DIR__ . '/../..' . '/app/Standalone/SetupWizard.php',
         'AIOSEO\\BrokenLinkChecker\\Standalone\\Standalone' => __DIR__ . '/../..' . '/app/Standalone/Standalone.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\Api' => __DIR__ . '/../..' . '/app/Traits/Helpers/Api.php',
@@ -95,6 +151,7 @@ class ComposerStaticInit3bc9972c45dc36d351839aa972643d12
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\WpContext' => __DIR__ . '/../..' . '/app/Traits/Helpers/WpContext.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\WpMultisite' => __DIR__ . '/../..' . '/app/Traits/Helpers/WpMultisite.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Helpers\\WpUri' => __DIR__ . '/../..' . '/app/Traits/Helpers/WpUri.php',
+        'AIOSEO\\BrokenLinkChecker\\Traits\\NetworkOptions' => __DIR__ . '/../..' . '/app/Traits/NetworkOptions.php',
         'AIOSEO\\BrokenLinkChecker\\Traits\\Options' => __DIR__ . '/../..' . '/app/Traits/Options.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\Access' => __DIR__ . '/../..' . '/app/Utils/Access.php',
         'AIOSEO\\BrokenLinkChecker\\Utils\\ActionScheduler' => __DIR__ . '/../..' . '/app/Utils/ActionScheduler.php',
@@ -109,9 +166,9 @@ class ComposerStaticInit3bc9972c45dc36d351839aa972643d12
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit3bc9972c45dc36d351839aa972643d12::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6d7a59c378063965a7d4a8d54727986f::$classMap;
 
         }, null, ClassLoader::class);
     }

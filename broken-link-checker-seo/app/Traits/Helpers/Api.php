@@ -144,14 +144,15 @@ trait Api {
 	/**
 	 * Returns the headers for internal API requests.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Sends the licence the site scans under, which may be the network's.
 	 *
 	 * @return array An array of headers.
 	 */
 	private function getApiHeaders() {
 		return [
 			'Content-Type'         => 'application/json',
-			'X-AIOSEO-BLC-License' => aioseoBrokenLinkChecker()->sensitiveOptions->get( 'licenseKey' )
+			'X-AIOSEO-BLC-License' => aioseoBrokenLinkChecker()->license->getLicenseKey()
 		];
 	}
 

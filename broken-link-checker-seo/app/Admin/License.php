@@ -51,12 +51,24 @@ class License {
 	protected $internalOptions = null;
 
 	/**
+	 * SensitiveOptions class instance.
+	 *
+	 * Held as a property so the network licence can point the same logic at the network's own store.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var \AIOSEO\BrokenLinkChecker\Options\SensitiveOptions
+	 */
+	protected $sensitiveOptions = null;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 1.0.0
 	 */
 	public function __construct() {
-		$this->internalOptions = aioseoBrokenLinkChecker()->internalOptions;
+		$this->internalOptions  = aioseoBrokenLinkChecker()->internalOptions;
+		$this->sensitiveOptions = aioseoBrokenLinkChecker()->sensitiveOptions;
 
 		add_action( 'init', [ $this, 'scheduleLicenseCheck' ], 3 );
 		add_action( $this->actionName, [ $this, 'checkLicense' ] );
@@ -70,7 +82,7 @@ class License {
 	 * @return void
 	 */
 	public function scheduleLicenseCheck() {
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return;
 		}
 
@@ -85,7 +97,7 @@ class License {
 	 * @return void
 	 */
 	public function checkLicense() {
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			if ( $this->needsReset() ) {
 				$this->internalOptions->internal->license->reset(
 					[
@@ -105,6 +117,44 @@ class License {
 			return;
 		}
 
+		$this->activateProgrammatic();
+	}
+
+	/**
+	 * Stores the quota a scan or recheck response reported, if it reported one.
+	 *
+	 * NOTE: A response that carries no quota is not reporting a quota of nothing - the scan API answers
+	 * some successful requests without those fields at all. Writing them regardless emptied a licence
+	 * that was fine, and the reader was shown no credits and told to upgrade.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  mixed $responseBody The response body.
+	 * @return void
+	 */
+	public function applyQuotaFromResponse( $responseBody ) {
+		if ( ! is_object( $responseBody ) || is_wp_error( $responseBody ) ) {
+			return;
+		}
+
+		if ( isset( $responseBody->quotaRemaining ) ) {
+			$this->internalOptions->internal->license->quotaRemaining = (int) $responseBody->quotaRemaining;
+		}
+
+		if ( ! isset( $responseBody->quota ) ) {
+			return;
+		}
+
+		// Compared as integers: the service sends the column as a string, so a strict comparison against
+		// the stored integer always differed and re-activated the licence on every scan.
+		$stored = (int) $this->internalOptions->internal->license->all()['quota'];
+		if ( (int) $responseBody->quota === $stored ) {
+			return;
+		}
+
+		$this->internalOptions->internal->license->quota = (int) $responseBody->quota;
+
+		// The plan changed, so pull the current expiry and level in with it.
 		$this->activateProgrammatic();
 	}
 
@@ -146,7 +196,7 @@ class License {
 	 *
 	 * @return bool Whether or not it was activated.
 	 */
-	private function activate() {
+	protected function activate() {
 		$this->internalOptions->internal->license->reset(
 			[
 				'expires',
@@ -161,7 +211,7 @@ class License {
 			]
 		);
 
-		$licenseKey = aioseoBrokenLinkChecker()->sensitiveOptions->get( 'licenseKey' );
+		$licenseKey = $this->sensitiveOptions->get( 'licenseKey' );
 		if ( empty( $licenseKey ) ) {
 			return false;
 		}
@@ -249,7 +299,7 @@ class License {
 	 * @return bool Whether or not it was deactivated.
 	 */
 	public function deactivate() {
-		$licenseKey = aioseoBrokenLinkChecker()->sensitiveOptions->get( 'licenseKey' );
+		$licenseKey = $this->sensitiveOptions->get( 'licenseKey' );
 		if ( empty( $licenseKey ) ) {
 			return false;
 		}
@@ -333,8 +383,8 @@ class License {
 	 * @return bool Whether the license is expired.
 	 */
 	public function isExpired() {
-		$networkIsExpired = false;
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		$networkIsExpired = $this->isNetworkLicensed() && aioseoBrokenLinkChecker()->networkLicense->isExpired();
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return $networkIsExpired;
 		}
 
@@ -355,8 +405,8 @@ class License {
 	 * @return bool Whether the license is disabled.
 	 */
 	public function isDisabled() {
-		$networkIsDisabled = false;
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		$networkIsDisabled = $this->isNetworkLicensed() && aioseoBrokenLinkChecker()->networkLicense->isDisabled();
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return $networkIsDisabled;
 		}
 
@@ -371,8 +421,8 @@ class License {
 	 * @return bool Whether the license is invalid.
 	 */
 	public function isInvalid() {
-		$networkIsInvalid = false;
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		$networkIsInvalid = $this->isNetworkLicensed() && aioseoBrokenLinkChecker()->networkLicense->isInvalid();
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return $networkIsInvalid;
 		}
 
@@ -387,12 +437,41 @@ class License {
 	 * @return bool Whether the license is active.
 	 */
 	public function isActive() {
-		$networkIsActive = false;
-		if ( ! aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		$networkIsActive = $this->isNetworkLicensed() && aioseoBrokenLinkChecker()->networkLicense->isActive();
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return $networkIsActive;
 		}
 
 		return ! $this->isExpired() && ! $this->isDisabled() && ! $this->isInvalid();
+	}
+
+	/**
+	 * Checks whether a license key is stored, whatever state that license is in.
+	 *
+	 * Distinguishes a site that never connected from one whose license has since lapsed. Both
+	 * fail isActive(), but they need opposite messaging — connect versus renew.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return bool Whether a license key is stored.
+	 */
+	public function isConnected() {
+		if ( $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+			return true;
+		}
+
+		return $this->isNetworkLicensed();
+	}
+
+	/**
+	 * Checks whether the site connected at some point but its license no longer works.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return bool Whether the license has lapsed.
+	 */
+	public function isLapsed() {
+		return $this->isConnected() && ! $this->isActive();
 	}
 
 	/**
@@ -403,7 +482,35 @@ class License {
 	 * @return string The license level.
 	 */
 	public function getLicenseLevel() {
+		if ( ! $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+			return $this->isNetworkLicensed()
+				? aioseoBrokenLinkChecker()->networkLicense->getLicenseLevel()
+				: $this->internalOptions->internal->license->level;
+		}
+
 		return $this->internalOptions->internal->license->level;
+	}
+
+	/**
+	 * Returns the license key this site scans under.
+	 *
+	 * NOTE: A subsite's own key wins over the network's, so a site that was licensed individually keeps
+	 * its own quota rather than silently moving onto the network's pool.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return string The license key.
+	 */
+	public function getLicenseKey() {
+		if ( $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+			return $this->sensitiveOptions->get( 'licenseKey' );
+		}
+
+		if ( $this->isNetworkLicensed() ) {
+			return aioseoBrokenLinkChecker()->networkSensitiveOptions->get( 'licenseKey' );
+		}
+
+		return '';
 	}
 
 	/**
@@ -414,7 +521,7 @@ class License {
 	 * @return bool Whether the license data needs to be reet.
 	 */
 	private function needsReset() {
-		if ( aioseoBrokenLinkChecker()->sensitiveOptions->hasValue( 'licenseKey' ) ) {
+		if ( $this->sensitiveOptions->hasValue( 'licenseKey' ) ) {
 			return false;
 		}
 
@@ -477,7 +584,7 @@ class License {
 	 * @return bool Whether the site is licensed at the network level.
 	 */
 	public function isNetworkLicensed() {
-		if ( ! property_exists( aioseoBrokenLinkChecker(), 'networkLicense' ) ) {
+		if ( ! is_multisite() || empty( aioseoBrokenLinkChecker()->networkLicense ) ) {
 			return false;
 		}
 

@@ -21,7 +21,7 @@ class Notifications {
 	 *
 	 * @var string
 	 */
-	private $url = 'https://blc-plugin-cdn.aioseo.com/wp-content/notifications.json';
+	private $url = 'https://blc-plugin-cdn.aioseo.com/notifications.json';
 
 	/**
 	 * The review notice class instance.

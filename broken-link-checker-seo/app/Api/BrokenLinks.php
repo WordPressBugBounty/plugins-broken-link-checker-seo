@@ -32,21 +32,22 @@ class BrokenLinks {
 			], 400 );
 		}
 
-		$percentage = 0;
+		$progress = [
+			'done'    => 0,
+			'total'   => 0,
+			'percent' => 0
+		];
 		switch ( $scan ) {
 			case 'links':
-				$percentage = aioseoBrokenLinkChecker()->main->links->data->getScanPercentage();
+				$progress = aioseoBrokenLinkChecker()->main->links->data->getScanProgress();
 				break;
 			case 'linkStatuses':
-				$percentage = aioseoBrokenLinkChecker()->main->linkStatus->data->getScanPercentage();
+				$progress = aioseoBrokenLinkChecker()->main->linkStatus->data->getScanProgress();
 				break;
 			default:
 				break;
 		}
 
-		return new \WP_REST_Response( [
-			'success' => true,
-			'percent' => $percentage
-		], 200 );
+		return new \WP_REST_Response( array_merge( [ 'success' => true ], $progress ), 200 );
 	}
 }

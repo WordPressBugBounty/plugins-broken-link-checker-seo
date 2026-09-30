@@ -35,12 +35,20 @@ class InternalOptions {
 	protected $defaults = [
 		// phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 		'internal' => [
-			'firstActivated'      => [ 'type' => 'number', 'default' => 0 ],
-			'lastActiveVersion'   => [ 'type' => 'string', 'default' => '0.0' ],
-			'lastSchemaVersion'   => [ 'type' => 'string', 'default' => '0.0' ],
-			'scanId'              => [ 'type' => 'string', 'default' => null ],
-			'minimumLinkScanDate' => [ 'type' => 'string', 'default' => null ],
-			'license'             => [
+			'firstActivated'       => [ 'type' => 'number', 'default' => 0 ],
+			'activatingUserId'     => [ 'type' => 'number', 'default' => 0 ],
+			'lastActiveVersion'    => [ 'type' => 'string', 'default' => '0.0' ],
+			'lastSchemaVersion'    => [ 'type' => 'string', 'default' => '0.0' ],
+			// Moved to aioseo_blc_scan_state and no longer written here. Still declared so the row keeps
+			// carrying them, which is where ScanState and its migration read the existing values from.
+			'scanId'               => [ 'type' => 'string', 'default' => null ],
+			'minimumLinkScanDate'  => [ 'type' => 'string', 'default' => null ],
+			'objectScans'          => [ 'type' => 'array', 'default' => [] ],
+			// Set by the migration that requeues every post so their custom fields are read. It has no
+			// end state of its own to check - the scan drains the queue it fills - so this is what tells
+			// the runner it has already happened.
+			'customFieldsRequeued' => [ 'type' => 'boolean', 'default' => false ],
+			'license'              => [
 				'expires'          => [ 'type' => 'number', 'default' => 0 ],
 				'expired'          => [ 'type' => 'boolean', 'default' => false ],
 				'invalid'          => [ 'type' => 'boolean', 'default' => false ],
@@ -53,10 +61,20 @@ class InternalOptions {
 				'quota'            => [ 'type' => 'number', 'default' => 0 ],
 				'quotaRemaining'   => [ 'type' => 'number', 'default' => 0 ]
 			],
-			'emails'              => [
+			'emails'               => [
 				'connectReminder'       => [ 'type' => 'number', 'default' => 0 ],
 				'connectReminderSecond' => [ 'type' => 'number', 'default' => 0 ],
-				'emailDisabled'         => [ 'type' => 'boolean', 'default' => false ]
+				'connectReminderThird'  => [ 'type' => 'number', 'default' => 0 ],
+				'connectReminderFourth' => [ 'type' => 'number', 'default' => 0 ],
+				'connectReminderFifth'  => [ 'type' => 'number', 'default' => 0 ],
+				'emailDisabled'         => [ 'type' => 'boolean', 'default' => false ],
+				// The watermark the weekly report diffs against: when a report last actually went out.
+				'reportSince'           => [ 'type' => 'number', 'default' => 0 ],
+				// The ISO year-week ('o-W') and month ('Y-m') a report slot has already been handled for.
+				'reportWeek'            => [ 'type' => 'string', 'default' => '' ],
+				'reportMonth'           => [ 'type' => 'string', 'default' => '' ],
+				// The licence expiry a full out-of-quota notice has already gone out for.
+				'quotaNoticeStamp'      => [ 'type' => 'string', 'default' => '' ]
 			]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
@@ -70,7 +88,7 @@ class InternalOptions {
 	 * @param string $optionsName The options name.
 	 */
 	public function __construct( $optionsName = 'aioseo_blc_options_internal' ) {
-		$this->optionsName = is_network_admin() ? $optionsName . '_network' : $optionsName;
+		$this->optionsName = $optionsName;
 
 		$this->init();
 

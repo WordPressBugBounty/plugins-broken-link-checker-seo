@@ -467,4 +467,19 @@ trait Wp {
 
 		return $charset;
 	}
+
+	/**
+	 * Whether our own files may no longer match the code already running.
+	 *
+	 * An upgrade or downgrade replaces the files on disk partway through a request, so a class already in
+	 * memory can autoload a sibling off the new build - or call a method the new build dropped. Nothing
+	 * that reads our own classes should keep working after that.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return bool Whether an upgrade has swapped files in this request.
+	 */
+	public function filesReplacedThisRequest() {
+		return (bool) did_action( 'upgrader_process_complete' );
+	}
 }

@@ -17,6 +17,25 @@ class Access {
 	private $capabilities = [
 		'aioseo_blc_about_us_page',
 		'aioseo_blc_broken_links_page',
+		'aioseo_blc_setup_wizard_page',
+		'aioseo_blc_settings'
+	];
+
+	/**
+	 * Capabilities only an administrator gets.
+	 *
+	 * NOTE: Editors and Authors are given the report on purpose, but the settings decide what the whole
+	 * site scans, who receives its reports and whether the account stays connected — none of which
+	 * belongs to a role that cannot manage the site.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var array
+	 */
+	private $adminOnlyCapabilities = [
+		'aioseo_blc_settings',
+		// The wizard exists to connect an account and choose what the whole site scans, so it belongs to
+		// the same role the settings do - and its last step would otherwise end in a refused request.
 		'aioseo_blc_setup_wizard_page'
 	];
 
@@ -60,9 +79,12 @@ class Access {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param  bool $force Whether to grant regardless of who is making the request. Needed wherever no
+	 *                     user is on the blog being written to - a network activation switched into a
+	 *                     subsite, a newly created site, WP-CLI or cron.
 	 * @return void
 	 */
-	public function addCapabilities() {
+	public function addCapabilities( $force = false ) {
 		foreach ( $this->roles as $wpRole => $role ) {
 			$roleObject = get_role( $wpRole );
 			if ( ! is_object( $roleObject ) ) {
@@ -74,8 +96,15 @@ class Access {
 				continue;
 			}
 
-			if ( current_user_can( 'edit_posts' ) || $this->isAdmin() ) {
+			if ( $force || current_user_can( 'edit_posts' ) || $this->isAdmin() ) {
 				foreach ( $this->capabilities as $cap ) {
+					// Granted to administrators only, and the role loop reaches every role.
+					if ( in_array( $cap, $this->adminOnlyCapabilities, true ) && ! $this->isAdmin( $role ) ) {
+						$roleObject->remove_cap( $cap );
+
+						continue;
+					}
+
 					$roleObject->add_cap( $cap );
 				}
 			}
@@ -142,17 +171,14 @@ class Access {
 			return true;
 		}
 
-		if (
-			(
-				$this->can( 'publish_posts', $checkRole ) ||
-				$this->can( 'edit_posts', $checkRole )
-			) &&
-			false !== strpos( $capability, 'aioseo_blc_' )
-		) {
-			return true;
+		if ( in_array( $capability, $this->adminOnlyCapabilities, true ) ) {
+			return false;
 		}
 
-		return false;
+		// The capability itself, not a proxy for it. Contributors can `edit_posts`, so standing in for the
+		// check that way handed them capabilities addCapabilities() deliberately never granted — which is
+		// how the dashboard widget reached them, with links to a page that answers 403.
+		return $this->can( $capability, $checkRole );
 	}
 
 	/**

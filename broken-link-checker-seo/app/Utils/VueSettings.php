@@ -39,15 +39,21 @@ class VueSettings {
 	 */
 	private $defaults = [
 		'toggledCards'    => [
-			'generalSettings'  => true,
-			'advancedSettings' => true
+			'yourAccount'            => true,
+			'generalSettings'        => true,
+			'linkSettings'           => true,
+			'advancedSettings'       => true,
+			'networkAccount'         => true,
+			'networkSiteActivations' => true
 		],
 		'toggledRadio'    => [],
 		'tablePagination' => [
-			'brokenLinks'      => 20,
-			'linksTable'       => 20,
-			'linksTableInline' => 5
-		]
+			'brokenLinks'  => 20,
+			'linksTable'   => 20,
+			'networkSites' => 20
+		],
+		// Cross-promotions this reader has closed, keyed by slug.
+		'dismissedCtas'   => []
 	];
 
 	/**

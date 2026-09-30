@@ -54,6 +54,15 @@ class Main {
 	public $localScan = null;
 
 	/**
+	 * ObjectScan class.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var Links\ObjectScan
+	 */
+	public $objectScan = null;
+
+	/**
 	 * The action name for the recurring orphan-row cleanup scan.
 	 *
 	 * @since 1.3.0
@@ -87,11 +96,11 @@ class Main {
 		$this->links      = new Links\Links();
 		$this->linkStatus = new LinkStatus\LinkStatus();
 		$this->localScan  = new LinkStatus\LocalScan();
+		$this->objectScan = new Links\ObjectScan();
 
 		add_filter( 'the_content', [ $this, 'filterLinks' ], 999 ); // High prio to make sure other plugins get a chance to render their content, parse their blocks, etc..
 
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueStandaloneApp' ] );
-		add_action( 'admin_footer', [ $this, 'adminFooter' ] );
+		add_action( 'admin_head', [ $this, 'printAdminMenuStyles' ] );
 
 		// Real-time orphan cleanup. Hooks fire in admin, REST, CLI, and cron contexts.
 		add_action( 'delete_post', [ $this, 'removeOrphanedData' ] );
@@ -110,14 +119,32 @@ class Main {
 	 * drop the post's scan-metadata row. On trash that handler does not run, so we delete the
 	 * links too — but keep link statuses, since a trashed post may be restored.
 	 *
-	 * @since 1.3.0
+	 * @since   1.3.0
+	 * @version 1.3.1 Covers the post's custom fields.
 	 *
 	 * @param  int  $postId The post ID.
 	 * @return void
 	 */
 	public function removeOrphanedData( $postId ) {
+		// An upgrade may already have replaced our files in this request, so anything that reads our own
+		// classes would be reading a different build. The rows outlive the request; the sweep collects them.
+		if ( aioseoBrokenLinkChecker()->helpers->filesReplacedThisRequest() ) {
+			return;
+		}
+
+		if ( ! aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ) {
+			return;
+		}
+
 		if ( ! doing_action( 'delete_post' ) ) {
-			Models\Link::deleteLinks( $postId );
+			$post = get_post( $postId );
+
+			if ( is_a( $post, 'WP_Post' ) && 'nav_menu_item' === $post->post_type ) {
+				Models\Link::deleteObjectLinks( 'menu_item', $postId );
+			} else {
+				Models\Link::deleteLinks( $postId );
+				Models\Link::deleteObjectLinks( 'post_meta', $postId );
+			}
 		}
 
 		Models\Post::deleteByPostId( $postId );
@@ -140,11 +167,21 @@ class Main {
 	 *
 	 * Runs in batches of 10,000 until every table is clean or 30 seconds elapse.
 	 *
-	 * @since 1.3.0
+	 * @since   1.3.0
+	 * @version 1.3.1 Waits for the object columns to be in place and backfilled.
 	 *
 	 * @return void
 	 */
 	public function runCleanupScan() {
+		// Every row is an orphan to a sweep that runs against a table mid-migration: the column it reads
+		// is either absent or still zero. This action runs on its own schedule, so it has to check.
+		if (
+			! aioseoBrokenLinkChecker()->helpers->hasObjectColumns() ||
+			! aioseoBrokenLinkChecker()->migrationRunner->hasVerified( Migrations\Definitions\AddLinkObjectColumns::NAME )
+		) {
+			return;
+		}
+
 		$lockKey = 'as_blc_links_cleanup_running';
 		if ( aioseoBrokenLinkChecker()->core->cache->get( $lockKey ) ) {
 			return;
@@ -154,11 +191,80 @@ class Main {
 		aioseoBrokenLinkChecker()->core->cache->update( $lockKey, true, 5 * MINUTE_IN_SECONDS );
 
 		$deadline = microtime( true ) + 30;
-		$this->sweepOrphanRows( 'aioseo_blc_links', $deadline, [ 'trash', 'private' ] );
+		$this->sweepOrphanLinkRows( $deadline, [ 'trash', 'private' ] );
 		$this->sweepOrphanRows( 'aioseo_blc_posts', $deadline, [ 'trash', 'private' ] );
 		$this->sweepOrphanLinkStatuses( $deadline );
 
 		aioseoBrokenLinkChecker()->core->cache->delete( $lockKey );
+	}
+
+	/**
+	 * Deletes link rows whose post is gone or has an excluded status.
+	 *
+	 * Scoped to the rows a post is behind. Terms, users and menu items have no post to resolve, so an
+	 * unscoped sweep would delete every one of them on its first pass.
+	 *
+	 * A row awaiting the object-column backfill carries a zero, which resolves to no post either, so
+	 * those are left alone as well — the backfill fills them in and the next pass judges them properly.
+	 *
+	 * @since   1.3.1
+	 * @version 1.3.1 Covers every post-backed kind rather than post content alone.
+	 *
+	 * @param  float    $deadline        Unix timestamp (with microseconds) at which to stop.
+	 * @param  string[] $excludeStatuses Post statuses to treat as orphan-equivalent.
+	 * @return void
+	 */
+	private function sweepOrphanLinkRows( $deadline, $excludeStatuses = [ 'trash' ] ) {
+		$batchSize  = 10000;
+		$prefix     = aioseoBrokenLinkChecker()->core->db->prefix;
+		$table      = $prefix . 'aioseo_blc_links';
+		$wpPosts    = $prefix . 'posts';
+		$typeList   = implode( ',', array_map( function( $slug ) {
+			return "'" . esc_sql( $slug ) . "'";
+		}, $this->postBackedSlugs() ) );
+		$statusList = implode( ',', array_map( function( $status ) {
+			return "'" . esc_sql( $status ) . "'";
+		}, $excludeStatuses ) );
+
+		if ( '' === $typeList ) {
+			return;
+		}
+
+		while ( microtime( true ) < $deadline ) {
+			aioseoBrokenLinkChecker()->core->db->execute(
+				"DELETE FROM $table
+				WHERE object_type IN ($typeList)
+					AND object_id > 0
+					AND NOT EXISTS (
+						SELECT 1 FROM $wpPosts AS p
+						WHERE p.ID = $table.object_id
+							AND p.post_status NOT IN ($statusList)
+					)
+				LIMIT $batchSize"
+			);
+
+			if ( (int) aioseoBrokenLinkChecker()->core->db->rowsAffected() < $batchSize ) {
+				return;
+			}
+		}
+	}
+
+	/**
+	 * The object type slugs whose object is a post the report covers.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return string[] The slugs.
+	 */
+	private function postBackedSlugs() {
+		$slugs = [];
+		foreach ( aioseoBrokenLinkChecker()->objects->all() as $slug => $objectType ) {
+			if ( $objectType->isPostBacked() ) {
+				$slugs[] = $slug;
+			}
+		}
+
+		return $slugs;
 	}
 
 	/**
@@ -238,25 +344,44 @@ class Main {
 	}
 
 	/**
-	 * Enqueues the standalone app for admin menu styles.
+	 * Styles the connect/upgrade item in the plugin's admin menu.
 	 *
-	 * @since 1.2.6
+	 * NOTE: Printed rather than enqueued, and CSS rather than JavaScript. This ran as a Vue app on every
+	 * admin page to add one class to one list item, which is a bundle on every screen for a button.
+	 *
+	 * The marker span is inside the anchor, so the item is selected through it. Browsers without :has()
+	 * keep the span's own colour and simply do not get the button treatment.
+	 *
+	 * @since   1.2.6
+	 * @version 1.3.1 Replaced the standalone Vue app with printed CSS.
 	 *
 	 * @return void
 	 */
-	public function enqueueStandaloneApp() {
-		aioseoBrokenLinkChecker()->core->assets->load( 'src/vue/standalone/app/main.js', [], [], 'aioseoBrokenLinkCheckerApp' );
-	}
+	public function printAdminMenuStyles() {
+		if ( ! current_user_can( 'aioseo_blc_broken_links_page' ) ) {
+			return;
+		}
 
-	/**
-	 * Enqueue the footer div to let Vue attach.
-	 *
-	 * @since 1.2.6
-	 *
-	 * @return void
-	 */
-	public function adminFooter() {
-		echo '<div id="aioseo-blc-admin"></div>';
+		$item = '#toplevel_page_broken-link-checker .wp-submenu li:has(a .aioseo-blc-menu-highlight)';
+
+		$css = '#toplevel_page_broken-link-checker .aioseo-blc-menu-highlight { color: #fff; }'
+			. $item . ' a {'
+				. ' background-color: #1DA867;'
+				. ' color: #fff;'
+				. ' font-weight: 600;'
+				. ' margin: 3px 6px 0;'
+				. ' display: block;'
+				. ' text-align: center;'
+				. ' border-radius: 3px;'
+				. ' transition: all .3s;'
+			. ' }'
+			. $item . ' a:hover,' . $item . ' a:active,' . $item . ' a:focus {'
+				. ' background-color: #1ab56c;'
+				. ' box-shadow: none;'
+			. ' }';
+
+		// Static CSS with nothing interpolated into it.
+		echo '<style id="aioseo-blc-admin-menu">' . $css . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -425,7 +550,8 @@ class Main {
 	 * Generates trailing-slash, scheme-agnostic (http <-> https), and
 	 * relative-to-absolute variants of the given href.
 	 *
-	 * @since 1.3.0
+	 * @since   1.3.0
+	 * @version 1.3.1 Resolves each variant through {@see \AIOSEO\BrokenLinkChecker\Links\Url::resolve()}.
 	 *
 	 * @param  string $href    The href attribute value.
 	 * @param  string $siteUrl The site URL (no trailing slash).
@@ -466,7 +592,7 @@ class Main {
 
 		// If the href is relative, add absolute variants.
 		if ( ! wp_parse_url( $href, PHP_URL_HOST ) ) {
-			$absoluteUrl = trim( sanitize_url( $siteUrl . '/' . ltrim( $href, '/' ) ) );
+			$absoluteUrl = $siteUrl . '/' . ltrim( $href, '/' );
 			$variants[]  = $absoluteUrl;
 			$variants[]  = '/' === substr( $absoluteUrl, -1 ) ? rtrim( $absoluteUrl, '/' ) : $absoluteUrl . '/';
 		}
@@ -482,11 +608,14 @@ class Main {
 			$variants[] = '/' === substr( $lowercasedHref, -1 ) ? rtrim( $lowercasedHref, '/' ) : $lowercasedHref . '/';
 		}
 
-		// Normalize each variant through sanitize_url() + trim() to match the
-		// storage pipeline (Data.php applies buildUrl, sanitize_url, trim before hashing).
+		// Resolved the same way the stored URL was, so the hashes agree by construction. sanitize_url()
+		// no longer matches storage: it deletes the bytes the resolver percent-encodes.
 		$normalized = [];
 		foreach ( $variants as $variant ) {
-			$normalized[] = trim( sanitize_url( $variant ) );
+			$resolved = Links\Url::resolve( $variant, $siteUrl );
+			if ( '' !== $resolved ) {
+				$normalized[] = $resolved;
+			}
 		}
 
 		return array_unique( $normalized );

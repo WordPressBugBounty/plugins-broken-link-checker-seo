@@ -96,4 +96,32 @@ class VueSettings {
 			'success' => true
 		], 200 );
 	}
+
+	/**
+	 * Records that this reader has closed one of our cross-promotions.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  \WP_REST_Request  $request The REST Request.
+	 * @return \WP_REST_Response          The response.
+	 */
+	public static function dismissCta( $request ) {
+		$body = $request->get_json_params();
+		$slug = ! empty( $body['slug'] ) ? sanitize_key( $body['slug'] ) : '';
+		if ( ! $slug ) {
+			return new \WP_REST_Response( [
+				'success' => false
+			], 400 );
+		}
+
+		$dismissed = aioseoBrokenLinkChecker()->vueSettings->dismissedCtas;
+		$dismissed = is_array( $dismissed ) ? $dismissed : [];
+
+		$dismissed[ $slug ] = true;
+		aioseoBrokenLinkChecker()->vueSettings->dismissedCtas = $dismissed;
+
+		return new \WP_REST_Response( [
+			'success' => true
+		], 200 );
+	}
 }

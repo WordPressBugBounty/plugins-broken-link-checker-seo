@@ -15,20 +15,21 @@ class Paragraph {
 	/**
 	 * Returns the context paragraph for the given phrase.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Renamed $postId to $cacheKey, which now identifies any kind of object.
 	 *
-	 * @param  int    $postId      The post ID.
-	 * @param  string $postContent The post content.
+	 * @param  string $cacheKey    The key identifying the object the content belongs to.
+	 * @param  string $postContent The content.
 	 * @param  string $phrase      The phrase.
 	 * @return string              The context paragraph.
 	 */
-	public function get( $postId, $postContent, $phrase ) {
+	public function get( $cacheKey, $postContent, $phrase ) {
 		static $cachedPhrases = [];
-		if ( ! isset( $cachedPhrases[ $postId ] ) ) {
-			$postContent              = wp_strip_all_tags( $postContent );
-			$cachedPhrases[ $postId ] = array_values( preg_split( '#([\.?!][\r\n\s]+|\r|\n|\s{2,})#u', (string) $postContent, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ) );
+		if ( ! isset( $cachedPhrases[ $cacheKey ] ) ) {
+			$postContent                = wp_strip_all_tags( $postContent );
+			$cachedPhrases[ $cacheKey ] = array_values( preg_split( '#([\.?!]\s+|\r|\n|\s{2,})#u', (string) $postContent, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ) );
 		}
-		$phrases = $cachedPhrases[ $postId ];
+		$phrases = $cachedPhrases[ $cacheKey ];
 
 		// Locate phrase in list of phrases and use preceding/consecutive phrase for context.
 		$paragraph = $phrase;

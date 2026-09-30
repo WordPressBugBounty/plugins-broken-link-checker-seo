@@ -30,38 +30,42 @@ class Api {
 	 */
 	private $routes = [
 		// phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
-		'GET'    => [
+		'GET'  => [
 			'options' => [ 'callback' => [ 'Options', 'getOptions' ], 'access' => 'any' ],
 			'ping'    => [ 'callback' => [ 'Ping', 'ping' ], 'access' => 'any' ]
 		],
-		'POST'   => [
-			'broken-links/scan'            => [ 'callback' => [ 'BrokenLinks', 'getScanPercent' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'edit-row'                     => [ 'callback' => [ 'EditRow', 'update' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'license/activate'             => [ 'callback' => [ 'License', 'activate' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'license/deactivate'           => [ 'callback' => [ 'License', 'deactivate' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table'            => [ 'callback' => [ 'LinkStatusTable', 'fetchData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/bulk'       => [ 'callback' => [ 'LinkStatusTable', 'bulk' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/deletePost' => [ 'callback' => [ 'LinkStatusTable', 'deletePost' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/dismiss'    => [ 'callback' => [ 'LinkStatusTable', 'dismiss' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/recheck'    => [ 'callback' => [ 'LinkStatusTable', 'recheck' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/undismiss'  => [ 'callback' => [ 'LinkStatusTable', 'undismiss' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-table/unlink'     => [ 'callback' => [ 'LinkStatusTable', 'unlink' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'links-table'                  => [ 'callback' => [ 'LinksTable', 'fetchData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'links-table/bulk'             => [ 'callback' => [ 'LinksTable', 'bulk' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'links-table/unlink'           => [ 'callback' => [ 'LinksTable', 'unlink' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'link-status-detail'           => [ 'callback' => [ 'LinkStatusDetail', 'getLinkStatusData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'notifications/dismiss'        => [ 'callback' => [ 'Notifications', 'dismissNotifications' ], 'access' => 'any' ],
-			'objects'                      => [ 'callback' => [ 'PostsTerms', 'searchForObjects' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'options'                      => [ 'callback' => [ 'Options', 'saveChanges' ], 'access' => 'aioseo_blc_broken_links_page' ],
-			'plugins/deactivate'           => [ 'callback' => [ 'Plugins', 'deactivatePlugins' ], 'access' => 'deactivate_plugins' ],
-			'plugins/install'              => [ 'callback' => [ 'Plugins', 'installPlugins' ], 'access' => 'install_plugins' ],
-			'redirects/url'                => [ 'callback' => [ 'Redirects', 'getRedirectUrl' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
-			'settings/toggle-card'         => [ 'callback' => [ 'VueSettings', 'toggleCard' ], 'access' => 'aioseo_blc_broken_links_page' ],
-			'settings/toggle-radio'        => [ 'callback' => [ 'VueSettings', 'toggleRadio' ], 'access' => 'aioseo_blc_broken_links_page' ],
-			'settings/items-per-page'      => [ 'callback' => [ 'VueSettings', 'changeItemsPerPage' ], 'access' => 'aioseo_blc_broken_links_page' ]
-		],
-		'DELETE' => [
-			'post' => [ 'callback' => [ 'Post', 'deletePost' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ]
+		'POST' => [
+			'broken-links/scan'           => [ 'callback' => [ 'BrokenLinks', 'getScanPercent' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'dashboard'                   => [ 'callback' => [ 'Dashboard', 'getData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'edit-row'                    => [ 'callback' => [ 'EditRow', 'update' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'email-reports/test'          => [ 'callback' => [ 'EmailReports', 'sendTest' ], 'access' => 'aioseo_blc_settings' ],
+			'edit-row/remove-item'        => [ 'callback' => [ 'EditRow', 'remove' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'license/activate'            => [ 'callback' => [ 'License', 'activate' ], 'access' => [ 'aioseo_blc_settings' ] ],
+			'license/deactivate'          => [ 'callback' => [ 'License', 'deactivate' ], 'access' => [ 'aioseo_blc_settings' ] ],
+			'link-status-table'           => [ 'callback' => [ 'LinkStatusTable', 'fetchData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'link-status-table/bulk'      => [ 'callback' => [ 'LinkStatusTable', 'bulk' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'link-status-table/dismiss'   => [ 'callback' => [ 'LinkStatusTable', 'dismiss' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'link-status-table/recheck'   => [ 'callback' => [ 'LinkStatusTable', 'recheck' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'link-status-table/undismiss' => [ 'callback' => [ 'LinkStatusTable', 'undismiss' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'link-status-table/unlink'    => [ 'callback' => [ 'LinkStatusTable', 'unlink' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'links-table'                 => [ 'callback' => [ 'LinksTable', 'fetchData' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'nps-survey/dismiss'          => [ 'callback' => [ 'NpsSurvey', 'dismiss' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'nps-survey/submit'           => [ 'callback' => [ 'NpsSurvey', 'submit' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'nps-survey/review-click'     => [ 'callback' => [ 'NpsSurvey', 'reviewClick' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'links-table/bulk'            => [ 'callback' => [ 'LinksTable', 'bulk' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'links-table/unlink'          => [ 'callback' => [ 'LinksTable', 'unlink' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'network/sites'               => [ 'callback' => [ 'Network', 'fetchSites' ], 'access' => 'manage_network_options' ],
+			'network/sites/update'        => [ 'callback' => [ 'Network', 'updateSites' ], 'access' => 'manage_network_options' ],
+			'notifications/dismiss'       => [ 'callback' => [ 'Notifications', 'dismissNotifications' ], 'access' => 'any' ],
+			'objects'                     => [ 'callback' => [ 'PostsTerms', 'searchForObjects' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'options'                     => [ 'callback' => [ 'Options', 'saveChanges' ], 'access' => 'aioseo_blc_settings' ],
+			'plugins/deactivate'          => [ 'callback' => [ 'Plugins', 'deactivatePlugins' ], 'access' => 'deactivate_plugins' ],
+			'plugins/install'             => [ 'callback' => [ 'Plugins', 'installPlugins' ], 'access' => 'install_plugins' ],
+			'redirects/url'               => [ 'callback' => [ 'Redirects', 'getRedirectUrl' ], 'access' => [ 'aioseo_blc_broken_links_page' ] ],
+			'settings/toggle-card'        => [ 'callback' => [ 'VueSettings', 'toggleCard' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'settings/toggle-radio'       => [ 'callback' => [ 'VueSettings', 'toggleRadio' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'settings/items-per-page'     => [ 'callback' => [ 'VueSettings', 'changeItemsPerPage' ], 'access' => 'aioseo_blc_broken_links_page' ],
+			'settings/dismiss-cta'        => [ 'callback' => [ 'VueSettings', 'dismissCta' ], 'access' => 'aioseo_blc_broken_links_page' ]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 	];
@@ -203,8 +207,8 @@ class Api {
 		$route     = untrailingslashit( str_replace( '/' . $this->namespace . '/', '', $route ) );
 		$routeData = isset( $this->routes[ $request->get_method() ][ $route ] ) ? $this->routes[ $request->get_method() ][ $route ] : [];
 
-		// No direct route name, let's try the regexes.
-		if ( empty( $routeData ) ) {
+		// No direct route name, let's try the regexes. A method we register nothing under has no table.
+		if ( empty( $routeData ) && isset( $this->routes[ $request->get_method() ] ) ) {
 			foreach ( $this->routes[ $request->get_method() ] as $routeRegex => $routeInfo ) {
 				$routeRegex = str_replace( '@', '\@', $routeRegex );
 				if ( preg_match( "@{$routeRegex}@", (string) $route ) ) {

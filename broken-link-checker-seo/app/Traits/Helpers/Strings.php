@@ -154,15 +154,22 @@ trait Strings {
 	 */
 	public function decodeHtmlEntities( $string ) {
 		static $decodeHtmlEntities = [];
-		if ( isset( $decodeHtmlEntities[ $string ] ) ) {
-			return $decodeHtmlEntities[ $string ];
+
+		// Keyed on the string as it arrived. The nbsp replacement below used to happen first, so the entry
+		// was stored under a key the lookup could never produce and the cache never hit.
+		$cacheKey = (string) $string;
+		if ( isset( $decodeHtmlEntities[ $cacheKey ] ) ) {
+			return $decodeHtmlEntities[ $cacheKey ];
 		}
 
 		// We must manually decode non-breaking spaces since html_entity_decode doesn't do this.
-		$string                        = $this->pregReplace( '/&nbsp;/', ' ', $string );
-		$decodeHtmlEntities[ $string ] = html_entity_decode( (string) $string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		$string = $this->pregReplace( '/&nbsp;/', ' ', $string );
 
-		return $decodeHtmlEntities[ $string ];
+		// ENT_HTML5 rather than ENT_HTML401: the older table has no &apos;, so an apostrophe written as
+		// that entity survived decoding and was displayed raw.
+		$decodeHtmlEntities[ $cacheKey ] = html_entity_decode( (string) $string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5 );
+
+		return $decodeHtmlEntities[ $cacheKey ];
 	}
 
 	/**

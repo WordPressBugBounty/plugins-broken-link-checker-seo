@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\BrokenLinkChecker\Models;
-
 /**
  * Handles update migrations.
  *
@@ -54,7 +52,7 @@ class Updates {
 
 		if ( version_compare( $lastActiveVersion, '1.0.0', '<' ) ) {
 			// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
-			aioseoBrokenLinkChecker()->internalOptions->internal->minimumLinkScanDate = date( 'Y-m-d H:i:s', time() );
+			aioseoBrokenLinkChecker()->scanState->setMinimumLinkScanDate( date( 'Y-m-d H:i:s', time() ) );
 		}
 
 		if ( version_compare( $lastActiveVersion, '1.2.0', '<' ) ) {
@@ -63,7 +61,8 @@ class Updates {
 		}
 
 		if ( version_compare( $lastActiveVersion, '1.2.6', '<' ) ) {
-			aioseoBrokenLinkChecker()->access->addCapabilities();
+			// Forced, or this does nothing on the cron and WP-CLI requests that often run updates.
+			aioseoBrokenLinkChecker()->access->addCapabilities( true );
 		}
 
 		if ( version_compare( $lastActiveVersion, '1.2.7', '<' ) ) {

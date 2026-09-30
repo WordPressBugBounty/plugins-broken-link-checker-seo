@@ -90,6 +90,38 @@ class Admin {
 		add_filter( 'plugin_action_links_' . AIOSEO_BROKEN_LINK_CHECKER_PLUGIN_BASENAME, [ $this, 'registerActionLinks' ], 10, 2 );
 
 		add_action( 'admin_footer', [ $this, 'addAioseoModalPortal' ] );
+		add_action( 'admin_print_footer_scripts', [ $this, 'openUpgradeInNewTab' ] );
+	}
+
+	/**
+	 * Opens the admin menu's upgrade link in a new tab.
+	 *
+	 * NOTE: Done in the footer because WordPress builds the submenu anchor itself, so there is nowhere
+	 * to put a target on the way in. Leaving somebody's place in the admin is the point - they were
+	 * reading a report, not navigating away from it.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return void
+	 */
+	public function openUpgradeInNewTab() {
+		if ( ! aioseoBrokenLinkChecker()->license->isFree() ) {
+			return;
+		}
+
+		?>
+		<script>
+			( function() {
+				var link = document.querySelector( '#adminmenu a[href*="aioseo-blc-redirect-upgrade"]' );
+				if ( ! link ) {
+					return;
+				}
+
+				link.setAttribute( 'target', '_blank' );
+				link.setAttribute( 'rel', 'noopener noreferrer' );
+			} )();
+		</script>
+		<?php
 	}
 
 	/**
@@ -200,6 +232,7 @@ class Admin {
 	 */
 	public function hideAdminNoticesOnConnectPage() {
 		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
 		remove_all_actions( 'all_admin_notices' );
 	}
 
@@ -211,6 +244,34 @@ class Admin {
 	 * @return void
 	 */
 	public function registerMenuPages() {
+		global $submenu;
+
+		// Renames the row WordPress renders for the parent itself. The bare page URL lands on the
+		// dashboard, because that is where the router sends anything it does not recognise.
+		add_submenu_page(
+			$this->pageSlug,
+			__( 'Dashboard', 'broken-link-checker-seo' ),
+			__( 'Dashboard', 'broken-link-checker-seo' ),
+			'aioseo_blc_broken_links_page',
+			$this->pageSlug,
+			[ $this, 'renderMenuPage' ]
+		);
+
+		// Pushed rather than registered, because the report is a route inside the one page and
+		// add_submenu_page() has nowhere to put the fragment. Second, so it follows the dashboard.
+		//
+		// Guarded, because add_submenu_page() refuses to add an entry the current user cannot reach and a
+		// push does not. WordPress removes a top-level menu the user has no capability for only when its
+		// submenu ends up empty, so this one entry kept the whole menu on screen for every role that
+		// cannot open it - with nothing inside it, since the registered children had already been refused.
+		if ( current_user_can( 'aioseo_blc_broken_links_page' ) ) {
+			$submenu[ $this->pageSlug ][] = [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				__( 'Broken Links', 'broken-link-checker-seo' ),
+				'aioseo_blc_broken_links_page',
+				$this->getPageUrl( '/broken-links' )
+			];
+		}
+
 		// Don't show SEO Settings if user cannot activate/install AIOSEO.
 		if ( current_user_can( 'install_plugins' ) ) {
 			$hook = add_submenu_page(
@@ -255,9 +316,24 @@ class Admin {
 	}
 
 	/**
-	 * Adds a menu link for connecting or upgrading based on license status.
+	 * Returns the URL of our admin page, optionally at one of its routes.
 	 *
-	 * @since 1.2.6
+	 * @since 1.3.1
+	 *
+	 * @param  string $route The route, including its query string.
+	 * @return string        The URL.
+	 */
+	public function getPageUrl( $route = '' ) {
+		$url = admin_url( 'admin.php?page=' . $this->pageSlug );
+
+		return $route ? $url . '#' . $route : $url;
+	}
+
+	/**
+	 * Adds a menu link for connecting, renewing or upgrading based on license status.
+	 *
+	 * @since   1.2.6
+	 * @version 1.3.1 Distinguishes a lapsed license from one that was never connected.
 	 *
 	 * @return void
 	 */
@@ -267,19 +343,33 @@ class Admin {
 			return;
 		}
 
-		$capability = 'aioseo_blc_broken_links_page';
+		// The settings capability, not the page one. Connecting an account, renewing a lapsed licence and
+		// buying an upgrade are all decisions that belong to whoever manages the licence - the endpoints
+		// refuse anyone else - so offering them in the menu to an editor or an author is a dead end.
+		$capability = 'aioseo_blc_settings';
 		if ( ! current_user_can( $capability ) ) {
 			return;
 		}
 
 		global $submenu;
 
-		// If not connected, show "Connect Now" and link to settings page.
-		if ( ! aioseoBrokenLinkChecker()->license->isActive() ) {
+		// If never connected, show "Connect Now" and link to settings page.
+		if ( ! aioseoBrokenLinkChecker()->license->isConnected() ) {
 			$submenu[ $this->pageSlug ][] = [
 				'<span class="aioseo-blc-menu-highlight">' . esc_html__( 'Connect Now', 'broken-link-checker-seo' ) . '</span>',
 				$capability,
 				admin_url( 'admin.php?page=' . $this->pageSlug . '#/settings' )
+			];
+
+			return;
+		}
+
+		// A lapsed license needs renewing or fixing, not connecting.
+		if ( aioseoBrokenLinkChecker()->license->isLapsed() ) {
+			$submenu[ $this->pageSlug ][] = [
+				'<span class="aioseo-blc-menu-highlight">' . esc_html( $this->getLapsedLabel() ) . '</span>',
+				$capability,
+				$this->getLapsedUrl( 'admin-menu' )
 			];
 
 			return;
@@ -293,6 +383,40 @@ class Admin {
 				admin_url( 'admin.php?page=' . $this->pageSlug . '&aioseo-blc-redirect-upgrade=1' )
 			];
 		}
+	}
+
+	/**
+	 * Returns the label for a lapsed license.
+	 *
+	 * Renewing fixes an expiry. It does nothing for a key that's invalid or disabled, so those
+	 * point at the settings screen where the key can be re-entered or re-validated instead.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return string The label.
+	 */
+	private function getLapsedLabel() {
+		return aioseoBrokenLinkChecker()->license->isExpired()
+			// Translators: This is a link users can click to renew their license.
+			? __( 'Renew License', 'broken-link-checker-seo' )
+			// Translators: This is a link users can click to check a license that isn't working.
+			: __( 'Check License', 'broken-link-checker-seo' );
+	}
+
+	/**
+	 * Returns the URL for a lapsed license.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $medium The UTM medium.
+	 * @return string         The URL.
+	 */
+	private function getLapsedUrl( $medium ) {
+		if ( ! aioseoBrokenLinkChecker()->license->isExpired() ) {
+			return admin_url( 'admin.php?page=' . $this->pageSlug . '#/settings' );
+		}
+
+		return aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'account/', $medium, 'renew-license' );
 	}
 
 	/**
@@ -354,6 +478,7 @@ class Admin {
 
 			// We don't want other plugins adding notices to our screens. Let's clear them out here.
 			remove_all_actions( 'admin_notices' );
+			remove_all_actions( 'network_admin_notices' );
 			remove_all_actions( 'all_admin_notices' );
 
 			$this->currentPage = $page;
@@ -470,7 +595,8 @@ class Admin {
 	/**
 	 * Registers our action links for the plugins page.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Adds the connect link while the site is unlicensed.
 	 *
 	 * @param  array  $actions    List of existing actions.
 	 * @param  string $pluginFile The plugin file.
@@ -489,6 +615,25 @@ class Admin {
 				'url'   => aioseoBrokenLinkChecker()->helpers->utmUrl( AIOSEO_BROKEN_LINK_CHECKER_MARKETING_URL . 'doc-categories/broken-link-checker/', 'plugin-action-links', 'Documentation' ),
 			]
 		];
+
+		// Listed last so it ends up first: parseActionLinks() prepends each link in turn. Both point
+		// into the plugin, so they're only useful to someone who can open it.
+		if ( current_user_can( 'aioseo_blc_broken_links_page' ) ) {
+			if ( ! aioseoBrokenLinkChecker()->license->isConnected() ) {
+				$actionLinks['connect'] = [
+					// Translators: This is an action link users can click to connect their account.
+					'label'  => __( 'Connect', 'broken-link-checker-seo' ),
+					'url'    => admin_url( 'admin.php?page=broken-link-checker#/settings' ),
+					'target' => '_self'
+				];
+			} elseif ( aioseoBrokenLinkChecker()->license->isLapsed() ) {
+				$actionLinks['renew'] = [
+					'label'  => $this->getLapsedLabel(),
+					'url'    => $this->getLapsedUrl( 'plugin-action-links' ),
+					'target' => aioseoBrokenLinkChecker()->license->isExpired() ? '_blank' : '_self'
+				];
+			}
+		}
 
 		if ( isset( $actions['edit'] ) ) {
 			unset( $actions['edit'] );
@@ -518,9 +663,10 @@ class Admin {
 
 				$link = [
 					$key => sprintf(
-						'<a href="%1$s" %2$s target="_blank">%3$s</a>',
+						'<a href="%1$s" %2$s target="%3$s">%4$s</a>',
 						esc_url( $value['url'] ),
 						isset( $value['title'] ) ? 'title="' . esc_attr( $value['title'] ) . '"' : '',
+						isset( $value['target'] ) ? esc_attr( $value['target'] ) : '_blank',
 						$value['label']
 					)
 				];
@@ -554,20 +700,18 @@ class Admin {
 	 */
 	public function isBlcScreen() {
 		$currentScreen = aioseoBrokenLinkChecker()->helpers->getCurrentScreen();
-		if ( empty( $currentScreen->id ) ) {
+		if ( empty( $currentScreen->id ) || ! function_exists( 'get_plugin_page_hookname' ) ) {
 			return false;
 		}
 
-		$adminPages = array_keys( $this->pages );
-		$adminPages = array_map( function( $slug ) {
-			if ( 'aioseo' === $slug ) {
-				return 'toplevel_page_broken-link-checker';
-			}
+		// Built with WP's own helper rather than a hardcoded prefix: a submenu's screen ID derives
+		// from the parent's menu *title*, so ours are 'broken-links_page_*', not the page slug.
+		$screenIds = [ get_plugin_page_hookname( $this->pageSlug, '' ) ];
+		foreach ( $this->pages as $slug ) {
+			$screenIds[] = get_plugin_page_hookname( $slug, $this->pageSlug );
+		}
 
-			return 'broken-link-checker_page_' . $slug;
-		}, $adminPages );
-
-		return in_array( $currentScreen->id, $adminPages, true );
+		return in_array( $currentScreen->id, array_filter( $screenIds ), true );
 	}
 
 	/**

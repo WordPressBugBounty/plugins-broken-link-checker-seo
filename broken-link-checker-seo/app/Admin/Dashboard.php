@@ -19,6 +19,27 @@ class Dashboard {
 	 */
 	public function __construct() {
 		add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidgets' ] );
+		// AIOSEO's news widget shows our items too when both are active, rather than us adding a second
+		// widget beside it. The filter does not exist without AIOSEO, so nothing happens on its own.
+		add_filter( 'aioseo_newsroom_dashboard_items', [ $this, 'addNewsroomItems' ] );
+	}
+
+	/**
+	 * Adds our newsroom items to AIOSEO's news widget.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  array $items The items already collected.
+	 * @return array        The items with ours appended.
+	 */
+	public function addNewsroomItems( $items ) {
+		if ( ! is_array( $items ) ) {
+			$items = [];
+		}
+
+		$ours = aioseoBrokenLinkChecker()->newsroom->getItems();
+
+		return is_array( $ours ) ? array_merge( $items, $ours ) : $items;
 	}
 
 	/**

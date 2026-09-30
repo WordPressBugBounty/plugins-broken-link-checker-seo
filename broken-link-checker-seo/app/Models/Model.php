@@ -341,9 +341,12 @@ class Model implements \JsonSerializable {
 					$fields['created'] = $date;
 					$fields['updated'] = $date;
 
+					// Upsert on a unique-key conflict so a concurrent insert of the same row
+					// (e.g. the first-scan race on post_id) doesn't log a benign duplicate-entry error.
 					$id = aioseoBrokenLinkChecker()->core->db
 						->insert( $this->table )
 						->set( $fields )
+						->onDuplicate( [ 'updated' => $date ] )
 						->run()
 						->insertId();
 
@@ -355,9 +358,12 @@ class Model implements \JsonSerializable {
 				$fields['created'] = $date;
 				$fields['updated'] = $date;
 
+				// Upsert on a unique-key conflict so a concurrent insert of the same row
+				// (e.g. the first-scan race on post_id) doesn't log a benign duplicate-entry error.
 				$id = aioseoBrokenLinkChecker()->core->db
 					->insert( $this->table )
 					->set( $fields )
+					->onDuplicate( [ 'updated' => $date ] )
 					->run()
 					->insertId();
 

@@ -41,17 +41,32 @@ class MigrationRunner {
 	 * Lock name. MySQL GET_LOCK is per-connection, so this serializes across
 	 * concurrent PHP processes for the same site.
 	 *
-	 * @since 1.3.0
+	 * @since   1.3.0
+	 * @version 1.3.1 Scoped to the site, since GET_LOCK is server-wide.
 	 *
 	 * @var string
 	 */
-	private $lockName = 'aioseo_blc_migration_runner';
+	private $lockName = '';
+
+	/**
+	 * How long a request waits for the lock before giving up on it, in seconds.
+	 *
+	 * NOTE: A short wait rather than none: the DDL a migration runs is measured in milliseconds on a
+	 * table of any ordinary size, so waiting it out spares the requests behind it the shape they would
+	 * otherwise be served against.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var int
+	 */
+	private $lockTimeout = 10;
 
 	/**
 	 * @since 1.3.0
 	 */
 	public function __construct() {
-		$this->log = new MigrationLog();
+		$this->log      = new MigrationLog();
+		$this->lockName = 'aioseo_blc_migration_runner_' . get_current_blog_id();
 	}
 
 	/**
@@ -90,7 +105,7 @@ class MigrationRunner {
 			return;
 		}
 
-		if ( ! aioseoBrokenLinkChecker()->core->db->acquireLock( $this->lockName, 0 ) ) {
+		if ( ! aioseoBrokenLinkChecker()->core->db->acquireLock( $this->lockName, $this->lockTimeout ) ) {
 			return;
 		}
 
@@ -136,6 +151,28 @@ class MigrationRunner {
 			// case execution exits before we reach this point.
 			aioseoBrokenLinkChecker()->core->db->releaseLock( $this->lockName );
 		}
+	}
+
+	/**
+	 * Whether the migration with the given name is on record as having landed.
+	 *
+	 * NOTE: For the callers that must not touch a table a migration is still reshaping. A migration
+	 * with no entry counts as landed once the runner has walked every one of them and moved the schema
+	 * version on, so a log that was never written doesn't switch a caller off for good.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $name The migration name.
+	 * @return bool         Whether it has landed.
+	 */
+	public function hasVerified( $name ) {
+		$log = $this->log->read();
+
+		if ( isset( $log[ $name ] ) ) {
+			return 1 === (int) ( $log[ $name ]['status'] ?? 0 );
+		}
+
+		return aioseoBrokenLinkChecker()->internalOptions->internal->lastSchemaVersion === aioseoBrokenLinkChecker()->version;
 	}
 
 	/**

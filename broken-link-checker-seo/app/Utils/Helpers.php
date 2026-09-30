@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\BrokenLinkChecker\Links\Url as LinkUrl;
 use AIOSEO\BrokenLinkChecker\Traits\Helpers as TraitHelpers;
 
 /**
@@ -130,6 +131,15 @@ class Helpers {
 	}
 
 	/**
+	 * The post titles we've already looked up.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var array
+	 */
+	private $postTitles = [];
+
+	/**
 	 * Returns the post title or a placeholder if there isn't one.
 	 *
 	 * @since 1.0.0
@@ -138,18 +148,28 @@ class Helpers {
 	 * @return string         The post title.
 	 */
 	public function getPostTitle( $postId ) {
-		static $titles = [];
-		if ( isset( $titles[ $postId ] ) ) {
-			return $titles[ $postId ];
+		if ( isset( $this->postTitles[ $postId ] ) ) {
+			return $this->postTitles[ $postId ];
 		}
 
 		$post  = get_post( $postId );
 		$title = $post->post_title;
 		$title = $title ? $title : __( '(no title)' ); // phpcs:ignore AIOSEO.Wp.I18n.MissingArgDomain, WordPress.WP.I18n.MissingArgDomain
 
-		$titles[ $postId ] = $this->decodeHtmlEntities( $title );
+		$this->postTitles[ $postId ] = $this->decodeHtmlEntities( $title );
 
-		return $titles[ $postId ];
+		return $this->postTitles[ $postId ];
+	}
+
+	/**
+	 * Forgets the post titles we've looked up.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return void
+	 */
+	public function resetPostTitles() {
+		$this->postTitles = [];
 	}
 
 
@@ -176,25 +196,24 @@ class Helpers {
 	/**
 	 * Returns the IDs of posts that are excluded from Broken Link Checker.
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Reads an entry the settings screen did not write without fataling.
 	 *
 	 * @return array The post IDs.
 	 */
 	public function getExcludedPostIds() {
 		static $excludedPostIds = null;
 		if ( null === $excludedPostIds ) {
-			if ( ! aioseoBrokenLinkChecker()->options->advanced->enable ) {
-				$excludedPostIds = [];
-
-				return $excludedPostIds;
-			}
-
 			$excludedPostIds = [];
 			$excludedPosts   = aioseoBrokenLinkChecker()->options->advanced->excludePosts;
-			foreach ( $excludedPosts as $excludedPost ) {
-				$excludedPost = json_decode( $excludedPost );
-				if ( ! empty( $excludedPost->value ) ) {
-					$excludedPostIds[] = $excludedPost->value;
+			foreach ( (array) $excludedPosts as $excludedPost ) {
+				// The settings screen writes each entry as a JSON string, but the option can be set
+				// directly too - and json_decode() on an entry that is already structured is a fatal.
+				$excludedPost = is_string( $excludedPost ) ? json_decode( $excludedPost, true ) : $excludedPost;
+				$excludedPost = is_object( $excludedPost ) ? (array) $excludedPost : $excludedPost;
+
+				if ( is_array( $excludedPost ) && ! empty( $excludedPost['value'] ) ) {
+					$excludedPostIds[] = (int) $excludedPost['value'];
 				}
 			}
 		}
@@ -217,7 +236,7 @@ class Helpers {
 
 		$includedPostTypes = [];
 		$postTypes         = aioseoBrokenLinkChecker()->options->advanced->postTypes->all();
-		if ( ! aioseoBrokenLinkChecker()->options->advanced->enable || ! empty( $postTypes['all'] ) ) {
+		if ( ! empty( $postTypes['all'] ) ) {
 			$includedPostTypes = $this->getScannablePostTypes();
 		} else {
 			// Determine the intersection to make sure that we only consider post types that are currently registered.
@@ -251,7 +270,7 @@ class Helpers {
 
 		$includedPostStatuses = [];
 		$postStatuses         = aioseoBrokenLinkChecker()->options->advanced->postStatuses->all();
-		if ( ! aioseoBrokenLinkChecker()->options->advanced->enable || ! empty( $postStatuses['all'] ) ) {
+		if ( ! empty( $postStatuses['all'] ) ) {
 			$includedPostStatuses = $this->getPublicPostStatuses( true );
 		} else {
 			// Determine the intersection to make sure that we only consider post statuses that are currently registered.
@@ -310,11 +329,10 @@ class Helpers {
 	 * @return array The excluded domains.
 	 */
 	public function getExcludedDomains() {
-		if ( ! aioseoBrokenLinkChecker()->options->advanced->enable ) {
-			return [];
-		}
-
-		$excludedDomains = aioseoBrokenLinkChecker()->options->advanced->excludeDomains;
+		// Read as an array: a chained read leaves the accessor's group state pointing at this group, and
+		// the next one resolves against it and comes back null.
+		$advanced        = aioseoBrokenLinkChecker()->options->advanced->all();
+		$excludedDomains = isset( $advanced['excludeDomains'] ) ? $advanced['excludeDomains'] : '';
 		if ( ! is_string( $excludedDomains ) ) {
 			return [];
 		}
@@ -322,6 +340,300 @@ class Helpers {
 		$pattern = '/([\.?!][\r\n\s]+|\r|\n|\s{2,})/u';
 
 		return array_map( 'trim', preg_split( $pattern, (string) $excludedDomains, -1, PREG_SPLIT_NO_EMPTY ) );
+	}
+
+	/**
+	 * Returns the URL exclusion patterns that are in effect, split by how they have to be matched.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return array The patterns, keyed `like` and `regex`.
+	 */
+	private function getExcludedUrlPatterns() {
+		static $cache = [];
+
+		$advanced = aioseoBrokenLinkChecker()->options->advanced->all();
+		$raw      = ! empty( $advanced['excludeUrlPatterns'] ) && is_string( $advanced['excludeUrlPatterns'] )
+			? $advanced['excludeUrlPatterns']
+			: '';
+
+		// Keyed on the input so that a settings save mid-request doesn't leave us with a stale list.
+		$cacheKey = md5( $raw );
+		if ( ! isset( $cache[ $cacheKey ] ) ) {
+			$cache[ $cacheKey ] = $this->splitUrlPatterns( $raw );
+		}
+
+		return $cache[ $cacheKey ];
+	}
+
+	/**
+	 * Reduces a host to the form the links table stores, so the two can be compared.
+	 *
+	 * @since   1.3.1
+	 * @version 1.3.1 Defers to {@see \AIOSEO\BrokenLinkChecker\Links\Url::host()}.
+	 *
+	 * @param  string $host The host, which may arrive as a whole URL.
+	 * @return string       The host, or an empty string when it holds none.
+	 */
+	public function normalizeHost( $host ) {
+		return LinkUrl::host( $host );
+	}
+
+	/**
+	 * Splits the given URL exclusion patterns by how they have to be matched.
+	 *
+	 * NOTE: A slash-wrapped line that compiles is a regular expression, a `host:` line is a hostname,
+	 * and everything else - including a slash-wrapped line that doesn't compile - is text, so a mistake
+	 * in one costs no more than that line.
+	 *
+	 * @since   1.3.1
+	 * @version 1.3.1 Recognises `host:` lines.
+	 *
+	 * @param  mixed $rawPatterns The patterns, one per line.
+	 * @return array              The patterns, keyed `like`, `regex`, `text` and `host`.
+	 */
+	public function splitUrlPatterns( $rawPatterns ) {
+		$patterns = [
+			'like'  => [],
+			'regex' => [],
+			'text'  => [],
+			'host'  => []
+		];
+
+		if ( ! is_string( $rawPatterns ) || '' === $rawPatterns ) {
+			return $patterns;
+		}
+
+		foreach ( preg_split( '/\R/', $rawPatterns, -1, PREG_SPLIT_NO_EMPTY ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line ) {
+				continue;
+			}
+
+			if ( preg_match( '#^/.*/[a-zA-Z]*$#', $line ) && $this->patternCompiles( $line ) ) {
+				$patterns['regex'][] = $line;
+
+				continue;
+			}
+
+			// Matched against the host alone, so it cannot catch a subdomain, a longer name ending in it, or
+			// a URL that merely mentions it — none of which an unanchored pattern could keep apart. Marked
+			// rather than inferred, because a bare `bit.ly` and a bare `image.png` have the same shape and
+			// guessing between them would quietly change what an existing pattern matches.
+			if ( preg_match( '/^host:\s*(\S+)$/i', $line, $hostMatch ) ) {
+				$host = $this->normalizeHost( $hostMatch[1] );
+				if ( '' !== $host ) {
+					$patterns['host'][] = $host;
+
+					continue;
+				}
+			}
+
+			$escaped = [];
+			foreach ( explode( '*', $line ) as $part ) {
+				$escaped[] = aioseoBrokenLinkChecker()->core->db->db->esc_like( $part );
+			}
+
+			$patterns['like'][] = '%' . implode( '%', $escaped ) . '%';
+			$patterns['text'][] = $line;
+		}
+
+		return $patterns;
+	}
+
+	/**
+	 * Returns the text URL exclusion patterns as MySQL LIKE values.
+	 *
+	 * NOTE: `*` is the wildcard, so the LIKE metacharacters `%` and `_` are escaped to match
+	 * literally. The URL columns collate case-insensitively, which is what makes the match one too.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return array The LIKE values.
+	 */
+	public function getExcludedUrlLikePatterns() {
+		$patterns = $this->getExcludedUrlPatterns();
+
+		return $patterns['like'];
+	}
+
+	/**
+	 * Whether the given URL is excluded, by either kind of pattern.
+	 *
+	 * NOTE: The text patterns are matched here rather than in SQL, so that one answer covers both
+	 * kinds. {@see self::getExcludedUrlLikePatterns()} is for the callers that are already in a query.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $url The URL.
+	 * @return bool        Whether the URL is excluded.
+	 */
+	public function isUrlExcluded( $url ) {
+		if ( ! is_string( $url ) || '' === $url ) {
+			return false;
+		}
+
+		$hosts = $this->getExcludedUrlPatterns()['host'];
+		if ( ! empty( $hosts ) && in_array( $this->normalizeHost( $url ), $hosts, true ) ) {
+			return true;
+		}
+
+		foreach ( $this->getExcludedUrlPatterns()['text'] as $pattern ) {
+			// Built to mean what the LIKE value means: `*` is the wildcard, everything else is literal,
+			// unanchored so it matches anywhere, and case-insensitive like the column's collation.
+			$asRegex = '#' . str_replace( '\\*', '.*', preg_quote( $pattern, '#' ) ) . '#i';
+			if ( 1 === preg_match( $asRegex, $url ) ) {
+				return true;
+			}
+		}
+
+		return $this->isUrlExcludedByRegex( $url );
+	}
+
+	/**
+	 * Returns the URL exclusion patterns that are regular expressions.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return array The PCRE patterns.
+	 */
+	public function getExcludedUrlRegexPatterns() {
+		$patterns = $this->getExcludedUrlPatterns();
+
+		return $patterns['regex'];
+	}
+
+	/**
+	 * Checks whether the given URL matches one of the regular expression exclusion patterns.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $url The URL.
+	 * @return bool        Whether the URL is excluded.
+	 */
+	public function isUrlExcludedByRegex( $url ) {
+		$patterns = $this->getExcludedUrlRegexPatterns();
+		if ( empty( $patterns ) || ! is_string( $url ) || '' === $url ) {
+			return false;
+		}
+
+		// A user's pattern can backtrack catastrophically. The lower ceiling caps what one costs us;
+		// preg_match() then returns false rather than 0 or 1, which we treat as no match.
+		$backtrackLimit = ini_get( 'pcre.backtrack_limit' );
+		ini_set( 'pcre.backtrack_limit', '100000' ); // phpcs:ignore WordPress.PHP.IniSet.Risky, Squiz.PHP.DiscouragedFunctions.Discouraged
+
+		try {
+			foreach ( $patterns as $pattern ) {
+				if ( 1 === preg_match( $pattern, $url ) ) {
+					return true;
+				}
+			}
+
+			return false;
+		} finally {
+			if ( false !== $backtrackLimit ) {
+				ini_set( 'pcre.backtrack_limit', $backtrackLimit ); // phpcs:ignore WordPress.PHP.IniSet.Risky, Squiz.PHP.DiscouragedFunctions.Discouraged
+			}
+		}
+	}
+
+	/**
+	 * Checks whether the given PCRE pattern compiles.
+	 *
+	 * NOTE: The error handler is swapped out because a pattern comes from user input, so a compile
+	 * failure is expected and must not surface as a PHP warning.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $pattern The PCRE pattern.
+	 * @return bool            Whether the pattern compiles.
+	 */
+	private function patternCompiles( $pattern ) {
+		set_error_handler( '__return_true' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+
+		try {
+			return false !== preg_match( $pattern, '' );
+		} finally {
+			restore_error_handler();
+		}
+	}
+
+	/**
+	 * Whether the links table has the columns that address a link by the object it was found in.
+	 *
+	 * NOTE: The migration that adds them is not guaranteed to have run: a request that loses its lock
+	 * carries on against the old shape, and the dbDelta fallback is skipped in the AJAX and cron
+	 * contexts the scan runs in. So everything that reads or writes those columns is gated on this, and
+	 * the scan in particular has to bail rather than record a post as scanned with no links.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return bool Whether the columns are there.
+	 */
+	public function hasObjectColumns() {
+		static $hasObjectColumns = null;
+		if ( null !== $hasObjectColumns ) {
+			return $hasObjectColumns;
+		}
+
+		// Reads the cached schema map the migration busts, so this costs no query of its own.
+		$hasObjectColumns = aioseoBrokenLinkChecker()->core->db->columnExists( 'aioseo_blc_links', 'object_type' );
+
+		return $hasObjectColumns;
+	}
+
+	/**
+	 * How long a checked link stands before it is sent out to be checked again.
+	 *
+	 * NOTE: This budgets outbound checking, which is what the setting it reads describes. It is not
+	 * how often content is re-read looking for links — see {@see \AIOSEO\BrokenLinkChecker\Links\ObjectScan}.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return int The interval in seconds.
+	 */
+	public function getScanInterval() {
+		return $this->isMonthlyScan() ? MONTH_IN_SECONDS : WEEK_IN_SECONDS;
+	}
+
+	/**
+	 * Whether links are rechecked monthly rather than weekly.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return bool Whether the scan frequency is monthly.
+	 */
+	public function isMonthlyScan() {
+		$general = aioseoBrokenLinkChecker()->options->general->all();
+
+		return ! empty( $general['scanFrequency'] ) && 'monthly' === $general['scanFrequency'];
+	}
+
+	/**
+	 * Returns the total link count, cached.
+	 *
+	 * NOTE: The underlying query joins and groups, so it's too heavy for the notices and admin bar
+	 * item that run on ordinary page loads. They only report the figure, so staleness is harmless.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @return int The total link count.
+	 */
+	public function getCachedTotalLinks() {
+		$cached = aioseoBrokenLinkChecker()->core->cache->get( 'total_links' );
+		if ( null !== $cached ) {
+			return (int) $cached;
+		}
+
+		if ( empty( aioseoBrokenLinkChecker()->main->linkStatus->data ) ) {
+			return 0;
+		}
+
+		$totalLinks = (int) aioseoBrokenLinkChecker()->main->linkStatus->data->getTotalLinks();
+
+		aioseoBrokenLinkChecker()->core->cache->update( 'total_links', $totalLinks, HOUR_IN_SECONDS );
+
+		return $totalLinks;
 	}
 
 	/**
@@ -340,10 +652,7 @@ class Helpers {
 
 		$string = trim( $string );
 		if ( is_serialized( $string ) && ! $this->stringContains( $string, 'O:' ) ) {
-			// We want to add extra hardening for PHP versions greater than 5.6.
-			return version_compare( PHP_VERSION, '7.0', '<' )
-				? @unserialize( $string )
-				: @unserialize( $string, [ 'allowed_classes' => false ] ); // phpcs:disable PHPCompatibility.FunctionUse.NewFunctionParameters.unserialize_optionsFound
+			return @unserialize( $string, [ 'allowed_classes' => false ] ); // phpcs:disable PHPCompatibility.FunctionUse.NewFunctionParameters.unserialize_optionsFound
 		}
 
 		return $string;
@@ -374,7 +683,7 @@ class Helpers {
 	/**
 	 * Check if the current request is uninstalling (deleting) Broken Link Checker.
 	 *
-	 * @since {Pnext}
+	 * @since 1.2.4
 	 *
 	 * @return bool Whether Broken Link Checker is being uninstalled/deleted or not.
 	 */

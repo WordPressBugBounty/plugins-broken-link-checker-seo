@@ -5,9 +5,10 @@
  * Description: Monitor and test all internal and external links on your site for broken links. By AIOSEO, the original SEO plugin for WordPress.
  * Author:      All in One SEO Team
  * Author URI:  https://aioseo.com
- * Version:     1.3.0.1
+ * Version:     1.3.1
  * Text Domain: broken-link-checker-seo
  * Domain Path: /languages
+ * Requires PHP: 7.4
  * License: GPLv3 or later
  *
  * Broken Link Checker by AIOSEO is free software: you can redistribute it and/or modify
@@ -48,9 +49,9 @@ if ( aioseo_blc_is_plugin_disabled() ) {
 
 require_once dirname( __FILE__ ) . '/app/init/notices.php';
 
-// We require PHP 7.0 or higher for the whole plugin to work.
-if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
-	add_action( 'admin_notices', 'aioseo_broken_link_checker_php_notice' );
+// We require PHP 7.4 or higher for the whole plugin to work.
+if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
+	add_action( 'admin_notices', 'aioseo_blc_php_notice' );
 
 	// Do not process the plugin code further.
 	return;
@@ -59,7 +60,7 @@ if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 // We require WP 5.7+ for the whole plugin to work.
 global $wp_version; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 if ( version_compare( $wp_version, '5.7', '<' ) ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
-	add_action( 'admin_notices', 'aioseo_broken_link_checker_wordpress_notice' );
+	add_action( 'admin_notices', 'aioseo_blc_wordpress_notice' );
 
 	// Do not process the plugin code further.
 	return;

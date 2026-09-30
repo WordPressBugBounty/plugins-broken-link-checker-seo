@@ -22,6 +22,53 @@ class PostsTerms {
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
 	 */
+	/**
+	 * How many rows the search reads before the unreadable ones are dropped.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var int
+	 */
+	const SEARCH_WINDOW = 60;
+
+	/**
+	 * How many rows the search answers with.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @var int
+	 */
+	const SEARCH_LIMIT = 10;
+
+	/**
+	 * Drops the posts the current user may not read.
+	 *
+	 * NOTE: The picker offers unpublished posts, and a draft's title is the plan before it is public.
+	 * Asked of WordPress per row rather than written into the query, because who may read an unpublished
+	 * post depends on its type, its status and who wrote it - and read_post already knows all three.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  array $objects The rows.
+	 * @return array          The rows this user may be shown.
+	 */
+	private static function readableOnly( $objects ) {
+		$readable = [];
+		foreach ( (array) $objects as $object ) {
+			if ( count( $readable ) >= self::SEARCH_LIMIT ) {
+				break;
+			}
+
+			if ( ! current_user_can( 'read_post', (int) $object->ID ) ) {
+				continue;
+			}
+
+			$readable[] = $object;
+		}
+
+		return $readable;
+	}
+
 	public static function searchForObjects( $request ) {
 		$body       = $request->get_json_params();
 		$searchTerm = ! empty( $body['query'] ) ? sanitize_text_field( $body['query'] ) : null;
@@ -45,9 +92,13 @@ class PostsTerms {
 				->whereIn( 'post_type', $postTypes )
 				->whereIn( 'post_status', [ 'publish', 'draft', 'future', 'pending' ] )
 				->orderBy( 'post_title' )
-				->limit( 10 )
+				// Read wider than the ten that come back, because the ones this person may not see are
+				// dropped below and the list should still fill up.
+				->limit( self::SEARCH_WINDOW )
 				->run()
 				->result();
+
+			$objects = self::readableOnly( $objects );
 		}
 
 		if ( empty( $objects ) ) {

@@ -66,7 +66,7 @@ class Cache {
 	 * @return void
 	 */
 	public function checkIfTableExists() {
-		if ( ! aioseoBrokenLinkChecker()->core->db->tableExists( $this->table ) ) {
+		if ( ! aioseoBrokenLinkChecker()->core->db->noConflict()->tableExists( $this->table ) ) {
 			aioseoBrokenLinkChecker()->preUpdates->createCacheTable();
 		}
 
@@ -91,8 +91,9 @@ class Cache {
 		$isLikeGet = preg_match( '/%/', (string) $key );
 
 		// Check static cache first (only for non-LIKE queries)
-		if ( ! $isLikeGet && isset( self::$cache[ $key ] ) ) {
-			return self::$cache[ $key ];
+		$staticKey = $this->staticKey( $key );
+		if ( ! $isLikeGet && isset( self::$cache[ $staticKey ] ) ) {
+			return self::$cache[ $staticKey ];
 		}
 
 		// Check if we should use transients
@@ -104,13 +105,13 @@ class Cache {
 
 			$value = $this->getTransient( $key );
 			if ( null !== $value ) {
-				self::$cache[ $key ] = $value;
+				self::$cache[ $staticKey ] = $value;
 			}
 
 			return $value;
 		}
 
-		$result = aioseoBrokenLinkChecker()->core->db
+		$result = aioseoBrokenLinkChecker()->core->db->noConflict()
 			->start( $this->table )
 			->select( '`name`, `value`, `is_object`' )
 			->whereRaw( '( `expiration` IS NULL OR `expiration` > \'' . aioseoBrokenLinkChecker()->helpers->timeToMysql( time() ) . '\' )' );
@@ -145,9 +146,9 @@ class Cache {
 			return $values;
 		}
 
-		self::$cache[ $key ] = $values;
+		self::$cache[ $staticKey ] = $values;
 
-		return self::$cache[ $key ];
+		return self::$cache[ $staticKey ];
 	}
 
 	/**
@@ -191,7 +192,7 @@ class Cache {
 			return;
 		}
 
-		aioseoBrokenLinkChecker()->core->db->insert( $this->table )
+		aioseoBrokenLinkChecker()->core->db->noConflict()->insert( $this->table )
 			->set( [
 				'name'       => $this->prepareKey( $key ),
 				'value'      => $jsonValue,
@@ -229,7 +230,7 @@ class Cache {
 			return;
 		}
 
-		aioseoBrokenLinkChecker()->core->db->delete( $this->table )
+		aioseoBrokenLinkChecker()->core->db->noConflict()->delete( $this->table )
 			->where( 'name', $key )
 			->run();
 
@@ -275,7 +276,7 @@ class Cache {
 			$this->deleteAllTransients();
 			$this->clearStatic();
 		} else {
-			aioseoBrokenLinkChecker()->core->db->truncate( $this->table )->run();
+			aioseoBrokenLinkChecker()->core->db->noConflict()->truncate( $this->table )->run();
 
 			$this->clearStatic();
 		}
@@ -306,11 +307,42 @@ class Cache {
 			return;
 		}
 
-		aioseoBrokenLinkChecker()->core->db->delete( $this->table )
+		aioseoBrokenLinkChecker()->core->db->noConflict()->delete( $this->table )
 			->whereLike( 'name', $prefix . '%', true )
 			->run();
 
 		$this->clearStaticPrefix( $prefix );
+	}
+
+	/**
+	 * Returns the in-memory key for a cache key, scoped to the site it was read for.
+	 *
+	 * NOTE: The row in the database is deliberately shared - a network-wide value lives in the main
+	 * site's table and is read from every site by switching to it. The in-memory copy is not shared,
+	 * because it is keyed by name alone: a value read on one site was being handed back on another,
+	 * and switching to the main site could not help once the memo had already answered.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $key The prepared cache key.
+	 * @return string      The key to memoise it under.
+	 */
+	private function staticKey( $key ) {
+		return is_multisite() ? get_current_blog_id() . '|' . $key : $key;
+	}
+
+	/**
+	 * Returns an in-memory key with its site scope removed, for comparing against a plain prefix.
+	 *
+	 * @since 1.3.1
+	 *
+	 * @param  string $staticKey The in-memory key.
+	 * @return string            The cache key it holds.
+	 */
+	private function staticKeyName( $staticKey ) {
+		$separator = strpos( (string) $staticKey, '|' );
+
+		return false === $separator ? (string) $staticKey : substr( (string) $staticKey, $separator + 1 );
 	}
 
 	/**
@@ -324,7 +356,7 @@ class Cache {
 	private function clearStaticPrefix( $prefix ) {
 		$prefix = $this->prepareKey( $prefix );
 		foreach ( array_keys( self::$cache ) as $key ) {
-			if ( 0 === strpos( $key, $prefix ) ) {
+			if ( 0 === strpos( $this->staticKeyName( $key ), $prefix ) ) {
 				unset( self::$cache[ $key ] );
 			}
 		}
@@ -345,7 +377,7 @@ class Cache {
 			return;
 		}
 
-		unset( self::$cache[ $this->prepareKey( $key ) ] );
+		unset( self::$cache[ $this->staticKey( $this->prepareKey( $key ) ) ] );
 	}
 
 	/**
@@ -364,7 +396,7 @@ class Cache {
 			return;
 		}
 
-		self::$cache[ $this->prepareKey( $key ) ] = $value;
+		self::$cache[ $this->staticKey( $this->prepareKey( $key ) ) ] = $value;
 	}
 
 	/**
@@ -481,6 +513,7 @@ class Cache {
 		$transientPattern = $this->getTransientName( $pattern );
 
 		// Query for non-expired transients matching the pattern
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT REPLACE(option_name, '_transient_', '') as `key`, option_value as `value`
@@ -500,6 +533,7 @@ class Cache {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( empty( $results ) ) {
 			return null;
@@ -599,6 +633,7 @@ class Cache {
 		$escapedPrefix = $wpdb->esc_like( $this->getTransientName( $prefix ) );
 
 		// Delete both the transient and its timeout
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options}
@@ -608,6 +643,7 @@ class Cache {
 				'_transient_timeout_' . $escapedPrefix . '%'
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
@@ -623,6 +659,7 @@ class Cache {
 		$prefix = 'aioseo_blc_cache_%';
 
 		// Delete both transients and their timeouts
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options}
@@ -632,5 +669,6 @@ class Cache {
 				'_transient_timeout_' . $wpdb->esc_like( $prefix )
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 }

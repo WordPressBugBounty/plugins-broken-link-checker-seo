@@ -182,16 +182,18 @@ class ActionScheduler {
 	 * Schedules a single action at a specific time in the future.
 	 * @NOTE: This method differs from the one in the main plugin!
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
+	 * @version 1.3.1 Added the $forceSchedule parameter.
 	 *
-	 * @param  string  $actionName The action name.
-	 * @param  int     $time       The time to add to the current time.
-	 * @param  array   $args       Args passed down to the action.
-	 * @return boolean             Whether the action was scheduled.
+	 * @param  string  $actionName    The action name.
+	 * @param  int     $time          The time to add to the current time.
+	 * @param  array   $args          Args passed down to the action.
+	 * @param  bool    $forceSchedule Whether we should schedule a new action regardless of whether one is already set.
+	 * @return boolean                Whether the action was scheduled.
 	 */
-	public function scheduleSingle( $actionName, $time, $args = [] ) {
+	public function scheduleSingle( $actionName, $time, $args = [], $forceSchedule = false ) {
 		try {
-			if ( empty( $this->getPendingActions( $actionName, $args ) ) ) {
+			if ( $forceSchedule || empty( $this->getPendingActions( $actionName, $args ) ) ) {
 				\as_schedule_single_action( time() + $time, $actionName, $args, $this->actionSchedulerGroup );
 
 				return true;
